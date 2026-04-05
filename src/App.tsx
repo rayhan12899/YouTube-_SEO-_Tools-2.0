@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Youtube, 
@@ -440,6 +440,34 @@ export default function App() {
   const currentSelectedMedia = selectedMedia[currentView];
   const acceptType = currentView === 'video' ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
 
+  const filteredSuggestions = useMemo(() => {
+    const query = currentTopic.trim().toLowerCase();
+    const suggestions: { text: string, icon: string, isTrending: boolean }[] = [];
+    
+    // Add matching trending topics
+    trendingTopics.forEach(t => {
+      if (!query || t.topic.toLowerCase().includes(query)) {
+        suggestions.push({ text: t.topic, icon: '🔥', isTrending: true });
+      }
+    });
+    
+    // Add matching popular topics
+    POPULAR_TOPICS.forEach(t => {
+      const text = uiLang === 'bn' ? t.bn : t.en;
+      if (!query || text.toLowerCase().includes(query)) {
+        suggestions.push({ text, icon: t.icon, isTrending: false });
+      }
+    });
+    
+    // Filter out exact matches to avoid showing suggestion for what's already typed
+    const filtered = suggestions.filter(s => s.text.toLowerCase() !== query);
+    
+    // Remove duplicates based on text
+    const unique = Array.from(new Map(filtered.map(item => [item.text, item])).values());
+    
+    return unique.slice(0, 8); // Limit to 8 suggestions
+  }, [currentTopic, trendingTopics, uiLang]);
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     const savedHistory = localStorage.getItem('yt_gen_history');
@@ -558,7 +586,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (currentView === 'idea' && trendingTopics.length === 0) {
+    if (trendingTopics.length === 0) {
       const fetchTrends = async () => {
         setLoadingTrends(true);
         try {
@@ -572,7 +600,7 @@ export default function App() {
       };
       fetchTrends();
     }
-  }, [currentView, uiLang]);
+  }, [uiLang]);
 
   const saveToHistory = (topic: string, result: any, type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts') => {
     const newItem: HistoryItem = {
@@ -2305,35 +2333,29 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         }
                       }}
                     />
-                    {showAllTopics && (currentView === 'idea' || currentView === 'home') && (
-                      <div className="absolute z-10 w-full mt-1 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl shadow-xl overflow-hidden max-h-[200px] overflow-y-auto custom-scrollbar">
-                        {currentView === 'idea' ? (
-                          trendingTopics.map((trend, idx) => (
-                            <div 
-                              key={idx} 
-                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                              onClick={() => {
-                                setTopics(prev => ({ ...prev, [currentView]: trend.topic }));
-                                setShowAllTopics(false);
-                              }}
-                            >
-                              {trend.topic}
-                            </div>
-                          ))
-                        ) : (
-                          POPULAR_TOPICS.map((topic, idx) => (
-                            <div 
-                              key={idx} 
-                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)]"
-                              onClick={() => {
-                                setTopics(prev => ({ ...prev, [currentView]: uiLang === 'bn' ? topic.bn : topic.en }));
-                                setShowAllTopics(false);
-                              }}
-                            >
-                              {uiLang === 'bn' ? topic.bn : topic.en}
-                            </div>
-                          ))
-                        )}
+                    {showAllTopics && filteredSuggestions.length > 0 && (
+                      <div className="absolute z-10 w-full mt-2 bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden max-h-[280px] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
+                        <div className="p-2 text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold border-b border-[var(--border-main)]">
+                          {uiLang === 'en' ? "Suggestions" : "পরামর্শ"}
+                        </div>
+                        {filteredSuggestions.map((suggestion, idx) => (
+                          <div 
+                            key={idx} 
+                            className="p-3 hover:bg-[var(--border-main)] cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] flex items-center gap-3 transition-colors"
+                            onClick={() => {
+                              setTopics(prev => ({ ...prev, [currentView]: suggestion.text }));
+                              setShowAllTopics(false);
+                            }}
+                          >
+                            <span className="text-lg">{suggestion.icon}</span>
+                            <span className="flex-1 truncate">{suggestion.text}</span>
+                            {suggestion.isTrending && (
+                              <span className="text-[9px] uppercase tracking-wider bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full font-bold">
+                                {uiLang === 'en' ? "Trending" : "ট্রেন্ডিং"}
+                              </span>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -3629,320 +3651,318 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         ))}
                       </div>
                     ) : (
-    Object.entries(currentResult).map(([key, value]) => {
-      if (!value) return null;
-      
-      // Handle nested subtitles object
-      if (key === 'subtitles' && typeof value === 'object' && value !== null) {
-        return Object.entries(value).map(([langKey, langValue]) => {
-          const langNames: any = {
-            en: 'English',
-            bn: 'Bengali',
-            hi: 'Hindi',
-            es: 'Spanish',
-            fr: 'French'
-          };
-          const langName = langNames[langKey] || langKey;
-          
-          return (
-            <div key={`subtitle-${langKey}`} className="space-y-3 group">
-              <div className="flex items-center justify-between px-2">
-                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                    <Languages size={12} />
-                  </div>
-                  {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
-                </label>
-                <div className="flex gap-4">
-                  <button 
-                    onClick={() => {
-                      const blob = new Blob([String(langValue)], { type: 'text/plain' });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `subtitles_${langKey}.srt`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                    title="Download .srt"
-                  >
-                    <Download size={18} />
-                  </button>
-                  <button 
-                    onClick={() => copyToClipboard(String(langValue), `subtitle-${langKey}`)}
-                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                  >
-                    {copied === `subtitle-${langKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                  </button>
-                </div>
-              </div>
-              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
-                <TypewriterText text={String(langValue)} className="typewriter-text" />
-              </div>
-            </div>
-          );
-        });
-      }
-
-      // Handle nested metadata object from video analysis
-      if (key === 'metadata' && typeof value === 'object' && value !== null) {
-        return Object.entries(value).map(([mKey, mValue]) => {
-          const mLabelMap: any = {
-            title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
-            highCtrTitle: { label: t.highCtrTitle, icon: Zap },
-            thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
-            description: { label: t.seoDescription, icon: FileText },
-            tags: { label: t.tagsLabel, icon: Tag },
-            hashtags: { label: t.hashtags, icon: Hash },
-          };
-          const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
-          const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
-          
-          return (
-            <div key={`${key}-${mKey}`} className="space-y-3 group">
-              <div className="flex items-center justify-between px-2">
-                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                    <mConfig.icon size={12} />
-                  </div>
-                  {mConfig.label}
-                </label>
-                <button 
-                  onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                  className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                >
-                  {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                </button>
-              </div>
-              <div className="p-6 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-lg group-hover:border-brand-purple/20 transition-all duration-500">
-                <TypewriterText text={displayValue} className="typewriter-text" />
-              </div>
-            </div>
-          );
-        });
-      }
-
-      // Handle sceneBreakdown array
-      if (key === 'sceneBreakdown' && Array.isArray(value)) {
-        return (
-          <div key="scene-breakdown" className="space-y-6 mt-4">
-            <div className="flex items-center gap-3 pb-2 border-b border-brand-border">
-              <Film className="text-brand-orange" size={20} />
-              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-200">
-                {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
-              </h3>
-            </div>
-            <div className="space-y-4">
-              {value.map((scene: any, idx: number) => (
-                <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-black text-sm shadow-inner">
-                        {scene.scene || idx + 1}
-                      </div>
-                      <div className="flex items-center gap-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
-                        <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
-                      className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
-                    >
-                      {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
-                          <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
-                        </label>
-                        <div className="flex items-center gap-2">
-                          {sceneAudioUrls[`scene-${idx}`] ? (
-                            <audio 
-                              src={sceneAudioUrls[`scene-${idx}`]} 
-                              controls 
-                              className="h-7 w-36 custom-audio-mini"
-                            />
-                          ) : (
-                            <button
-                              onClick={() => handleSceneVoiceOver(idx, scene.script)}
-                              disabled={loadingSceneAudio === `scene-${idx}`}
-                              className={cn(
-                                "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
-                                loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
-                              )}
-                            >
-                              {loadingSceneAudio === `scene-${idx}` ? (
-                                <Loader2 size={12} className="animate-spin" />
-                              ) : (
-                                <Volume2 size={12} />
-                              )}
-                              {uiLang === 'en' ? "Voice" : "ভয়েস"}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-2xl border border-[var(--border-main)]/50">
-                        {scene.script}
-                      </p>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
-                        <Eye size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
-                      </label>
-                      <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-2xl border border-brand-purple/10">
-                        {scene.visual}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      const labelMap: any = {
-        summary: { label: uiLang === 'en' ? "Video Summary" : "ভিডিও সারাংশ", icon: FileText },
-        translatedText: { label: uiLang === 'en' ? "Translated Text" : "অনুবাদিত টেক্সট", icon: Languages },
-        imagePrompt: { label: t.imagePromptLabel, icon: ImageIcon },
-        videoPrompt: { label: t.videoPromptLabel, icon: Video },
-        thumbnailIdea: { label: t.thumbnailLabel, icon: ImageIcon },
-        description: { label: t.descLabel, icon: FileText },
-        tags: { label: t.tagsLabel, icon: Tag },
-        script: { label: t.scriptLabel, icon: ScrollText },
-        seoChecklist: { label: t.seoChecklistLabel, icon: Check },
-        keywords: { label: t.keywordsLabel, icon: Tag },
-        highCtrTitle: { label: t.highCtrTitle, icon: Zap },
-        thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
-        hashtags: { label: t.hashtags, icon: Hash },
-      };
-
-      return (
-        <div className="space-y-12">
-          {Object.entries(currentResult)
-            .filter(([key]) => !['imageUrl', 'audioUrl', 'prompts', 'ideas', 'scenes'].includes(key))
-            .map(([key, value]) => {
-              const config = labelMap[key] || { label: key, icon: Sparkles };
-              
-              return (
-                          <div key={key} className="space-y-3 group">
-                            <div className="flex items-center justify-between px-2">
-                              <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                                  <config.icon size={12} />
+                      <div className="space-y-12">
+                        {Object.entries(currentResult).map(([key, value]) => {
+                          if (!value) return null;
+                          
+                          // Handle nested subtitles object
+                          if (key === 'subtitles' && typeof value === 'object' && value !== null) {
+                            return Object.entries(value).map(([langKey, langValue]) => {
+                              const langNames: any = {
+                                en: 'English',
+                                bn: 'Bengali',
+                                hi: 'Hindi',
+                                es: 'Spanish',
+                                fr: 'French'
+                              };
+                              const langName = langNames[langKey] || langKey;
+                              
+                              return (
+                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
+                                  <div className="flex items-center justify-between px-2">
+                                    <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                        <Languages size={12} />
+                                      </div>
+                                      {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
+                                    </label>
+                                    <div className="flex gap-4">
+                                      <button 
+                                        onClick={() => {
+                                          const blob = new Blob([String(langValue)], { type: 'text/plain' });
+                                          const url = URL.createObjectURL(blob);
+                                          const a = document.createElement('a');
+                                          a.href = url;
+                                          a.download = `subtitles_${langKey}.srt`;
+                                          a.click();
+                                          URL.revokeObjectURL(url);
+                                        }}
+                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        title="Download .srt"
+                                      >
+                                        <Download size={18} />
+                                      </button>
+                                      <button 
+                                        onClick={() => copyToClipboard(String(langValue), `subtitle-${langKey}`)}
+                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                      >
+                                        {copied === `subtitle-${langKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
+                                    <TypewriterText text={String(langValue)} className="typewriter-text" />
+                                  </div>
                                 </div>
-                                {config.label}
-                              </label>
-                              <div className="flex gap-4">
-                                {key === 'script' && (
-                                  <div className="flex gap-3 items-center">
+                              );
+                            });
+                          }
+
+                          // Handle nested metadata object from video analysis
+                          if (key === 'metadata' && typeof value === 'object' && value !== null) {
+                            return Object.entries(value).map(([mKey, mValue]) => {
+                              const mLabelMap: any = {
+                                title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
+                                highCtrTitle: { label: t.highCtrTitle, icon: Zap },
+                                thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
+                                description: { label: t.seoDescription, icon: FileText },
+                                tags: { label: t.tagsLabel, icon: Tag },
+                                hashtags: { label: t.hashtags, icon: Hash },
+                              };
+                              const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
+                              const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
+                              
+                              return (
+                                <div key={`${key}-${mKey}`} className="space-y-3 group">
+                                  <div className="flex items-center justify-between px-2">
+                                    <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                        <mConfig.icon size={12} />
+                                      </div>
+                                      {mConfig.label}
+                                    </label>
                                     <button 
-                                      onClick={() => shareScript('facebook', String(value))}
-                                      className="text-[var(--text-muted)] hover:text-[#1877F2] transition-all hover:scale-110"
-                                      title="Share on Facebook"
-                                    >
-                                      <Facebook size={18} />
-                                    </button>
-                                    <button 
-                                      onClick={() => shareScript('twitter', String(value))}
-                                      className="text-[var(--text-muted)] hover:text-[#1DA1F2] transition-all hover:scale-110"
-                                      title="Share on Twitter"
-                                    >
-                                      <Twitter size={18} />
-                                    </button>
-                                    <button 
-                                      onClick={() => shareScript('whatsapp', String(value))}
-                                      className="text-[var(--text-muted)] hover:text-[#25D366] transition-all hover:scale-110"
-                                      title="Share on WhatsApp"
-                                    >
-                                      <MessageCircle size={18} />
-                                    </button>
-                                    <button 
-                                      onClick={() => shareScript('native', String(value))}
+                                      onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
                                       className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                                      title="Share"
                                     >
-                                      <Share2 size={18} />
-                                    </button>
-                                    <button 
-                                      onClick={downloadPdf}
-                                      className="text-[var(--text-muted)] hover:text-indigo-400 transition-all hover:scale-110"
-                                      title="Download PDF"
-                                    >
-                                      <Download size={18} />
+                                      {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                     </button>
                                   </div>
+                                  <div className="p-6 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-lg group-hover:border-brand-purple/20 transition-all duration-500">
+                                    <TypewriterText text={displayValue} className="typewriter-text" />
+                                  </div>
+                                </div>
+                              );
+                            });
+                          }
+
+                          // Handle sceneBreakdown array
+                          if (key === 'sceneBreakdown' && Array.isArray(value)) {
+                            return (
+                              <div key="scene-breakdown" className="space-y-6 mt-4">
+                                <div className="flex items-center gap-3 pb-2 border-b border-brand-border">
+                                  <Film className="text-brand-orange" size={20} />
+                                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-200">
+                                    {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
+                                  </h3>
+                                </div>
+                                <div className="space-y-4">
+                                  {value.map((scene: any, idx: number) => (
+                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-black text-sm shadow-inner">
+                                            {scene.scene || idx + 1}
+                                          </div>
+                                          <div className="flex items-center gap-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
+                                            <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
+                                          </div>
+                                        </div>
+                                        <button 
+                                          onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
+                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                        >
+                                          {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                        </button>
+                                      </div>
+                                      
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-3">
+                                          <div className="flex items-center justify-between">
+                                            <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                                              <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                              {sceneAudioUrls[`scene-${idx}`] ? (
+                                                <audio 
+                                                  src={sceneAudioUrls[`scene-${idx}`]} 
+                                                  controls 
+                                                  className="h-7 w-36 custom-audio-mini"
+                                                />
+                                              ) : (
+                                                <button
+                                                  onClick={() => handleSceneVoiceOver(idx, scene.script)}
+                                                  disabled={loadingSceneAudio === `scene-${idx}`}
+                                                  className={cn(
+                                                    "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
+                                                    loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
+                                                  )}
+                                                >
+                                                  {loadingSceneAudio === `scene-${idx}` ? (
+                                                    <Loader2 size={12} className="animate-spin" />
+                                                  ) : (
+                                                    <Volume2 size={12} />
+                                                  )}
+                                                  {uiLang === 'en' ? "Voice" : "ভয়েস"}
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-2xl border border-[var(--border-main)]/50">
+                                            {scene.script}
+                                          </p>
+                                        </div>
+                                        <div className="space-y-3">
+                                          <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                                            <Eye size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
+                                          </label>
+                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-2xl border border-brand-purple/10">
+                                            {scene.visual}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (['imageUrl', 'audioUrl', 'prompts', 'ideas', 'scenes'].includes(key)) {
+                            return null;
+                          }
+
+                          const labelMap: any = {
+                            summary: { label: uiLang === 'en' ? "Video Summary" : "ভিডিও সারাংশ", icon: FileText },
+                            translatedText: { label: uiLang === 'en' ? "Translated Text" : "অনুবাদিত টেক্সট", icon: Languages },
+                            imagePrompt: { label: t.imagePromptLabel, icon: ImageIcon },
+                            videoPrompt: { label: t.videoPromptLabel, icon: Video },
+                            thumbnailIdea: { label: t.thumbnailLabel, icon: ImageIcon },
+                            description: { label: t.descLabel, icon: FileText },
+                            tags: { label: t.tagsLabel, icon: Tag },
+                            script: { label: t.scriptLabel, icon: ScrollText },
+                            seoChecklist: { label: t.seoChecklistLabel, icon: Check },
+                            keywords: { label: t.keywordsLabel, icon: Tag },
+                            highCtrTitle: { label: t.highCtrTitle, icon: Zap },
+                            thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
+                            hashtags: { label: t.hashtags, icon: Hash },
+                          };
+
+                          const config = labelMap[key] || { label: key, icon: Sparkles };
+                          
+                          return (
+                            <div key={key} className="space-y-3 group">
+                              <div className="flex items-center justify-between px-2">
+                                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                    <config.icon size={12} />
+                                  </div>
+                                  {config.label}
+                                </label>
+                                <div className="flex gap-4">
+                                  {key === 'script' && (
+                                    <div className="flex gap-3 items-center">
+                                      <button 
+                                        onClick={() => shareScript('facebook', String(value))}
+                                        className="text-[var(--text-muted)] hover:text-[#1877F2] transition-all hover:scale-110"
+                                        title="Share on Facebook"
+                                      >
+                                        <Facebook size={18} />
+                                      </button>
+                                      <button 
+                                        onClick={() => shareScript('twitter', String(value))}
+                                        className="text-[var(--text-muted)] hover:text-[#1DA1F2] transition-all hover:scale-110"
+                                        title="Share on Twitter"
+                                      >
+                                        <Twitter size={18} />
+                                      </button>
+                                      <button 
+                                        onClick={() => shareScript('whatsapp', String(value))}
+                                        className="text-[var(--text-muted)] hover:text-[#25D366] transition-all hover:scale-110"
+                                        title="Share on WhatsApp"
+                                      >
+                                        <MessageCircle size={18} />
+                                      </button>
+                                      <button 
+                                        onClick={() => shareScript('native', String(value))}
+                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        title="Share"
+                                      >
+                                        <Share2 size={18} />
+                                      </button>
+                                      <button 
+                                        onClick={downloadPdf}
+                                        className="text-[var(--text-muted)] hover:text-indigo-400 transition-all hover:scale-110"
+                                        title="Download PDF"
+                                      >
+                                        <Download size={18} />
+                                      </button>
+                                    </div>
+                                  )}
+                                  <button 
+                                    onClick={() => {
+                                      if (key === 'keywords' && Array.isArray(value)) {
+                                        const text = value.map((kw: any) => `${kw.keyword} (Vol: ${kw.searchVolume}, Comp: ${kw.competition})`).join('\n');
+                                        copyToClipboard(text, key);
+                                      } else {
+                                        copyToClipboard(String(value), key);
+                                      }
+                                    }}
+                                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                  >
+                                    {copied === key ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
+                                {key === 'keywords' && Array.isArray(value) ? (
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead>
+                                        <tr className="border-b border-[var(--border-main)]">
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Keyword</th>
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Volume</th>
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Competition</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {value.map((kw: any, i: number) => (
+                                          <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-brand-purple/5 transition-colors">
+                                            <td className="py-3 px-4 font-bold text-brand-purple">{kw.keyword}</td>
+                                            <td className="py-3 px-4">
+                                              <span className={cn(
+                                                "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                                kw.searchVolume === 'High' ? "bg-green-500/20 text-green-500" :
+                                                kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
+                                                "bg-blue-500/20 text-blue-500"
+                                              )}>
+                                                {kw.searchVolume}
+                                              </span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                              <span className={cn(
+                                                "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                                kw.competition === 'Low' ? "bg-green-500/20 text-green-500" :
+                                                kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
+                                                "bg-red-500/20 text-red-500"
+                                              )}>
+                                                {kw.competition}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                ) : (
+                                  <TypewriterText text={String(value)} className="typewriter-text" />
                                 )}
-                                <button 
-                                  onClick={() => {
-                                    if (key === 'keywords' && Array.isArray(value)) {
-                                      const text = value.map((kw: any) => `${kw.keyword} (Vol: ${kw.searchVolume}, Comp: ${kw.competition})`).join('\n');
-                                      copyToClipboard(text, key);
-                                    } else {
-                                      copyToClipboard(String(value), key);
-                                    }
-                                  }}
-                                  className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                                >
-                                  {copied === key ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                                </button>
                               </div>
                             </div>
-                            <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
-                              {key === 'keywords' && Array.isArray(value) ? (
-                                <div className="overflow-x-auto">
-                                  <table className="w-full text-left border-collapse">
-                                    <thead>
-                                      <tr className="border-b border-[var(--border-main)]">
-                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Keyword</th>
-                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Volume</th>
-                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Competition</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {value.map((kw: any, i: number) => (
-                                        <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-brand-purple/5 transition-colors">
-                                          <td className="py-3 px-4 font-bold text-brand-purple">{kw.keyword}</td>
-                                          <td className="py-3 px-4">
-                                            <span className={cn(
-                                              "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
-                                              kw.searchVolume === 'High' ? "bg-green-500/20 text-green-500" :
-                                              kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
-                                              "bg-blue-500/20 text-blue-500"
-                                            )}>
-                                              {kw.searchVolume}
-                                            </span>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className={cn(
-                                              "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
-                                              kw.competition === 'Low' ? "bg-green-500/20 text-green-500" :
-                                              kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
-                                              "bg-red-500/20 text-red-500"
-                                            )}>
-                                              {kw.competition}
-                                            </span>
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              ) : (
-                                <TypewriterText text={String(value)} className="typewriter-text" />
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                )
-              })
-            )}
+                          );
+                        })}
+                      </div>
+                    )}
           </motion.div>
         )}
                 
