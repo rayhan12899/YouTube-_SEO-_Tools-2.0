@@ -3524,28 +3524,35 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {currentView === 'shorts' && (
                     <div className="space-y-6">
                       <div className="space-y-3">
-                        <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                          <Clock size={14} /> {t.videoDuration}
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[15, 30, 60].map((dur) => (
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              key={dur}
-                              onClick={() => setOptions(prev => ({ 
-                                ...prev, 
-                                videoDuration: dur,
-                                scriptWordCount: Math.round((dur / 60) * 160)
-                              }))}
-                              className={cn(
-                                "py-2 rounded-xl border border-brand-border text-sm transition-all",
-                                options.videoDuration === dur ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-black/20 text-slate-400"
-                              )}
-                            >
-                              {dur}s
-                            </motion.button>
-                          ))}
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                            <Clock size={14} /> {t.videoDuration}
+                          </label>
+                          <span className="text-brand-orange font-bold text-sm">
+                            {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
+                          </span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="8" 
+                          max="1200" 
+                          step="1"
+                          value={options.videoDuration}
+                          onChange={(e) => {
+                            const duration = parseInt(e.target.value);
+                            // Calculate characters based on ~15 chars per second (rough estimate for speech)
+                            const chars = Math.min(20000, Math.max(100, Math.round(duration * 15)));
+                            setOptions(prev => ({ 
+                              ...prev, 
+                              videoDuration: duration,
+                              scriptCharacterCount: chars
+                            }));
+                          }}
+                          className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                          <span>8s</span>
+                          <span>20m</span>
                         </div>
                       </div>
 
@@ -3561,7 +3568,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <input 
                           type="range" 
                           min="100" 
-                          max="2000" 
+                          max="20000" 
                           step="50"
                           value={options.scriptCharacterCount}
                           onChange={(e) => setOptions(prev => ({ ...prev, scriptCharacterCount: parseInt(e.target.value) }))}
@@ -3569,7 +3576,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         />
                         <div className="flex justify-between text-[10px] text-slate-500 font-bold">
                           <span>100</span>
-                          <span>2000</span>
+                          <span>20000</span>
                         </div>
                       </div>
                     </div>
