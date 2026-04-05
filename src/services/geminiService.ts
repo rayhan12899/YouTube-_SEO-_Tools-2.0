@@ -480,7 +480,8 @@ export const generateVoiceOver = async (
 export const generateVoiceExtractor = async (
   audioData: string,
   mimeType: string,
-  targetLanguage: 'en' | 'bn' | 'hi'
+  targetLanguage: 'en' | 'bn' | 'hi',
+  instruction: string = ""
 ) => {
   if (isOffline) {
     return {
@@ -509,6 +510,7 @@ export const generateVoiceExtractor = async (
             },
             {
               text: `Analyze this audio/video file. First, transcribe and translate the spoken content into ${languageName} with 100% accuracy.
+              ${instruction ? `Additional Instructions: ${instruction}` : ""}
               Then, based on the translated text, generate:
               1. A comprehensive 'Summary' of the content.
               2. A complete professional YouTube 'Script'.
