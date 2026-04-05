@@ -325,11 +325,11 @@ export const generateContent = async (options: GenerationOptions) => {
               - Video Prompt: ${options.generateVideoPrompt} ${options.videoDuration ? `(Target duration: ${options.videoDuration} seconds. Provide a highly detailed, cinematic prompt for AI video generators like Sora, Kling, Runway, or Veo 3. 
                   CRITICAL: The video prompt MUST be broken down into SCENES that correspond EXACTLY to the script's scenes. For each scene in the script, provide a matching visual prompt.
                   Include specific details about:
-                  1. Camera Angles & Movements (e.g., low-angle tracking shot, slow pan, drone fly-through).
-                  2. Lighting & Atmosphere (e.g., cinematic neon lighting, golden hour, moody and atmospheric).
-                  3. Specific Visual Sequences (describe the exact action, pacing, and subject details).
-                  4. Ensure the prompt aligns with the target duration and word count (${options.scriptWordCount || 'N/A'} words) if applicable.
-                  5. Ensure the visual style is strictly ${options.visualStyle || 'cinematic'}.)` : ""}
+                  1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter' where appropriate.
+                  2. Lighting & Atmosphere: Incorporate "${options.mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                  3. Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${options.mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
+                  4. Pacing: Ensure the prompt aligns with the target duration and word count (${options.scriptWordCount || 'N/A'} words).
+                  5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.)` : ""}
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
               - Tags: ${options.generateTags}
@@ -692,6 +692,12 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               1. A comprehensive 'Summary' of what happens in the video.
               2. A detailed 'Image Prompt' for a YouTube thumbnail generator.
               3. A 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3).
+                 - CRITICAL: The video prompt MUST be broken down into SCENES.
+                 - Include specific details about:
+                   - Camera Angles & Movements: Incorporate "${cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter'.
+                   - Lighting & Atmosphere: Incorporate "${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                   - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
+                   - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' that matches the video's content.
               5. 'Metadata' including:
                  - 'title': A standard descriptive title.
@@ -764,7 +770,13 @@ export const generatePromptsFromImage = async (base64Image: string, mimeType: st
               text: `Analyze this image and generate:
               1. A comprehensive 'Summary' (detailed analysis) of what is in the image.
               2. A detailed 'Image Prompt' for an AI image generator.
-              3. A highly detailed 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3 with camera angles and lighting).
+              3. A highly detailed 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3).
+                 - CRITICAL: The video prompt MUST be broken down into SCENES.
+                 - Include specific details about:
+                   - Camera Angles & Movements: Incorporate "${cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter'.
+                   - Lighting & Atmosphere: Incorporate "${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                   - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
+                   - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' based on the visual elements of this image. 
               
               Ensure the visual style for both image and video prompts is strictly ${visualStyle}.

@@ -42,6 +42,7 @@ import {
   Share2,
   RefreshCw,
   Globe,
+  Key,
   User,
   Menu,
   X,
@@ -800,6 +801,97 @@ export default function App() {
   const [customDeepseekKey, setCustomDeepseekKey] = useState('');
   const [customPerplexityKey, setCustomPerplexityKey] = useState('');
   const [customGemmaKey, setCustomGemmaKey] = useState('');
+  const [testingConnection, setTestingConnection] = useState<Record<AIProvider, boolean>>({
+    gemini: false,
+    openai: false,
+    groq: false,
+    deepseek: false,
+    perplexity: false,
+    gemma: false
+  });
+  const [connectionStatus, setConnectionStatus] = useState<Record<AIProvider, 'connected' | 'disconnected' | 'testing' | 'error'>>({
+    gemini: customGeminiKey ? 'connected' : 'disconnected',
+    openai: customOpenaiKey ? 'connected' : 'disconnected',
+    groq: customGroqKey ? 'connected' : 'disconnected',
+    deepseek: customDeepseekKey ? 'connected' : 'disconnected',
+    perplexity: customPerplexityKey ? 'connected' : 'disconnected',
+    gemma: customGemmaKey ? 'connected' : 'disconnected'
+  });
+
+  const testConnection = async (provider: AIProvider) => {
+    const keyMap: Record<AIProvider, string> = {
+      gemini: customGeminiKey,
+      openai: customOpenaiKey,
+      groq: customGroqKey,
+      deepseek: customDeepseekKey,
+      perplexity: customPerplexityKey,
+      gemma: customGemmaKey
+    };
+
+    const key = keyMap[provider];
+    if (!key) {
+      toast.error(uiLang === 'en' ? `Please enter an API key for ${provider.toUpperCase()}` : `${provider.toUpperCase()} এর জন্য একটি এপিআই কী লিখুন`);
+      return;
+    }
+
+    setTestingConnection(prev => ({ ...prev, [provider]: true }));
+    setConnectionStatus(prev => ({ ...prev, [provider]: 'testing' }));
+
+    try {
+      // Minimal request to test connection
+      const { GoogleGenAI } = await import('@google/genai');
+      const OpenAI = (await import('openai')).default;
+
+      if (provider === 'gemini') {
+        const ai = new GoogleGenAI({ apiKey: key });
+        const response = await ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents: "hi",
+        });
+        if (response.text) {
+          setConnectionStatus(prev => ({ ...prev, [provider]: 'connected' }));
+          toast.success(uiLang === 'en' ? `Gemini Connected Successfully!` : `জেমিনি সফলভাবে কানেক্ট হয়েছে!`);
+        }
+      } else {
+        const baseURLs: Record<string, string | undefined> = {
+          groq: "https://api.groq.com/openai/v1",
+          deepseek: "https://api.deepseek.com",
+          perplexity: "https://api.perplexity.ai",
+          gemma: "https://api.groq.com/openai/v1"
+        };
+        const models: Record<string, string> = {
+          openai: "gpt-4o",
+          groq: "llama-3.3-70b-versatile",
+          deepseek: "deepseek-chat",
+          perplexity: "llama-3.1-sonar-large-128k-online",
+          gemma: "google/gemma-4-31B-it"
+        };
+
+        const client = new OpenAI({ 
+          apiKey: key, 
+          baseURL: baseURLs[provider],
+          dangerouslyAllowBrowser: true 
+        });
+
+        const response = await client.chat.completions.create({
+          model: models[provider],
+          messages: [{ role: "user", content: "hi" }],
+          max_tokens: 1
+        });
+
+        if (response.choices[0].message.content) {
+          setConnectionStatus(prev => ({ ...prev, [provider]: 'connected' }));
+          toast.success(uiLang === 'en' ? `${provider.toUpperCase()} Connected Successfully!` : `${provider.toUpperCase()} সফলভাবে কানেক্ট হয়েছে!`);
+        }
+      }
+    } catch (error) {
+      console.error(`Connection Test Error (${provider}):`, error);
+      setConnectionStatus(prev => ({ ...prev, [provider]: 'error' }));
+      toast.error(uiLang === 'en' ? `Failed to connect to ${provider.toUpperCase()}. Check your key.` : `${provider.toUpperCase()} কানেক্ট করতে ব্যর্থ হয়েছে। কী চেক করুন।`);
+    } finally {
+      setTestingConnection(prev => ({ ...prev, [provider]: false }));
+    }
+  };
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['subject', 'camera']);
   const [showAllTopics, setShowAllTopics] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -4347,153 +4439,102 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     </div>
 
-                    {/* AI Provider */}
-                    <div className="space-y-3">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black flex items-center gap-2">
-                        <Globe size={14} className="text-brand-orange" /> {uiLang === 'en' ? "AI Provider" : "AI প্রোভাইডার"}
-                      </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                        {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma'] as AIProvider[]).map((p) => (
-                          <button
-                            key={p}
-                            onClick={() => setAiProvider(p)}
-                            className={cn(
-                              "py-3.5 rounded-xl text-[9px] sm:text-[10px] font-bold uppercase tracking-tighter transition-all border",
-                              aiProvider === p 
-                                ? "bg-brand-orange/20 border-brand-orange text-brand-orange shadow-[0_0_15_rgba(242,125,38,0.2)]" 
-                                : "bg-white/5 border-brand-border text-slate-500 hover:bg-white/10"
-                            )}
-                          >
-                            {p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplex' : p === 'gemma' ? 'Gemma' : p}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <div className="space-y-6">
+                      {/* API Keys List */}
+                      <div className="space-y-4">
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black flex items-center gap-2">
+                          <Zap size={14} className="text-brand-orange" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
+                        </label>
+                        
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-brand-orange/20 scrollbar-track-transparent">
+                          {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma'] as AIProvider[]).map((p) => (
+                            <div key={p} className="p-4 rounded-2xl bg-black/40 border border-brand-border space-y-3 group hover:border-brand-orange/30 transition-all">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={cn(
+                                    "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black uppercase tracking-tighter",
+                                    aiProvider === p ? "bg-brand-orange text-white" : "bg-white/5 text-slate-500"
+                                  )}>
+                                    {p.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <h4 className="text-xs font-black text-slate-300 uppercase tracking-wider">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p}</h4>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <div className={cn(
+                                        "w-1.5 h-1.5 rounded-full",
+                                        connectionStatus[p] === 'connected' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : 
+                                        connectionStatus[p] === 'testing' ? "bg-blue-500 animate-pulse" :
+                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-slate-700"
+                                      )} />
+                                      <span className={cn(
+                                        "text-[9px] font-bold uppercase tracking-widest",
+                                        connectionStatus[p] === 'connected' ? "text-green-500" : 
+                                        connectionStatus[p] === 'testing' ? "text-blue-500" :
+                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-slate-500"
+                                      )}>
+                                        {connectionStatus[p]}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => testConnection(p)}
+                                    disabled={testingConnection[p]}
+                                    className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-orange hover:border-brand-orange/30 transition-all disabled:opacity-50"
+                                  >
+                                    {testingConnection[p] ? <RefreshCw size={10} className="animate-spin" /> : "Test"}
+                                  </button>
+                                  <button
+                                    onClick={() => setAiProvider(p)}
+                                    className={cn(
+                                      "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                                      aiProvider === p ? "bg-brand-orange text-white" : "bg-white/5 text-slate-500 hover:text-slate-300"
+                                    )}
+                                  >
+                                    {aiProvider === p ? "Active" : "Select"}
+                                  </button>
+                                </div>
+                              </div>
 
-                    {/* Model Info Card */}
-                    <AnimatePresence mode="wait">
-                      <motion.div 
-                        key={aiProvider}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        className="p-5 rounded-2xl bg-black/40 border border-brand-border space-y-5"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <h3 className="text-base font-black text-brand-orange tracking-tight">{MODEL_INFO[aiProvider].name}</h3>
-                          <span className="shrink-0 text-[10px] font-black px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/20 uppercase tracking-wider">
-                            {MODEL_INFO[aiProvider].pricing}
-                          </span>
+                              <div className="relative">
+                                <input 
+                                  type="password" 
+                                  placeholder={`${p.toUpperCase()} API Key...`}
+                                  className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none focus:border-brand-orange/50 transition-all"
+                                  value={
+                                    p === 'gemini' ? customGeminiKey : 
+                                    p === 'openai' ? customOpenaiKey : 
+                                    p === 'groq' ? customGroqKey :
+                                    p === 'deepseek' ? customDeepseekKey :
+                                    p === 'perplexity' ? customPerplexityKey :
+                                    customGemmaKey
+                                  }
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (p === 'gemini') setCustomGeminiKey(val);
+                                    else if (p === 'openai') setCustomOpenaiKey(val);
+                                    else if (p === 'groq') setCustomGroqKey(val);
+                                    else if (p === 'deepseek') setCustomDeepseekKey(val);
+                                    else if (p === 'perplexity') setCustomPerplexityKey(val);
+                                    else if (p === 'gemma') setCustomGemmaKey(val);
+                                    
+                                    // Reset status when key changes
+                                    setConnectionStatus(prev => ({ ...prev, [p]: val ? 'connected' : 'disconnected' }));
+                                  }}
+                                />
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700">
+                                  <Key size={12} />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                         
-                        <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                          {MODEL_INFO[aiProvider].description}
+                        <p className="text-[10px] text-slate-500 italic leading-relaxed px-1">
+                          {t.apiNote}
                         </p>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          <div className="space-y-3">
-                            <span className="text-[10px] uppercase tracking-widest text-green-500 font-black flex items-center gap-2">
-                              <CheckCircle2 size={12} /> Strengths
-                            </span>
-                            <ul className="text-[11px] text-slate-400 space-y-2">
-                              {MODEL_INFO[aiProvider].strengths.map((s, i) => (
-                                <li key={i} className="flex items-start gap-2.5">
-                                  <span className="mt-1.5 w-1 h-1 rounded-full bg-green-500 shrink-0" />
-                                  <span className="leading-tight">{s}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="space-y-3">
-                            <span className="text-[10px] uppercase tracking-widest text-red-500 font-black flex items-center gap-2">
-                              <X size={12} /> Weaknesses
-                            </span>
-                            <ul className="text-[11px] text-slate-400 space-y-2">
-                              {MODEL_INFO[aiProvider].weaknesses.map((w, i) => (
-                                <li key={i} className="flex items-start gap-2.5">
-                                  <span className="mt-1.5 w-1 h-1 rounded-full bg-red-500 shrink-0" />
-                                  <span className="leading-tight">{w}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-
-                        <div className="pt-4 border-t border-white/5">
-                          <span className="text-[10px] uppercase tracking-widest text-brand-orange font-black">Best For</span>
-                          <p className="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">
-                            {MODEL_INFO[aiProvider].useCases.join(", ")}
-                          </p>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-
-                    {/* API Key Input */}
-                    <div className="space-y-3">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black flex items-center gap-2">
-                        <Zap size={14} className="text-brand-orange" /> {aiProvider.toUpperCase()} {t.apiKeyLabel}
-                      </label>
-                      <div className="relative group">
-                        <input 
-                          type="password" 
-                          placeholder={`${aiProvider.toUpperCase()} API Key...`}
-                          className="w-full input-field pr-12 py-4 text-sm font-medium"
-                          value={
-                            aiProvider === 'gemini' ? customGeminiKey : 
-                            aiProvider === 'openai' ? customOpenaiKey : 
-                            aiProvider === 'groq' ? customGroqKey :
-                            aiProvider === 'deepseek' ? customDeepseekKey :
-                            aiProvider === 'perplexity' ? customPerplexityKey :
-                            customGemmaKey
-                          }
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (aiProvider === 'gemini') setCustomGeminiKey(val);
-                            else if (aiProvider === 'openai') setCustomOpenaiKey(val);
-                            else if (aiProvider === 'groq') setCustomGroqKey(val);
-                            else if (aiProvider === 'deepseek') setCustomDeepseekKey(val);
-                            else if (aiProvider === 'perplexity') setCustomPerplexityKey(val);
-                            else if (aiProvider === 'gemma') setCustomGemmaKey(val);
-                          }}
-                        />
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-brand-orange transition-colors">
-                          <Sparkles size={18} />
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-slate-500 italic leading-relaxed px-1">
-                        {t.apiNote}
-                      </p>
-                    </div>
-
-                    {/* API Status */}
-                    <div className="p-4 rounded-2xl bg-black/40 border border-brand-border flex items-center justify-between">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-wider">{t.apiStatus}</span>
-                      <div className="flex items-center gap-2">
-                        <div className={cn(
-                          "w-2 h-2 rounded-full animate-pulse",
-                          (aiProvider === 'gemini' ? customGeminiKey : 
-                           aiProvider === 'openai' ? customOpenaiKey : 
-                           aiProvider === 'groq' ? customGroqKey :
-                           aiProvider === 'deepseek' ? customDeepseekKey :
-                           aiProvider === 'perplexity' ? customPerplexityKey :
-                           customGemmaKey) ? "bg-green-500" : "bg-yellow-500"
-                        )} />
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-widest",
-                          (aiProvider === 'gemini' ? customGeminiKey : 
-                           aiProvider === 'openai' ? customOpenaiKey : 
-                           aiProvider === 'groq' ? customGroqKey :
-                           aiProvider === 'deepseek' ? customDeepseekKey :
-                           aiProvider === 'perplexity' ? customPerplexityKey :
-                           customGemmaKey) ? "text-green-400" : "text-yellow-400"
-                        )}>
-                          {(aiProvider === 'gemini' ? customGeminiKey : 
-                            aiProvider === 'openai' ? customOpenaiKey : 
-                            aiProvider === 'groq' ? customGroqKey :
-                            aiProvider === 'deepseek' ? customDeepseekKey :
-                            aiProvider === 'perplexity' ? customPerplexityKey :
-                            customGemmaKey) ? t.connected : t.disconnected}
-                        </span>
                       </div>
                     </div>
 
