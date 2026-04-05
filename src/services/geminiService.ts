@@ -213,86 +213,101 @@ const extractJson = (text: string) => {
 
     // Fallback: try to find the first '{' and search backwards for the matching '}'
     const firstBrace = cleanText.indexOf('{');
-    if (firstBrace !== -1) {
-      let lastBrace = cleanText.lastIndexOf('}');
-      while (lastBrace > firstBrace) {
-        try {
-          const candidate = cleanText.substring(firstBrace, lastBrace + 1);
-          return JSON.parse(candidate);
-        } catch (err) {
-          lastBrace = cleanText.lastIndexOf('}', lastBrace - 1);
-        }
-      }
-    }
-
-    // Final fallback: try to find the first '[' and search backwards for the matching ']'
     const firstBracket = cleanText.indexOf('[');
-    if (firstBracket !== -1) {
-      let lastBracket = cleanText.lastIndexOf(']');
-      while (lastBracket > firstBracket) {
+    
+    // Choose the one that appears first
+    const startIndex = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
+    const endChar = startIndex === firstBrace ? '}' : ']';
+
+    if (startIndex !== -1) {
+      let lastIndex = cleanText.lastIndexOf(endChar);
+      while (lastIndex > startIndex) {
         try {
-          const candidate = cleanText.substring(firstBracket, lastBracket + 1);
+          const candidate = cleanText.substring(startIndex, lastIndex + 1);
           return JSON.parse(candidate);
         } catch (err) {
-          lastBracket = cleanText.lastIndexOf(']', lastBracket - 1);
+          lastIndex = cleanText.lastIndexOf(endChar, lastIndex - 1);
         }
       }
     }
 
     console.error("Failed to parse JSON. Raw text:", text);
-    throw new Error("Could not parse JSON from response");
+    throw new Error("Could not parse JSON from response. Please try again.");
   }
 };
 
-// Generic function to call AI based on selected provider
-const callAI = async (prompt: string, responseMimeType: string = "text/plain") => {
+// Generic function to call AI based on selected provider with retry logic
+const callAI = async (prompt: string, responseMimeType: string = "text/plain", retries: number = 2) => {
   const provider = getProvider();
   
-  if (provider === 'gemini') {
-    const model = ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      config: { responseMimeType },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-    });
-    const result = await model;
-    return result.text;
-  } else {
-    let client: OpenAI | null = null;
-    let modelName = "";
+  const executeCall = async () => {
+    if (provider === 'gemini') {
+      const model = ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        config: { 
+          responseMimeType,
+          temperature: 0.7,
+          topP: 0.95,
+          topK: 40
+        },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+      });
+      const result = await model;
+      return result.text;
+    } else {
+      let client: OpenAI | null = null;
+      let modelName = "";
 
-    switch (provider) {
-      case 'openai':
-        client = openaiClient;
-        modelName = "gpt-4o";
-        break;
-      case 'groq':
-        client = groqClient;
-        modelName = "llama-3.3-70b-versatile";
-        break;
-      case 'deepseek':
-        client = deepseekClient;
-        modelName = "deepseek-chat";
-        break;
-      case 'perplexity':
-        client = perplexityClient;
-        modelName = "llama-3.1-sonar-large-128k-online";
-        break;
-      case 'gemma':
-        client = gemmaClient;
-        modelName = "google/gemma-4-31B-it";
-        break;
+      switch (provider) {
+        case 'openai':
+          client = openaiClient;
+          modelName = "gpt-4o";
+          break;
+        case 'groq':
+          client = groqClient;
+          modelName = "llama-3.3-70b-versatile";
+          break;
+        case 'deepseek':
+          client = deepseekClient;
+          modelName = "deepseek-chat";
+          break;
+        case 'perplexity':
+          client = perplexityClient;
+          modelName = "llama-3.1-sonar-large-128k-online";
+          break;
+        case 'gemma':
+          client = gemmaClient;
+          modelName = "google/gemma-4-31B-it";
+          break;
+      }
+
+      if (!client) throw new Error(`${provider} client not initialized. Please check your API key.`);
+      
+      const response = await client.chat.completions.create({
+        model: modelName,
+        messages: [{ role: "user", content: prompt }],
+        response_format: responseMimeType === "application/json" ? { type: "json_object" } : undefined,
+        temperature: 0.7,
+      });
+      
+      return response.choices[0].message.content || "";
     }
+  };
 
-    if (!client) throw new Error(`${provider} client not initialized. Please check your API key.`);
-    
-    const response = await client.chat.completions.create({
-      model: modelName,
-      messages: [{ role: "user", content: prompt }],
-      response_format: responseMimeType === "application/json" ? { type: "json_object" } : undefined,
-    });
-    
-    return response.choices[0].message.content || "";
+  let lastError;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await executeCall();
+    } catch (error) {
+      console.warn(`AI call failed (attempt ${i + 1}/${retries + 1}):`, error);
+      lastError = error;
+      if (i < retries) {
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+      }
+    }
   }
+  throw lastError;
 };
 
 export const generateContent = async (options: GenerationOptions) => {
@@ -356,7 +371,7 @@ export const generateContent = async (options: GenerationOptions) => {
               
               CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
               
-              Do not include any preamble, postamble, or explanation outside the JSON object.`;
+              Do not include any preamble, postamble, or explanation outside the JSON object. Ensure the JSON is valid and properly escaped.`;
 
     const text = await callAI(prompt, "application/json");
     return extractJson(text);

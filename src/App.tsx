@@ -63,13 +63,32 @@ import {
   Shield,
   Users,
   MessageSquare,
-  Eye
+  Eye,
+  Info,
+  CreditCard,
+  Instagram,
+  Save,
+  ArrowDownWideNarrow,
+  ArrowUpWideNarrow,
+  Lock
 } from 'lucide-react';
 import { APP_CONFIG } from './config';
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import { cn } from './lib/utils';
+import { translations } from './translations';
+import { 
+  POPULAR_TOPICS,
+  BEST_POSTING_TIMES, 
+  PLATFORMS, 
+  CONTENT_TYPES, 
+  TONES, 
+  VISUAL_STYLES, 
+  PROMPT_ELEMENTS, 
+  SCENE_PRESETS, 
+  MODEL_INFO 
+} from './constants';
 import { 
   generateContent, 
   generatePromptsFromImage, 
@@ -85,6 +104,26 @@ import {
   resetAIConfig
 } from './services/geminiService';
 
+const TypewriterText = ({ text, className }: { text: string, className?: string }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  useEffect(() => {
+    let i = 0;
+    setDisplayedText('');
+    const interval = setInterval(() => {
+      setDisplayedText(text.slice(0, i));
+      i++;
+      if (i > text.length) {
+        clearInterval(interval);
+      }
+    }, 10); // Adjust speed here
+    
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <span className={className}>{displayedText}</span>;
+};
+
 interface HistoryItem {
   id: string;
   timestamp: number;
@@ -95,637 +134,7 @@ interface HistoryItem {
 
 type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts';
 
-const translations = {
-  en: {
-    title: "YouTube AI Creator Studio",
-    subtitle: "Next-Gen AI | V3.0",
-    landing: "Landing",
-    home: "Home",
-    videoGen: "Script & Video Generator",
-    ideaGen: "Idea Generate",
-    imageGen: "Image Extractor",
-    voiceOver: "Voice Over",
-    shortsGen: "Shorts Generator",
-    voiceExtractor: "Voice/Video Extractor",
-    downloadReport: "Download",
-    dashboard: "Dashboard Overview",
-    youtubeToolset: "YouTube Toolset",
-    videoPrompter: "AI Script & Video Prompter",
-    shortsGenTitle: "AI YouTube Shorts Generator",
-    viralIdeas: "Viral Video Ideas",
-    imageGenerator: "AI Image Extractor & Analysis",
-    voiceOverTitle: "AI Voice Over",
-    voiceExtractorTitle: "AI Voice & Video Extractor",
-    promptGen: "Unique Prompt Generator",
-    promptGenPlaceholder: "Enter a topic to generate unique prompts (e.g. A futuristic city)",
-    history: "History",
-    getStarted: "Get Started",
-    heroTitle: "Create Viral Content with AI",
-    heroSubtitle: "The all-in-one platform for YouTube creators. Generate scripts, ideas, images, and voiceovers in seconds.",
-    features: "Features",
-    faq: "FAQ",
-    about: "About",
-    contact: "Contact",
-    videoDesc: "Video Description (Optional)",
-    nicheInput: "Enter your Niche or Keyword *",
-    imageInput: "Image Prompt *",
-    voiceInput: "Enter Voice Over Text *",
-    audioInput: "Upload Audio for Extraction *",
-    topicInput: "Video Topic for Script & Prompts *",
-    videoDescPlaceholder: "Give some instructions for the video...",
-    nichePlaceholder: "e.g., Technology, Cooking, Gaming...",
-    imagePlaceholder: "e.g., A futuristic city with neon lights...",
-    voicePlaceholder: "Text you want to convert to voice...",
-    audioPlaceholder: "Upload an audio file to extract script and prompts...",
-    topicPlaceholder: "e.g., Travel vlogs, Tech reviews, Cooking tips...",
-    uploadImage: "Upload Image",
-    uploadAudio: "Upload Audio/Video",
-    uploadPrompt: "Click here to generate prompt from image",
-    uploadAudioPrompt: "Click here to upload audio/video for extraction",
-    whatToCreate: "What should I create?",
-    imagePromptLabel: "AI Image Prompt",
-    videoPromptLabel: "AI Video Prompt (Sora/Kling/Runway/Veo3)",
-    thumbnailLabel: "Thumbnail Idea",
-    descLabel: "Video Description",
-    tagsLabel: "SEO Tags",
-    scriptLabel: "Full YouTube Script",
-    seoChecklistLabel: "YouTube SEO Checklist",
-    keywordsLabel: "Keyword Research Tool",
-    imagePromptDesc: "Create high-quality prompts for AI image generators.",
-    videoPromptDesc: "Detailed prompts for Sora, Kling, Runway, and Veo3.",
-    thumbnailDesc: "Creative and catchy thumbnail concepts for your video.",
-    descriptionDesc: "SEO-optimized video descriptions to boost visibility.",
-    tagsDesc: "The most relevant SEO tags for your YouTube content.",
-    scriptDesc: "Full professional YouTube scripts with scene details.",
-    seoChecklistDesc: "A step-by-step guide to optimize your video for search.",
-    keywordsDesc: "Find high-volume, low-competition keywords for your niche.",
-    highCtrTitle: "High CTR Title",
-    thumbnailTitle: "Thumbnail Title",
-    hashtags: "Hashtags",
-    seoDescription: "SEO Description",
-    selectLanguage: "Select Output Language",
-    targetLanguage: "Target Language",
-    bn: "Bengali",
-    en: "English",
-    hi: "Hindi",
-    both: "Both",
-    processing: "AI is processing...",
-    genPrompt: "Generate Full Script & Prompts",
-    genIdea: "Generate Ideas",
-    genImage: "Generate Image",
-    genVoice: "Generate Voice",
-    genVoiceExtractor: "Extract & Generate",
-    recentHistory: "Recent History",
-    noHistory: "No history found",
-    outputPreview: "Output Preview",
-    emptyPreview: "Enter a topic and click generate or upload an image/audio.",
-    voiceLang: "Voice Language",
-    selectVoice: "Select Voice",
-    femaleVoices: "Female Voices",
-    maleVoices: "Male Voices",
-    downloadAudio: "Download Audio",
-    generatedImage: "AI Generated Image (16:9)",
-    readyToCreate: "Ready to create?",
-    readySubtitle: "Choose a tool from the menu or enter a topic to start your viral journey.",
-    activeModel: "Active Model",
-    totalHistory: "Total History",
-    currentView: "Current View",
-    language: "Language",
-    quickTools: "Quick Tools",
-    viralScript: "Viral Script",
-    seoTags: "SEO Tags",
-    aiVideo: "AI Video",
-    dashboardOverview: "Dashboard Overview",
-    copy: "Copy",
-    copied: "Copied!",
-    copyAll: "Copy All",
-    clearHistory: "Clear History",
-    failed: "Generation failed. Please check your API key.",
-    noContent: "No content found to download!",
-    enterNiche: "Please enter your niche or keyword.",
-    enterImage: "Please enter image prompt.",
-    enterVoice: "Please enter voice over text.",
-    voiceNote: "Note: The AI will speak in the language of the text provided.",
-    ideaGenHistory: "Idea Gen",
-    imageGenHistory: "Image Gen",
-    voiceGenHistory: "Voice Gen",
-    imageAnalysis: "Image Analysis",
-    trendingNow: "Trending Now (This Week)",
-    loadingTrends: "Analyzing global trends...",
-    clickToUse: "Click to use as topic",
-    popularCategories: "Popular Categories (24 Topics)",
-    videoDuration: "Video Duration",
-    scriptWords: "Script Word Count",
-    scriptCharacters: "Character Limit",
-    charLimit: "Characters",
-    seconds: "Seconds",
-    words: "Words",
-    refresh: "Refresh",
-    showMore: "Show More",
-    showLess: "Show Less",
-    bestPostingTime: "Best Posting Time",
-    productTopic: "Content Topic",
-    businessType: "Channel Niche",
-    platform: "Platform",
-    contentType: "Content Type",
-    toneMood: "Tone / Mood",
-    visualStyle: "Visual Style",
-    styleCinematic: "Cinematic",
-    stylePhotorealistic: "Photorealistic",
-    styleIllustrative: "Illustrative",
-    styleAnime: "Anime",
-    style3dRender: "3D Render",
-    shorts: "Shorts Script",
-    description: "Video Description",
-    titleIdea: "Title Idea",
-    thumbnail: "Thumbnail Concept",
-    fullScript: "Full Video Script",
-    professional: "Professional",
-    funny: "Funny",
-    emotional: "Emotional",
-    urgent: "Urgent",
-    morning: "Morning",
-    afternoon: "Afternoon",
-    evening: "Evening",
-    night: "Night",
-    allPlatforms: "All Platforms",
-    voiceTone: "Voice Tone",
-    voiceAccent: "Accent",
-    voiceAge: "Age",
-    toneExcited: "Excited",
-    toneCalm: "Calm",
-    toneSerious: "Serious",
-    toneProfessional: "Professional",
-    toneStoryteller: "Storyteller",
-    accentUS: "US",
-    accentUK: "UK",
-    accentIndian: "Indian",
-    accentAustralian: "Australian",
-    ageYoung: "Young",
-    ageAdult: "Adult",
-    ageSenior: "Senior",
-    settings: "Settings",
-    apiKeyLabel: "Gemini API Key",
-    apiKeyPlaceholder: "Enter your Gemini API key...",
-    save: "Save",
-    apiStatus: "API Status",
-    connected: "Connected",
-    disconnected: "Disconnected (Offline Mode)",
-    apiNote: "Note: Your API key is stored locally in your browser and never sent to our servers.",
-    loadingSteps: [
-      "Analyzing your topic...",
-      "Researching viral trends...",
-      "Generating viral script...",
-      "Optimizing SEO metadata...",
-      "Crafting AI prompts...",
-      "Finalizing your content..."
-    ],
-  },
-  bn: {
-    title: "YouTube AI Creator Studio",
-    subtitle: "নেক্সট-জেন এআই | V3.0",
-    home: "হোম",
-    videoGen: "স্ক্রিপ্ট ও ভিডিও জেনারেটর",
-    ideaGen: "আইডিয়া জেনারেট",
-    imageGen: "ইমেজ এক্সট্র্যাক্টর",
-    voiceOver: "ভয়েস ওভার",
-    shortsGen: "শর্টস জেনারেটর",
-    voiceExtractor: "ভয়েস/ভিডিও এক্সট্র্যাক্টর",
-    downloadReport: "ডাউনলোড",
-    dashboard: "ড্যাশবোর্ড ওভারভিউ",
-    youtubeToolset: "ইউটিউব টুলসেট",
-    videoPrompter: "এআই স্ক্রিপ্ট ও ভিডিও প্রম্পটার",
-    shortsGenTitle: "এআই ইউটিউব শর্টস জেনারেটর",
-    viralIdeas: "ভাইরাল ভিডিও আইডিয়া",
-    imageGenerator: "এআই ইমেজ এক্সট্র্যাক্টর ও বিশ্লেষণ",
-    voiceOverTitle: "এআই ভয়েস ওভার",
-    voiceExtractorTitle: "এআই ভয়েস ও ভিডিও এক্সট্র্যাক্টর",
-    promptGen: "ইউনিক প্রম্পট জেনারেটর",
-    promptGenPlaceholder: "ইউনিক প্রম্পট তৈরি করতে একটি বিষয় লিখুন (যেমন: একটি ভবিষ্যতের শহর)",
-    history: "হিস্ট্রি",
-    landing: "ল্যান্ডিং",
-    getStarted: "শুরু করুন",
-    heroTitle: "AI দিয়ে ভাইরাল কন্টেন্ট তৈরি করুন",
-    heroSubtitle: "ইউটিউব ক্রিয়েটরদের জন্য অল-ইন-ওয়ান প্ল্যাটফর্ম। সেকেন্ডের মধ্যে স্ক্রিপ্ট, আইডিয়া, ছবি এবং ভয়েসওভার তৈরি করুন।",
-    features: "বৈশিষ্ট্য",
-    faq: "সাধারণ জিজ্ঞাসা",
-    about: "আমাদের সম্পর্কে",
-    contact: "যোগাযোগ",
-    videoDesc: "ভিডিওর বর্ণনা (ঐচ্ছিক)",
-    nicheInput: "আপনার নিস বা কি-ওয়ার্ড লিখুন *",
-    imageInput: "ইমেজ প্রম্পট *",
-    voiceInput: "ভয়েস ওভার টেক্সট লিখুন *",
-    audioInput: "এক্সট্র্যাক্ট করার জন্য অডিও আপলোড করুন *",
-    topicInput: "স্ক্রিপ্ট ও প্রম্পটের জন্য ভিডিওর বিষয় *",
-    videoDescPlaceholder: "ভিডিওর জন্য কিছু ইনস্ট্রাকশন দিন...",
-    nichePlaceholder: "যেমন: টেকনোলজি, কুকিং, গেমিং...",
-    imagePlaceholder: "যেমন: A futuristic city with neon lights...",
-    voicePlaceholder: "যে টেক্সটটি ভয়েস ওভারে রূপান্তর করতে চান...",
-    audioPlaceholder: "স্ক্রিপ্ট এবং প্রম্পট এক্সট্র্যাক্ট করতে একটি অডিও ফাইল আপলোড করুন...",
-    topicPlaceholder: "যেমন: বোরো ধান চাষের পদ্ধতি, টেক রিভিউ, গল্প বলা...",
-    uploadImage: "ইমেজ আপলোড করুন",
-    uploadAudio: "অডিও/ভিডিও আপলোড করুন",
-    uploadPrompt: "ইমেজ থেকে প্রম্পট তৈরি করতে এখানে ক্লিক করুন",
-    uploadAudioPrompt: "অডিও/ভিডিও আপলোড করে এক্সট্র্যাক্ট করতে এখানে ক্লিক করুন",
-    whatToCreate: "কি তৈরি করবো?",
-    imagePromptLabel: "এআই ইমেজ প্রম্পট",
-    videoPromptLabel: "এআই ভিডিও প্রম্পট (Sora/Kling/Runway/Veo3)",
-    thumbnailLabel: "থাম্বনেইল আইডিয়া",
-    descLabel: "ভিডিও বিবরণ",
-    tagsLabel: "এসইও ট্যাগ",
-    scriptLabel: "ফুল ইউটিউব স্ক্রিপ্ট",
-    seoChecklistLabel: "ইউটিউব এসইও চেকলিস্ট",
-    keywordsLabel: "কি-ওয়ার্ড রিসার্চ টুল",
-    imagePromptDesc: "এআই ইমেজ জেনারেটরের জন্য হাই-কোয়ালিটি প্রম্পট তৈরি করুন।",
-    videoPromptDesc: "Sora, Kling, Runway এবং Veo3 এর জন্য বিস্তারিত প্রম্পট।",
-    thumbnailDesc: "আপনার ভিডিওর জন্য আকর্ষণীয় থাম্বনেইল আইডিয়া।",
-    descriptionDesc: "ভিডিওর ভিউ বাড়াতে এসইও-অপ্টিমাইজড ডেসক্রিপশন।",
-    tagsDesc: "আপনার ইউটিউব কন্টেন্টের জন্য সবচেয়ে কার্যকর এসইও ট্যাগ।",
-    scriptDesc: "সীন ডিটেইলস সহ প্রফেশনাল ইউটিউব স্ক্রিপ্ট।",
-    seoChecklistDesc: "সার্চে ভিডিও র‍্যাঙ্ক করানোর জন্য স্টেপ-বাই-স্টেপ গাইড।",
-    keywordsDesc: "আপনার নিশের জন্য হাই-ভলিউম কিওয়ার্ড খুঁজে বের করুন।",
-    highCtrTitle: "হাই সিটিআর টাইটেল",
-    thumbnailTitle: "থাম্বনেইল টাইটেল",
-    hashtags: "হ্যাশট্যাগসমূহ",
-    seoDescription: "এসইও ডেসক্রিপশন",
-    selectLanguage: "ভাষা নির্বাচন করুন",
-    targetLanguage: "টার্গেট ভাষা",
-    bn: "বাংলা",
-    en: "English",
-    hi: "হিন্দি",
-    both: "উভয়",
-    processing: "AI প্রসেস করছে...",
-    genPrompt: "স্ক্রিপ্ট ও প্রম্পট জেনারেট করুন",
-    genIdea: "আইডিয়া জেনারেট করুন",
-    genImage: "ইমেজ জেনারেট করুন",
-    genVoice: "ভয়েস জেনারেট করুন",
-    genVoiceExtractor: "এক্সট্র্যাক্ট ও জেনারেট করুন",
-    recentHistory: "সাম্প্রতিক হিস্ট্রি",
-    noHistory: "কোন হিস্ট্রি পাওয়া যায়নি",
-    outputPreview: "আউটপুট প্রিভিউ",
-    emptyPreview: "টপিক লিখে জেনারেট বাটনে ক্লিক করুন অথবা ইমেজ/অডিও আপলোড করুন।",
-    voiceLang: "ভয়েস ল্যাঙ্গুয়েজ",
-    selectVoice: "ভয়েস নির্বাচন করুন",
-    femaleVoices: "নারী কণ্ঠ",
-    maleVoices: "পুরুষ কণ্ঠ",
-    downloadAudio: "অডিও ডাউনলোড",
-    generatedImage: "এআই জেনারেটেড ইমেজ (16:9)",
-    readyToCreate: "তৈরি করতে প্রস্তুত?",
-    readySubtitle: "মেনু থেকে একটি টুল বেছে নিন অথবা শুরু করতে একটি টপিক লিখুন।",
-    activeModel: "সক্রিয় মডেল",
-    totalHistory: "মোট হিস্ট্রি",
-    currentView: "বর্তমান ভিউ",
-    language: "ভাষা",
-    quickTools: "কুইক টুলস",
-    viralScript: "ভাইরাল স্ক্রিপ্ট",
-    seoTags: "এসইও ট্যাগ",
-    aiVideo: "এআই ভিডিও",
-    dashboardOverview: "ড্যাশবোর্ড ওভারভিউ",
-    copy: "কপি",
-    copied: "কপি হয়েছে!",
-    copyAll: "সব কপি করুন",
-    clearHistory: "হিস্ট্রি মুছুন",
-    failed: "জেনারেশন ব্যর্থ হয়েছে। দয়া করে আপনার API কী চেক করুন।",
-    noContent: "ডাউনলোড করার জন্য কোন কন্টেন্ট পাওয়া যায়নি!",
-    enterNiche: "দয়া করে আপনার নিস বা কি-ওয়ার্ড লিখুন।",
-    enterImage: "দয়া করে ইমেজ প্রম্পট লিখুন।",
-    enterVoice: "দয়া করে ভয়েস ওভার টেক্সট লিখুন।",
-    voiceNote: "দ্রষ্টব্য: আপনি যে ভাষায় টেক্সট দেবেন, এআই সেই ভাষায় কথা বলবে।",
-    ideaGenHistory: "আইডিয়া জেন",
-    imageGenHistory: "ইমেজ জেন",
-    voiceGenHistory: "ভয়েস জেন",
-    imageAnalysis: "ইমেজ অ্যানালাইসিস",
-    trendingNow: "এই সপ্তাহের ট্রেন্ডিং টপিক",
-    loadingTrends: "গ্লোবাল ট্রেন্ড অ্যানালাইসিস করা হচ্ছে...",
-    clickToUse: "টপিক হিসেবে ব্যবহার করতে ক্লিক করুন",
-    popularCategories: "জনপ্রিয় ২৪টি ক্যাটাগরি",
-    videoDuration: "ভিডিওর দৈর্ঘ্য",
-    scriptWords: "স্ক্রিপ্ট শব্দের সংখ্যা",
-    scriptCharacters: "অক্ষর সীমা",
-    charLimit: "অক্ষর",
-    seconds: "সেকেন্ড",
-    words: "শব্দ",
-    refresh: "রিফ্রেশ",
-    showMore: "আরো দেখুন",
-    showLess: "কম দেখুন",
-    bestPostingTime: "সেরা পোস্ট সময়",
-    productTopic: "কন্টেন্ট টপিক",
-    businessType: "চ্যানেল নিশ",
-    platform: "প্ল্যাটফর্ম",
-    contentType: "কনটেন্ট টাইপ",
-    toneMood: "টোন / মেজাজ",
-    visualStyle: "ভিজ্যুয়াল স্টাইল",
-    styleCinematic: "সিনেমাটিক",
-    stylePhotorealistic: "ফটোরিয়ালিস্টিক",
-    styleIllustrative: "ইলাস্ট্রেটিভ",
-    styleAnime: "অ্যানিমে",
-    style3dRender: "থ্রিডি রেন্ডার",
-    shorts: "শর্টস স্ক্রিপ্ট",
-    description: "ভিডিও ডেসক্রিপশন",
-    titleIdea: "টাইটেল আইডিয়া",
-    thumbnail: "থাম্বনেইল কনসেপ্ট",
-    fullScript: "ফুল ভিডিও স্ক্রিপ্ট",
-    professional: "প্রফেশনাল",
-    funny: "ফানি",
-    emotional: "ইমোশনাল",
-    urgent: "আর্জেন্ট",
-    morning: "সকাল",
-    afternoon: "দুপুর",
-    evening: "সন্ধ্যা",
-    night: "রাত",
-    allPlatforms: "সব প্ল্যাটফর্ম",
-    voiceTone: "ভয়েস টোন",
-    voiceAccent: "অ্যাকসেন্ট",
-    voiceAge: "বয়স",
-    toneExcited: "উত্তেজিত",
-    toneCalm: "শান্ত",
-    toneSerious: "গম্ভীর",
-    toneProfessional: "পেশাদার",
-    toneStoryteller: "গল্পকার",
-    accentUS: "ইউএস",
-    accentUK: "ইউকে",
-    accentIndian: "ইন্ডিয়ান",
-    accentAustralian: "অস্ট্রেলিয়ান",
-    ageYoung: "তরুণ",
-    ageAdult: "প্রাপ্তবয়স্ক",
-    ageSenior: "বয়স্ক",
-    settings: "সেটিংস",
-    apiKeyLabel: "জেমিনি API কী",
-    apiKeyPlaceholder: "আপনার জেমিনি API কী লিখুন...",
-    save: "সংরক্ষণ করুন",
-    apiStatus: "API স্ট্যাটাস",
-    connected: "সংযুক্ত",
-    disconnected: "বিচ্ছিন্ন (অফলাইন মোড)",
-    apiNote: "দ্রষ্টব্য: আপনার API কী আপনার ব্রাউজারে স্থানীয়ভাবে সংরক্ষিত থাকে এবং আমাদের সার্ভারে পাঠানো হয় না।",
-    loadingSteps: [
-      "আপনার বিষয়টি বিশ্লেষণ করা হচ্ছে...",
-      "ভাইরাল ট্রেন্ড রিসার্চ করা হচ্ছে...",
-      "ভাইরাল স্ক্রিপ্ট তৈরি করা হচ্ছে...",
-      "এসইও মেটাডেটা অপ্টিমাইজ করা হচ্ছে...",
-      "এআই প্রম্পট তৈরি করা হচ্ছে...",
-      "আপনার কন্টেন্ট চূড়ান্ত করা হচ্ছে..."
-    ],
-  }
-};
-
-const POPULAR_TOPICS = [
-  { en: "Viral Hooks & Scripts", bn: "ভাইরাল হুক ও স্ক্রিপ্ট", icon: "🪝", subs: ["Shorts Hooks", "Storytelling", "Call to Action", "Retention Tips"] },
-  { en: "AI Video Creation", bn: "এআই ভিডিও তৈরি", icon: "🤖", subs: ["AI Avatars", "Voice Cloning", "Auto-Captions", "AI B-Roll"] },
-  { en: "YouTube SEO Mastery", bn: "ইউটিউব এসইও মাস্টার", icon: "🔍", subs: ["Keyword Research", "Title Optimization", "Tag Strategy", "CTR Secrets"] },
-  { en: "Thumbnail Design", bn: "থাম্বনেইল ডিজাইন", icon: "🖼️", subs: ["Clickbait Psychology", "Color Theory", "Face Expressions", "Typography"] },
-  { en: "Niche Discovery", bn: "নিশ ডিসকভারি", icon: "🎯", subs: ["Low Competition", "High CPM", "Faceless Channels", "Trending Topics"] },
-  { en: "Social Media Growth", bn: "সোশ্যাল মিডিয়া গ্রোথ", icon: "📈", subs: ["Algorithm Hacks", "Posting Schedule", "Engagement Boost", "Cross-Promotion"] },
-  { en: "Monetization Hacks", bn: "মনিটাইজেশন হ্যাকস", icon: "💰", subs: ["Sponsorships", "Brand Deals", "Exclusive Content", "AdSense Optimization"] },
-  { en: "Cinematic Editing", bn: "সিনেমাটিক এডিটিং", icon: "🎬", subs: ["Color Grading", "Sound Design", "Transitions", "Speed Ramping"] },
-  { en: "Personal Branding", bn: "পার্সোনাল ব্র্যান্ডিং", icon: "👤", subs: ["Visual Identity", "Voice & Tone", "Logo Design", "Bio Optimization"] },
-  { en: "Podcast & Audio", bn: "পডকাস্ট ও অডিও", icon: "🎙️", subs: ["Audio Quality", "Interview Skills", "Distribution", "Background Music"] },
-  { en: "Short-Form Content", bn: "শর্ট-ফর্ম কন্টেন্ট", icon: "📱", subs: ["Reels Strategy", "TikTok Trends", "Shorts Loop", "Vertical Video"] },
-  { en: "Content Strategy", bn: "কন্টেন্ট স্ট্র্যাটেজি", icon: "📅", subs: ["Content Calendar", "Batch Producing", "Repurposing", "Analytics"] },
-  { en: "Integrated Farming", bn: "সমন্বিত কৃষি খামার", icon: "🏡", subs: ["Fish & Poultry", "Modern Irrigation", "Bio-Floc System", "Sustainable Farming"] },
-  { en: "Modern Livestock", bn: "আধুনিক গবাদি পশু পালন", icon: "🐄", subs: ["Dairy Management", "Goat Fattening", "Fodder Production", "Disease Control"] },
-  { en: "Smart Agriculture", bn: "স্মার্ট কৃষি প্রযুক্তি", icon: "🌱", subs: ["Hydroponics", "Greenhouse", "Vertical Farming", "Drip Irrigation"] },
-  { en: "Farming Vlogs", bn: "কৃষি ব্লগিং আইডিয়া", icon: "🚀", subs: ["Daily Farm Life", "Harvesting Vlogs", "Farming Tips", "Agri-Education"] }
-];
-
-const BEST_POSTING_TIMES = [
-  { platform: "Facebook", time: "8-10 AM", period: "morning", icon: "📘" },
-  { platform: "Instagram", time: "6-9 PM", period: "evening", icon: "📸" },
-  { platform: "TikTok", time: "7-10 PM", period: "night", icon: "🎵" },
-  { platform: "YouTube", time: "2-4 PM", period: "afternoon", icon: "▶️" },
-  { platform: "WhatsApp", time: "8-11 AM", period: "morning", icon: "💬" },
-  { platform: "All Platforms", time: "9-11 PM", period: "night", icon: "🌙" }
-];
-
-const PLATFORMS = [
-  { id: 'facebook', name: 'Facebook', icon: '📘' },
-  { id: 'instagram', name: 'Instagram', icon: '📸' },
-  { id: 'tiktok', name: 'TikTok', icon: '🎵' },
-  { id: 'youtube', name: 'YouTube', icon: '▶️' }
-];
-
-const CONTENT_TYPES = [
-  { id: 'shorts', name: 'Shorts Script', icon: '🎬' },
-  { id: 'description', name: 'Video Description', icon: '📝' },
-  { id: 'titleIdea', name: 'Title Idea', icon: '💡' },
-  { id: 'thumbnail', name: 'Thumbnail Concept', icon: '🖼️' },
-  { id: 'fullScript', name: 'Full Video Script', icon: '📜' }
-];
-
-const TONES = [
-  { id: 'professional', name: 'Professional', icon: '💼' },
-  { id: 'funny', name: 'Funny', icon: '😂' },
-  { id: 'emotional', name: 'Emotional', icon: '❤️' },
-  { id: 'urgent', name: 'Urgent', icon: '🚨' }
-];
-
-const VISUAL_STYLES = [
-  { id: 'cinematic', name: 'Cinematic', icon: '🎬' },
-  { id: 'photorealistic', name: 'Photorealistic', icon: '📸' },
-  { id: 'illustrative', name: 'Illustrative', icon: '🎨' },
-  { id: 'anime', name: 'Anime', icon: '🌸' },
-  { id: '3dRender', name: '3D Render', icon: '🧊' }
-];
-
-const PROMPT_ELEMENTS = {
-  subject: [
-    { en: "Cybernetic Human", bn: "সাইবারনেটিক মানুষ", icon: "👤" },
-    { en: "Mythical Creature", bn: "পৌরাণিক প্রাণী", icon: "🐉" },
-    { en: "Futuristic Robot", bn: "ভবিষ্যত রোবট", icon: "🤖" },
-    { en: "Ethereal Landscape", bn: "স্বর্গীয় ল্যান্ডস্কেপ", icon: "🏔️" },
-    { en: "Abstract Geometry", bn: "বিমূর্ত জ্যামিতি", icon: "📐" },
-    { en: "Historical Figure", bn: "ঐতিহাসিক ব্যক্তিত্ব", icon: "📜" },
-    { en: "Sci-fi Vehicle", bn: "সাই-ফাই যানবাহন", icon: "🛸" },
-    { en: "Nature Close-up", bn: "প্রকৃতির ক্লোজ-আপ", icon: "🌿" }
-  ],
-  camera: [
-    { en: "Low Angle", bn: "নিচ থেকে অ্যাঙ্গেল", icon: "📸" },
-    { en: "High Angle", bn: "উপর থেকে অ্যাঙ্গেল", icon: "📸" },
-    { en: "Bird's Eye View", bn: "পাখির চোখের মতো ভিউ", icon: "🦅" },
-    { en: "Close-up", bn: "ক্লোজ-আপ", icon: "🔍" },
-    { en: "Wide Shot", bn: "ওয়াইড শট", icon: "🖼️" },
-    { en: "Dutch Angle", bn: "ডাচ অ্যাঙ্গেল", icon: "📐" },
-    { en: "Tracking Shot", bn: "ট্র্যাকিং শট", icon: "🏃" },
-    { en: "Drone Shot", bn: "ড্রোন শট", icon: "🚁" }
-  ],
-  lighting: [
-    { en: "Cinematic Lighting", bn: "সিনেমাটিক লাইটিং", icon: "💡" },
-    { en: "Soft Lighting", bn: "সফট লাইটিং", icon: "☁️" },
-    { en: "Neon Glow", bn: "নিয়ন গ্লো", icon: "🌈" },
-    { en: "Golden Hour", bn: "গোল্ডেন আওয়ার", icon: "🌅" },
-    { en: "Moody Atmosphere", bn: "মুডি অ্যাটমোস্ফিয়ার", icon: "🌫️" },
-    { en: "Studio Lighting", bn: "স্টুডিও লাইটিং", icon: "🔦" },
-    { en: "Natural Light", bn: "প্রাকৃতিক আলো", icon: "☀️" },
-    { en: "Cyberpunk Glow", bn: "সাইবারপাঙ্ক গ্লো", icon: "🌃" }
-  ],
-  mood: [
-    { en: "Mysterious", bn: "রহস্যময়", icon: "🕵️" },
-    { en: "Joyful", bn: "আনন্দময়", icon: "😊" },
-    { en: "Melancholic", bn: "বিষণ্ণ", icon: "😢" },
-    { en: "Epic", bn: "মহাকাব্যিক", icon: "⚔️" },
-    { en: "Futuristic", bn: "ভবিষ্যতবাদী", icon: "🚀" },
-    { en: "Nostalgic", bn: "স্মৃতিবেদনাতুর", icon: "🎞️" },
-    { en: "Aggressive", bn: "আক্রমণাত্মক", icon: "💢" },
-    { en: "Peaceful", bn: "শান্তিপূর্ণ", icon: "🕊️" }
-  ],
-  environment: [
-    { en: "Cyberpunk City", bn: "সাইবারপাঙ্ক শহর", icon: "🏙️" },
-    { en: "Ancient Forest", bn: "প্রাচীন বন", icon: "🌳" },
-    { en: "Outer Space", bn: "মহাকাশ", icon: "🌌" },
-    { en: "Underwater World", bn: "পানির নিচের জগত", icon: "🌊" },
-    { en: "Desert Oasis", bn: "মরুভূমির মরূদ্যান", icon: "🏜️" },
-    { en: "Snowy Mountains", bn: "তুষারাবৃত পাহাড়", icon: "🏔️" },
-    { en: "Post-Apocalyptic", bn: "ধ্বংসাত্মক পরবর্তী", icon: "🏚️" },
-    { en: "Cozy Interior", bn: "আরামদায়ক অভ্যন্তর", icon: "🏠" }
-  ],
-  style: [
-    { en: "Cyberpunk", bn: "সাইবারপাঙ্ক", icon: "🤖" },
-    { en: "Minimalist", bn: "মিনিমালিস্ট", icon: "⚪" },
-    { en: "Surrealism", bn: "সুররিয়ালিজম", icon: "🌀" },
-    { en: "Hyper-realistic", bn: "হাইপার-রিয়েলিস্টিক", icon: "💎" },
-    { en: "Oil Painting", bn: "তৈলচিত্র", icon: "🎨" },
-    { en: "Digital Art", bn: "ডিজিটাল আর্ট", icon: "💻" },
-    { en: "Vaporwave", bn: "ভেপারওয়েভ", icon: "📼" },
-    { en: "Steampunk", bn: "স্টিমপাঙ্ক", icon: "⚙️" },
-    { en: "Anime Style", bn: "অ্যানিমে স্টাইল", icon: "🌸" },
-    { en: "3D Render", bn: "থ্রিডি রেন্ডার", icon: "🧊" }
-  ],
-  movement: [
-    { en: "Slow Motion", bn: "স্লো মোশন", icon: "🐢" },
-    { en: "Fast Paced", bn: "ফাস্ট পেসড", icon: "⚡" },
-    { en: "Smooth Transitions", bn: "স্মুথ ট্রানজিশন", icon: "✨" },
-    { en: "Dynamic Motion", bn: "ডাইনামিক মোশন", icon: "🔥" },
-    { en: "Static Shot", bn: "স্ট্যাটিক শট", icon: "📍" },
-    { en: "Time-lapse", bn: "টাইম-ল্যাপস", icon: "⏳" }
-  ],
-  composition: [
-    { en: "Rule of Thirds", bn: "রুল অফ থার্ডস", icon: "📏" },
-    { en: "Symmetrical", bn: "প্রতিসম", icon: "⚖️" },
-    { en: "Leading Lines", bn: "লিডিং লাইনস", icon: "🛤️" },
-    { en: "Golden Ratio", bn: "গোল্ডেন রেশিও", icon: "🌀" },
-    { en: "Minimalist Framing", bn: "মিনিমালিস্ট ফ্রেমিং", icon: "🖼️" },
-    { en: "Deep Depth of Field", bn: "ডিপ ডেপথ অফ ফিল্ড", icon: "🏔️" },
-    { en: "Shallow Depth of Field", bn: "শ্যালো ডেপথ অফ ফিল্ড", icon: "📸" }
-  ],
-  colors: [
-    { en: "Vibrant Colors", bn: "প্রাণবন্ত রঙ", icon: "🌈" },
-    { en: "Monochrome", bn: "মনোক্রোম", icon: "⚫" },
-    { en: "Pastel Tones", bn: "প্যাস্টেল টোন", icon: "🎨" },
-    { en: "High Contrast", bn: "উচ্চ বৈপরীত্য", icon: "🌓" },
-    { en: "Warm Tones", bn: "উষ্ণ টোন", icon: "🔥" },
-    { en: "Cool Tones", bn: "শীতল টোন", icon: "❄️" },
-    { en: "Sepia", bn: "সেপিয়া", icon: "🎞️" },
-    { en: "Neon Palette", bn: "নিয়ন প্যালেট", icon: "🌃" }
-  ],
-  weather: [
-    { en: "Rainy", bn: "বৃষ্টির দিন", icon: "🌧️" },
-    { en: "Foggy", bn: "কুয়াশাচ্ছন্ন", icon: "🌫️" },
-    { en: "Stormy", bn: "ঝড়ো", icon: "⛈️" },
-    { en: "Sunny", bn: "রৌদ্রোজ্জ্বল", icon: "☀️" },
-    { en: "Snowing", bn: "তুষারপাত", icon: "❄️" },
-    { en: "Cloudy", bn: "মেঘলা", icon: "☁️" }
-  ],
-  time: [
-    { en: "Dawn", bn: "ভোর", icon: "🌅" },
-    { en: "Midnight", bn: "মধ্যরাত", icon: "🌑" },
-    { en: "Noon", bn: "দুপুর", icon: "☀️" },
-    { en: "Twilight", bn: "গোধূলি", icon: "🌇" },
-    { en: "Golden Hour", bn: "গোল্ডেন আওয়ার", icon: "✨" },
-    { en: "Blue Hour", bn: "ব্লু আওয়ার", icon: "🌌" }
-  ],
-  texture: [
-    { en: "Metallic", bn: "ধাতব", icon: "🔩" },
-    { en: "Glassy", bn: "কাঁচের মতো", icon: "💎" },
-    { en: "Fabric", bn: "কাপড়", icon: "👕" },
-    { en: "Liquid", bn: "তরল", icon: "💧" },
-    { en: "Holographic", bn: "হলোগ্রাফিক", icon: "💿" },
-    { en: "Rough", bn: "অমসৃণ", icon: "🧱" }
-  ]
-};
-
-const SCENE_PRESETS = [
-  {
-    en: "Cinematic Night",
-    bn: "সিনেমাটিক রাত",
-    icon: "🎬",
-    elements: ["Cinematic Lighting", "Midnight", "Low Angle", "Moody Atmosphere"]
-  },
-  {
-    en: "Cyberpunk City",
-    bn: "সাইবারপাঙ্ক শহর",
-    icon: "🌃",
-    elements: ["Cyberpunk", "Neon Glow", "Cyberpunk City", "High Contrast"]
-  },
-  {
-    en: "Ethereal Nature",
-    bn: "স্বর্গীয় প্রকৃতি",
-    icon: "🌿",
-    elements: ["Ethereal Landscape", "Soft Lighting", "Golden Hour", "Ancient Forest"]
-  },
-  {
-    en: "Epic Action",
-    bn: "অ্যাকশন দৃশ্য",
-    icon: "🔥",
-    elements: ["Epic", "Dynamic Motion", "Wide Shot", "High Contrast"]
-  }
-];
-
-const MODEL_INFO: Record<AIProvider, { 
-  name: string; 
-  description: string; 
-  strengths: string[]; 
-  weaknesses: string[]; 
-  useCases: string[]; 
-  pricing: string;
-}> = {
-  gemini: {
-    name: "Google Gemini",
-    description: "Google's most capable AI model, integrated with the Google ecosystem.",
-    strengths: ["Multimodal (Text, Image, Video)", "Massive context window (up to 2M tokens)", "Fast & Efficient"],
-    weaknesses: ["Can be overly restrictive in safety filters"],
-    useCases: ["Long document analysis", "Complex multimodal tasks", "General content creation"],
-    pricing: "Free tier available; Paid for high-volume usage."
-  },
-  openai: {
-    name: "OpenAI GPT-4o",
-    description: "The industry standard for high-reasoning AI tasks.",
-    strengths: ["State-of-the-art reasoning", "Excellent instruction following", "Reliable performance"],
-    weaknesses: ["Higher latency", "More expensive than competitors"],
-    useCases: ["Complex logic & coding", "High-quality creative writing", "Strategic planning"],
-    pricing: "~$5.00 per 1M input tokens; ~$15.00 per 1M output tokens."
-  },
-  groq: {
-    name: "Groq (Llama 3.3 70B)",
-    description: "The world's fastest AI inference engine, powered by LPU technology.",
-    strengths: ["Ultra-fast response times", "Excellent for real-time apps", "High throughput"],
-    weaknesses: ["Smaller context window compared to Gemini"],
-    useCases: ["Real-time script generation", "Fast brainstorming", "Interactive AI agents"],
-    pricing: "Extremely low cost; Free for some models on Groq Cloud."
-  },
-  deepseek: {
-    name: "DeepSeek-V3",
-    description: "A high-performance, open-source model optimized for coding and math.",
-    strengths: ["Exceptional coding capability", "Very low cost", "Strong logical reasoning"],
-    weaknesses: ["Newer provider with potentially lower stability"],
-    useCases: ["Technical content writing", "Code generation", "Mathematical problem solving"],
-    pricing: "~$0.10 per 1M input tokens; ~$0.20 per 1M output tokens."
-  },
-  perplexity: {
-    name: "Perplexity Sonar",
-    description: "AI-powered search engine that provides real-time information with citations.",
-    strengths: ["Real-time web access", "Accurate source citations", "Up-to-date information"],
-    weaknesses: ["Primarily optimized for search/research tasks"],
-    useCases: ["SEO research", "Fact-checking", "Market analysis & trends"],
-    pricing: "~$5.00 per 1M tokens (includes search cost)."
-  },
-  gemma: {
-    name: "Google Gemma 4",
-    description: "Google's open-weights model, optimized for high performance and efficiency.",
-    strengths: ["Open-weights flexibility", "High performance for its size", "Efficient inference"],
-    weaknesses: ["Smaller context window than Gemini Pro"],
-    useCases: ["Local deployment", "Fine-tuning for specific tasks", "General AI assistance"],
-    pricing: "Free on some platforms (e.g., Groq); Low cost via API providers."
-  }
-};
+// Constants moved to constants.ts
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -734,6 +143,8 @@ export default function App() {
     const saved = localStorage.getItem('uiLang');
     return (saved === 'en' || saved === 'bn') ? saved : 'en';
   });
+
+  const t = translations[uiLang];
 
   useEffect(() => {
     localStorage.setItem('uiLang', uiLang);
@@ -1023,8 +434,6 @@ export default function App() {
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const t = translations[uiLang];
 
   const currentTopic = topics[currentView];
   const currentResult = results[currentView];
@@ -2116,9 +1525,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg text-slate-100 font-sans selection:bg-brand-orange selection:text-white pb-24 md:pb-0">
+    <div className={cn("min-h-screen mesh-gradient text-[var(--text-main)] font-sans selection:bg-brand-purple/30 selection:text-white pb-24 md:pb-0", theme)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-10">
-        <Toaster position="top-right" richColors />
+        <Toaster position="top-right" richColors theme={theme === 'light' ? 'light' : 'dark'} />
         
         <AnimatePresence mode="wait">
           {currentView === 'landing' ? (
@@ -2127,253 +1536,524 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col bg-white"
+              className="min-h-screen flex flex-col bg-[var(--bg-main)]"
             >
               {/* Navigation */}
-              <nav className="absolute top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-50">
-                <div 
-                  className="flex items-center gap-3 cursor-pointer"
+              <nav className="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-[100] pointer-events-none">
+                <motion.div 
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="flex items-center gap-4 cursor-pointer pointer-events-auto group"
                   onClick={() => setCurrentView('landing')}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
-                    <Youtube className="text-brand-purple" size={24} />
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card)]/40 backdrop-blur-xl flex items-center justify-center shadow-2xl border border-[var(--border-main)] group-hover:scale-110 transition-transform duration-500">
+                    <Youtube className="text-brand-purple" size={28} />
                   </div>
-                  <span className="text-xl font-display font-black tracking-tighter uppercase text-white">{t.title}</span>
-                </div>
+                  <span className="text-3xl font-black tracking-tighter uppercase text-[var(--text-main)] group-hover:opacity-80 transition-opacity">{t.title}</span>
+                </motion.div>
                 
-                <div className="hidden lg:flex items-center gap-10 text-sm font-bold text-white/80">
+                <motion.div 
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  className="hidden lg:flex items-center gap-10 px-10 py-4 rounded-full bg-[var(--bg-card)]/40 backdrop-blur-xl border border-[var(--border-main)] shadow-2xl pointer-events-auto"
+                >
                   {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item) => (
                     <button 
                       key={item}
-                      className="hover:text-white transition-colors"
+                      className="text-[10px] uppercase font-black tracking-[0.3em] text-[var(--text-muted)] hover:text-brand-purple transition-colors"
                     >
                       {item}
                     </button>
                   ))}
-                </div>
+                </motion.div>
 
-                <button
-                  onClick={() => setCurrentView('home')}
-                  className="bg-white text-brand-purple font-bold px-8 py-3 rounded-full shadow-xl hover:scale-105 transition-transform"
+                <motion.div
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="pointer-events-auto"
                 >
-                  {t.getStarted}
-                </button>
+                  <button
+                    onClick={() => setCurrentView('home')}
+                    className="bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.3em] px-10 py-4 rounded-full shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
+                  >
+                    {t.getStarted}
+                  </button>
+                </motion.div>
               </nav>
 
-              {/* Hero Section with Wavy Background */}
-              <section className="relative bg-linear-to-br from-brand-purple to-brand-purple-dark pt-48 pb-64 overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+              {/* Hero Section */}
+              <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-brand-purple/10 rounded-full blur-[150px] -z-10 animate-pulse" />
+                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-brand-orange/5 rounded-full blur-[120px] -z-10" />
+                
+                <div className="max-w-6xl mx-auto px-6 text-center space-y-16 relative z-10">
                   <motion.div
-                    initial={{ x: -50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.8 }}
-                    className="text-left space-y-8"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-brand-purple/10 backdrop-blur-md"
                   >
-                    <h1 className="text-5xl md:text-7xl font-display font-black text-white leading-tight">
-                      REVIEW APP TO FIND THEIR <br/> <span className="text-brand-purple-light">BEST CHOICE.</span>
-                    </h1>
-                    <p className="text-white/70 text-lg max-w-lg">
-                      Empower your creativity with our advanced AI tools. Generate scripts, ideas, and content that goes viral instantly.
-                    </p>
-                    <div className="flex gap-4">
-                      <button onClick={() => setCurrentView('home')} className="bg-white text-brand-purple font-bold px-10 py-4 rounded-full shadow-2xl hover:bg-slate-50 transition-colors">
-                        GET STARTED
-                      </button>
-                      <button className="bg-white/10 border border-white/20 text-white font-bold px-10 py-4 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors">
-                        LEARN MORE
-                      </button>
-                    </div>
+                    <Sparkles size={16} className="animate-pulse" /> {t.subtitle}
                   </motion.div>
-
-                  <motion.div
-                    initial={{ x: 50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="relative hidden lg:block"
+                  
+                  <motion.h1 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-7xl md:text-[10rem] font-black tracking-tighter leading-[0.8] text-[var(--text-main)]"
                   >
-                    <div className="relative z-10 isometric-shadow">
-                      <img 
-                        src="https://picsum.photos/seed/app-ui/800/600" 
-                        alt="App UI" 
-                        className="rounded-3xl transform rotate-[-5deg] skew-x-[5deg] border-8 border-white/10"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-purple-light/30 rounded-full blur-3xl animate-pulse" />
-                    <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-orange/20 rounded-full blur-3xl animate-pulse" />
-                  </motion.div>
-                </div>
+                    {uiLang === 'en' ? (
+                      <>
+                        CREATE <span className="text-brand-purple font-serif italic font-light">Viral</span><br />
+                        CONTENT WITH <span className="premium-gradient-text">AI</span>
+                      </>
+                    ) : (
+                      <>
+                        এআই দিয়ে তৈরি করুন <br />
+                        <span className="premium-gradient-text">ভাইরাল কন্টেন্ট</span>
+                      </>
+                    )}
+                  </motion.h1>
+                  
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xl md:text-3xl text-[var(--text-muted)] max-w-3xl mx-auto leading-relaxed font-medium"
+                  >
+                    {t.heroSubtitle}
+                  </motion.p>
 
-                {/* Wavy Divider */}
-                <div className="wavy-divider-bottom">
-                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                  </svg>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex flex-col sm:flex-row gap-8 justify-center items-center"
+                  >
+                    <button 
+                      onClick={() => setCurrentView('home')} 
+                      className="group relative px-12 py-6 rounded-[2rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-xs uppercase tracking-[0.3em] shadow-[0_30px_60px_rgba(168,85,247,0.3)] hover:shadow-[0_40px_80px_rgba(168,85,247,0.5)] hover:-translate-y-2 transition-all active:scale-95 overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+                      <span className="relative flex items-center gap-3">
+                        {t.getStarted} <ChevronRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                      </span>
+                    </button>
+                    <button className="px-12 py-6 rounded-[2rem] bg-[var(--bg-card)]/40 backdrop-blur-xl border border-[var(--border-main)] text-[var(--text-main)] font-black text-xs uppercase tracking-[0.3em] hover:bg-[var(--bg-card)]/60 hover:-translate-y-2 transition-all shadow-2xl">
+                      {t.features}
+                    </button>
+                  </motion.div>
                 </div>
               </section>
 
-              {/* About Section */}
-              <section className="py-24 bg-white">
-                <div className="max-w-7xl mx-auto px-6 text-center space-y-16">
-                  <div className="space-y-4">
-                    <h2 className="text-sm font-black text-brand-purple uppercase tracking-[0.3em]">About App</h2>
-                    <h3 className="text-4xl md:text-5xl font-display font-black text-slate-900">Why Choose Us?</h3>
-                    <div className="w-20 h-1.5 bg-brand-purple mx-auto rounded-full" />
+              {/* About Section - Bento Style */}
+              <section className="py-32 px-6 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
+                
+                <div className="max-w-7xl mx-auto space-y-24">
+                  <div className="text-center space-y-6 max-w-3xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.4em]">
+                      <Info size={14} />
+                      {t.about}
+                    </div>
+                    <h2 className="text-5xl md:text-7xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                      Engineered for <span className="text-brand-purple italic">Creators</span>
+                    </h2>
+                    <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
+                      {uiLang === 'en' ? "We've built the most sophisticated AI engine specifically for video content creators. Every tool is optimized for engagement and growth." : "আমরা ভিডিও কন্টেন্ট ক্রিয়েটরদের জন্য বিশেষভাবে সবচেয়ে উন্নত এআই ইঞ্জিন তৈরি করেছি। প্রতিটি টুল এনগেজমেন্ট এবং গ্রোথের জন্য অপ্টিমাইজ করা হয়েছে।"}
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                    {[
-                      { icon: <Zap size={40} />, title: "Fast Performance", desc: "Lightning fast content generation using state-of-the-art AI models." },
-                      { icon: <Shield size={40} />, title: "Secure & Private", desc: "Your data and API keys are encrypted and stored locally on your device." },
-                      { icon: <Users size={40} />, title: "Creator Focused", desc: "Built specifically for YouTubers and digital content creators." }
-                    ].map((item, i) => (
-                      <motion.div
-                        key={i}
-                        whileHover={{ y: -10 }}
-                        className="p-10 rounded-3xl bg-slate-50 border border-slate-100 space-y-6"
-                      >
-                        <div className="w-20 h-20 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple mx-auto">
-                          {item.icon}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <motion.div 
+                      whileHover={{ y: -10 }}
+                      className="md:col-span-8 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group relative overflow-hidden shadow-2xl"
+                    >
+                      <div className="relative z-10 space-y-8">
+                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
+                          <Zap size={32} />
                         </div>
-                        <h4 className="text-xl font-bold text-slate-900">{item.title}</h4>
-                        <p className="text-slate-500 leading-relaxed">{item.desc}</p>
-                      </motion.div>
-                    ))}
+                        <div className="space-y-4">
+                          <h4 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
+                          <p className="text-[var(--text-muted)] text-lg leading-relaxed max-w-xl font-medium">
+                            Our AI models are optimized for speed, delivering high-quality scripts, ideas, and images in under 5 seconds. No more waiting for inspiration.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-12 relative h-64 overflow-hidden rounded-[2rem] border border-[var(--border-main)]/50">
+                        <img src="https://picsum.photos/seed/speed/1200/600" className="w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+                        <div className="absolute inset-0 bg-linear-to-t from-[var(--bg-card)] via-transparent to-transparent" />
+                        <div className="absolute bottom-8 left-8">
+                          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
+                            <Clock size={14} /> 4.2s Avg Response
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      whileHover={{ y: -10 }}
+                      className="md:col-span-4 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group shadow-2xl flex flex-col justify-between"
+                    >
+                      <div className="space-y-8">
+                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
+                          <Shield size={32} />
+                        </div>
+                        <div className="space-y-4">
+                          <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">Privacy First</h4>
+                          <p className="text-[var(--text-muted)] leading-relaxed font-medium">
+                            Your API keys and content never leave your browser. We prioritize your data security and creative intellectual property.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-8 p-6 rounded-2xl bg-green-500/5 border border-green-500/20 flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                          <Lock size={20} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-green-500">End-to-End Encrypted</span>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      whileHover={{ y: -10 }}
+                      className="md:col-span-4 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group shadow-2xl flex flex-col justify-between"
+                    >
+                      <div className="space-y-8">
+                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
+                          <Users size={32} />
+                        </div>
+                        <div className="space-y-4">
+                          <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">Creator Community</h4>
+                          <p className="text-[var(--text-muted)] leading-relaxed font-medium">
+                            Join thousands of creators who are scaling their channels with our AI tools. Share tips and grow together.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-8 flex -space-x-4">
+                        {[1, 2, 3, 4].map(i => (
+                          <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-12 h-12 rounded-full border-4 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
+                        ))}
+                        <div className="w-12 h-12 rounded-full border-4 border-[var(--bg-card)] bg-brand-purple flex items-center justify-center text-white text-[10px] font-black">
+                          +10k
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      whileHover={{ y: -10 }}
+                      className="md:col-span-8 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group relative overflow-hidden shadow-2xl"
+                    >
+                      <div className="flex flex-col md:flex-row gap-12 items-center h-full">
+                        <div className="space-y-6 flex-1">
+                          <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
+                            <Globe size={32} />
+                          </div>
+                          <div className="space-y-4">
+                            <h4 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
+                            <p className="text-[var(--text-muted)] text-lg leading-relaxed font-medium">
+                              Create content in English, Bengali, and Hindi with perfect cultural context and nuance. Reach a global audience effortlessly.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          {['🇺🇸', '🇧🇩', '🇮🇳'].map(f => (
+                            <motion.div 
+                              key={f} 
+                              whileHover={{ scale: 1.1, rotate: 5 }}
+                              className="w-20 h-20 rounded-3xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-4xl shadow-2xl"
+                            >
+                              {f}
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </section>
 
               {/* Features Section (Purple) */}
               <section className="relative py-32 bg-brand-purple overflow-hidden">
-                <div className="wavy-divider-top">
-                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                  </svg>
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]" />
                 </div>
-
+                
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                    <div className="space-y-8">
-                      <h2 className="text-4xl md:text-6xl font-display font-black text-white leading-tight">
-                        Our Powerful <br/> Features
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+                    <div className="space-y-10">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
+                        <Zap size={14} className="text-yellow-400" />
+                        {uiLang === 'en' ? "Powerful Capabilities" : "শক্তিশালী ক্ষমতা"}
+                      </div>
+                      <h2 className="text-5xl md:text-7xl font-black text-white leading-[0.9] tracking-tighter">
+                        Our Powerful <br/> <span className="text-white/50 italic">Features</span>
                       </h2>
-                      <p className="text-white/70 text-lg">
-                        We provide everything you need to grow your channel and automate your workflow.
+                      <p className="text-white/70 text-lg font-medium leading-relaxed max-w-lg">
+                        {uiLang === 'en' ? "We provide everything you need to grow your channel and automate your content workflow with cutting-edge AI." : "আমরা আপনার চ্যানেল বড় করতে এবং অত্যাধুনিক এআই দিয়ে আপনার কন্টেন্ট ওয়ার্কফ্লো অটোমেট করতে প্রয়োজনীয় সবকিছু সরবরাহ করি।"}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {[
-                          { title: "Script Generator", desc: "Viral scripts in seconds." },
-                          { title: "Shorts Creator", desc: "Optimized for vertical video." },
-                          { title: "SEO Tools", desc: "Rank higher on search." },
-                          { title: "Voice Over", desc: "Natural AI voices." }
+                          { title: "Script Generator", desc: "Viral scripts in seconds.", icon: <FileText size={20} /> },
+                          { title: "Shorts Creator", desc: "Optimized for vertical video.", icon: <Zap size={20} /> },
+                          { title: "SEO Tools", desc: "Rank higher on search.", icon: <Search size={20} /> },
+                          { title: "Voice Over", desc: "Natural AI voices.", icon: <Mic size={20} /> }
                         ].map((f, i) => (
-                          <div key={i} className="p-6 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-                            <h4 className="font-bold text-white mb-2">{f.title}</h4>
-                            <p className="text-white/50 text-sm">{f.desc}</p>
-                          </div>
+                          <motion.div 
+                            key={i} 
+                            whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+                            className="p-8 rounded-[2rem] bg-white/10 border border-white/10 backdrop-blur-xl group transition-all"
+                          >
+                            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
+                              {f.icon}
+                            </div>
+                            <h4 className="text-lg font-black text-white mb-2 tracking-tight">{f.title}</h4>
+                            <p className="text-white/50 text-sm font-medium leading-relaxed">{f.desc}</p>
+                          </motion.div>
                         ))}
                       </div>
                     </div>
-                    <div className="relative">
+                    <div className="relative group">
+                      <div className="absolute -inset-4 bg-white/10 rounded-[4rem] blur-3xl group-hover:bg-white/20 transition-all duration-700" />
                       <img 
-                        src="https://picsum.photos/seed/features/800/800" 
+                        src="https://picsum.photos/seed/features/1000/1000" 
                         alt="Features" 
-                        className="rounded-3xl shadow-3xl isometric-shadow"
+                        className="relative rounded-[3rem] shadow-2xl border border-white/10 transform group-hover:scale-[1.02] transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
                     </div>
                   </div>
                 </div>
-
-                <div className="wavy-divider-bottom">
-                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                  </svg>
-                </div>
               </section>
 
               {/* Testimonials */}
-              <section className="py-32 bg-white">
-                <div className="max-w-7xl mx-auto px-6 space-y-16">
-                  <div className="text-center space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-display font-black text-slate-900">Happy Clients Say</h2>
-                    <div className="w-20 h-1.5 bg-brand-purple mx-auto rounded-full" />
+              <section className="py-32 bg-[var(--bg-main)] relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
+                
+                <div className="max-w-7xl mx-auto px-6 space-y-24">
+                  <div className="text-center space-y-6 max-w-2xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.3em]">
+                      <MessageSquare size={14} />
+                      {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
+                    </div>
+                    <h2 className="text-5xl md:text-6xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                      Happy <span className="text-brand-purple italic">Creators</span> <br/> Say
+                    </h2>
+                    <p className="text-[var(--text-muted)] text-lg font-medium">
+                      {uiLang === 'en' ? "Join thousands of successful creators who have transformed their content with our AI tools." : "হাজার হাজার সফল ক্রিয়েটরদের সাথে যোগ দিন যারা আমাদের এআই টুলস দিয়ে তাদের কন্টেন্ট পরিবর্তন করেছেন।"}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
-                      { name: "John Doe", role: "YouTuber", text: "This tool changed my life. I can now produce 3 times more content than before." },
-                      { name: "Sarah Smith", role: "Content Creator", text: "The AI scripts are incredibly accurate and engaging. Highly recommended!" },
-                      { name: "Mike Johnson", role: "Digital Marketer", text: "Best AI tool for video marketing. The SEO features are top-notch." }
+                      { name: "John Doe", role: "YouTuber", text: "This tool changed my life. I can now produce 3 times more content than before with half the effort.", avatar: "https://i.pravatar.cc/150?u=john" },
+                      { name: "Sarah Smith", role: "Content Creator", text: "The AI scripts are incredibly accurate and engaging. My audience retention has increased by 40%!", avatar: "https://i.pravatar.cc/150?u=sarah" },
+                      { name: "Mike Johnson", role: "Digital Marketer", text: "Best AI tool for video marketing. The SEO features are top-notch and actually work for ranking.", avatar: "https://i.pravatar.cc/150?u=mike" }
                     ].map((t, i) => (
-                      <div key={i} className="p-10 rounded-3xl bg-slate-50 border border-slate-100 space-y-6 relative">
-                        <Quote className="absolute top-6 right-6 text-brand-purple/10" size={48} />
-                        <p className="text-slate-600 italic leading-relaxed">"{t.text}"</p>
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-brand-purple/20" />
+                      <motion.div 
+                        key={i} 
+                        whileHover={{ y: -10 }}
+                        className="p-10 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-8 relative glass-card group transition-all shadow-xl"
+                      >
+                        <Quote className="absolute top-8 right-8 text-brand-purple/5 group-hover:text-brand-purple/10 transition-colors" size={64} />
+                        <div className="flex gap-1">
+                          {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-brand-orange text-brand-orange" />)}
+                        </div>
+                        <p className="text-[var(--text-main)] font-medium italic leading-relaxed text-lg relative z-10">"{t.text}"</p>
+                        <div className="flex items-center gap-4 pt-4 border-t border-[var(--border-main)]/50">
+                          <img src={t.avatar} alt={t.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-brand-purple/20" referrerPolicy="no-referrer" />
                           <div>
-                            <h5 className="font-bold text-slate-900">{t.name}</h5>
-                            <p className="text-xs text-slate-400">{t.role}</p>
+                            <h5 className="font-black text-[var(--text-main)] tracking-tight">{t.name}</h5>
+                            <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">{t.role}</p>
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Pricing Section */}
+              <section className="py-32 bg-[var(--bg-main)] relative overflow-hidden">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
+                
+                <div className="max-w-7xl mx-auto px-6 space-y-24">
+                  <div className="text-center space-y-6 max-w-2xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.3em]">
+                      <CreditCard size={14} />
+                      {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
+                    </div>
+                    <h2 className="text-5xl md:text-6xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                      Scale Your <span className="text-brand-purple italic">Growth</span>
+                    </h2>
+                    <p className="text-[var(--text-muted)] text-lg font-medium">
+                      {uiLang === 'en' ? "Choose the plan that's right for your creative journey. No hidden fees." : "আপনার ক্রিয়েটিভ জার্নির জন্য সঠিক প্ল্যানটি বেছে নিন। কোনো লুকানো ফি নেই।"}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { 
+                        name: "Starter", 
+                        price: "Free", 
+                        desc: "Perfect for new creators.", 
+                        features: ["5 Scripts / Month", "Basic SEO Tools", "Community Access", "Standard AI Models"],
+                        button: "Get Started",
+                        popular: false
+                      },
+                      { 
+                        name: "Pro", 
+                        price: "$19", 
+                        desc: "For serious content creators.", 
+                        features: ["Unlimited Scripts", "Advanced SEO Tools", "Priority Support", "Premium AI Models", "Image Generation"],
+                        button: "Go Pro",
+                        popular: true
+                      },
+                      { 
+                        name: "Business", 
+                        price: "$49", 
+                        desc: "For agencies and teams.", 
+                        features: ["Everything in Pro", "Team Collaboration", "Custom Branding", "API Access", "Dedicated Manager"],
+                        button: "Contact Sales",
+                        popular: false
+                      }
+                    ].map((plan, i) => (
+                      <motion.div 
+                        key={i} 
+                        whileHover={{ y: -10 }}
+                        className={cn(
+                          "p-10 rounded-[3rem] border space-y-8 relative glass-card group transition-all shadow-2xl flex flex-col justify-between",
+                          plan.popular ? "bg-brand-purple/10 border-brand-purple/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
+                        )}
+                      >
+                        {plan.popular && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-linear-to-r from-brand-purple to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">
+                            Most Popular
+                          </div>
+                        )}
+                        <div className="space-y-6">
+                          <div className="space-y-2">
+                            <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">{plan.name}</h4>
+                            <p className="text-[var(--text-muted)] text-sm font-medium">{plan.desc}</p>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-[var(--text-main)] tracking-tighter">{plan.price}</span>
+                            {plan.price !== "Free" && <span className="text-[var(--text-muted)] font-black uppercase text-[10px] tracking-widest">/ Month</span>}
+                          </div>
+                          <div className="h-px bg-[var(--border-main)] w-full" />
+                          <ul className="space-y-4">
+                            {plan.features.map((f, i) => (
+                              <li key={i} className="flex items-center gap-3 text-sm font-medium text-[var(--text-muted)]">
+                                <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
+                                  <Check size={12} />
+                                </div>
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <button className={cn(
+                          "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl",
+                          plan.popular 
+                            ? "bg-linear-to-r from-brand-purple to-indigo-600 text-white shadow-brand-purple/20 hover:shadow-brand-purple/40" 
+                            : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-card)]"
+                        )}>
+                          {plan.button}
+                        </button>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
               </section>
 
               {/* Footer */}
-              <footer className="relative bg-brand-purple-dark pt-48 pb-20 overflow-hidden">
-                <div className="wavy-divider-top">
-                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                  </svg>
-                </div>
-
+              <footer className="relative bg-[var(--bg-card)] pt-32 pb-16 overflow-hidden border-t border-[var(--border-main)]">
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange opacity-50" />
+                
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
-                          <Youtube className="text-brand-purple" size={24} />
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
+                    <div className="md:col-span-4 space-y-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[var(--bg-main)] flex items-center justify-center shadow-2xl border border-[var(--border-main)] group cursor-pointer">
+                          <Youtube className="text-brand-purple group-hover:scale-110 transition-transform" size={28} />
                         </div>
-                        <span className="text-2xl font-display font-black tracking-tighter uppercase text-white">{t.title}</span>
+                        <span className="text-3xl font-black tracking-tighter uppercase text-[var(--text-main)]">{t.title}</span>
                       </div>
-                      <p className="text-white/50 text-sm leading-relaxed">
-                        The ultimate AI toolkit for modern content creators.
+                      <p className="text-[var(--text-muted)] text-base font-medium leading-relaxed max-w-sm">
+                        {uiLang === 'en' ? "The ultimate AI toolkit for modern content creators. Automate your workflow, grow your audience, and save time." : "আধুনিক কন্টেন্ট ক্রিয়েটরদের জন্য সেরা এআই টুলকিট। আপনার ওয়ার্কফ্লো অটোমেট করুন, অডিয়েন্স বাড়ান এবং সময় বাঁচান।"}
                       </p>
+                      <div className="flex gap-4">
+                        {[Facebook, Twitter, Instagram, Github].map((Icon, i) => (
+                          <motion.button 
+                            key={i} 
+                            whileHover={{ y: -3, color: "var(--brand-purple)" }}
+                            className="w-10 h-10 rounded-xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
+                          >
+                            <Icon size={18} />
+                          </motion.button>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="space-y-6">
-                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Quick Links</h4>
-                      <ul className="space-y-3 text-white/50 text-sm">
-                        <li className="hover:text-white cursor-pointer transition-colors">Home</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">About</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Features</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Contact</li>
+                    <div className="md:col-span-2 space-y-8">
+                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Quick Links</h4>
+                      <ul className="space-y-4 text-[var(--text-muted)] text-sm font-black uppercase tracking-widest">
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Home
+                        </li>
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          About
+                        </li>
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Features
+                        </li>
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Contact
+                        </li>
                       </ul>
                     </div>
 
-                    <div className="space-y-6">
-                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Support</h4>
-                      <ul className="space-y-3 text-white/50 text-sm">
-                        <li className="hover:text-white cursor-pointer transition-colors">Help Center</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Terms of Service</li>
+                    <div className="md:col-span-2 space-y-8">
+                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Support</h4>
+                      <ul className="space-y-4 text-[var(--text-muted)] text-sm font-black uppercase tracking-widest">
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Help Center
+                        </li>
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Privacy Policy
+                        </li>
+                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Terms of Service
+                        </li>
                       </ul>
                     </div>
 
-                    <div className="space-y-6">
-                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Newsletter</h4>
-                      <div className="flex gap-2">
-                        <input type="text" placeholder="Email" className="bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-sm w-full outline-none focus:border-white/30" />
-                        <button className="bg-white text-brand-purple p-2 rounded-xl"><Send size={20} /></button>
+                    <div className="md:col-span-4 space-y-8">
+                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Stay Updated</h4>
+                      <p className="text-[var(--text-muted)] text-sm font-medium">Subscribe to our newsletter for the latest AI tips.</p>
+                      <div className="flex gap-2 p-1.5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl focus-within:border-brand-purple/50 transition-all">
+                        <input 
+                          type="text" 
+                          placeholder="Email Address" 
+                          className="bg-transparent px-4 py-2 text-[var(--text-main)] text-sm w-full outline-none font-medium" 
+                        />
+                        <button className="bg-brand-purple text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-lg shadow-brand-purple/20">
+                          Join
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-20 pt-8 border-t border-white/10 text-center text-white/30 text-xs">
-                    © {new Date().getFullYear()} {t.title}. All Rights Reserved.
+                  <div className="mt-24 pt-10 border-t border-[var(--border-main)] flex flex-col md:flex-row justify-between items-center gap-6 text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em]">
+                    <p>© {new Date().getFullYear()} {t.title}. All Rights Reserved.</p>
+                    <div className="flex gap-8">
+                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Privacy</span>
+                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Terms</span>
+                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Cookies</span>
+                    </div>
                   </div>
                 </div>
               </footer>
@@ -2385,129 +2065,105 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <header className="sticky top-0 z-50 w-full mb-8 md:mb-12">
-              {/* Tier 1: Branding & Utilities */}
-              <div className="bg-slate-950/80 backdrop-blur-md border-b border-white/5 py-3 px-4 md:px-8">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                  <motion.div 
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    className="flex items-center gap-3 md:gap-4 cursor-pointer group"
-                    onClick={() => setCurrentView('landing')}
-                  >
-                    <div className="w-10 h-10 md:w-12 md:h-12 glass-card flex items-center justify-center text-brand-orange group-hover:scale-110 transition-transform duration-500 shadow-brand-glow/20">
-                      <Youtube size={20} className="md:w-6 md:h-6" />
+            <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-none">
+              {/* Logo & Settings Pill */}
+              <div className="glass-card px-5 py-3 flex items-center gap-5 pointer-events-auto shadow-2xl border-brand-purple/20">
+                <div 
+                  className="flex items-center gap-3 cursor-pointer group"
+                  onClick={() => setCurrentView('landing')}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Youtube className="text-brand-purple" size={20} />
+                  </div>
+                  <div className="hidden sm:flex flex-col">
+                    <span className="text-sm font-black tracking-tighter uppercase group-hover:text-brand-purple transition-colors leading-none">Studio</span>
+                    <div className="flex items-center gap-1 mt-1">
+                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" : "bg-amber-500")} />
+                      <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{isApiConnected ? 'Online' : 'Offline'}</span>
                     </div>
-                    <div>
-                      <h1 className="text-lg md:text-2xl font-display font-black tracking-tighter glow-text uppercase group-hover:text-brand-orange transition-colors leading-none">{t.title}</h1>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-slate-500 text-[8px] md:text-[10px] flex items-center gap-1 font-medium">
-                          <Sparkles size={10} className="text-brand-orange animate-pulse" /> {t.subtitle}
-                        </p>
-                        <div className={cn(
-                          "px-1.5 py-0.5 rounded-full text-[7px] md:text-[8px] font-bold uppercase tracking-widest flex items-center gap-1",
-                          isApiConnected ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                        )}>
-                          <div className={cn("w-1 h-1 rounded-full", isApiConnected ? "bg-green-500 animate-pulse" : "bg-amber-500")} />
-                          {isApiConnected ? (uiLang === 'en' ? "Active" : "সক্রিয়") : (uiLang === 'en' ? "Offline" : "অফলাইন")}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div 
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    className="flex items-center gap-2 md:gap-3"
-                  >
-                    <div className="relative group">
-                      <select
-                        value={uiLang}
-                        onChange={(e) => setUiLang(e.target.value as 'en' | 'bn')}
-                        className="appearance-none glass-card px-3 py-1.5 md:px-4 md:py-2 pr-8 text-[10px] md:text-xs font-bold text-slate-400 hover:text-brand-orange transition-all outline-none cursor-pointer bg-transparent border-white/5"
-                      >
-                        <option value="en" className="bg-brand-card text-slate-300">English</option>
-                        <option value="bn" className="bg-brand-card text-slate-300">বাংলা</option>
-                      </select>
-                      <Languages size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none group-hover:text-brand-orange transition-colors" />
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleRefresh}
-                      className="glass-card p-1.5 md:p-2 flex items-center justify-center text-slate-400 hover:text-brand-orange transition-all border-white/5"
-                      title={t.refresh}
-                    >
-                      <RefreshCw size={14} className={cn(loading && "animate-spin")} />
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setShowSettings(true)}
-                      className="glass-card p-1.5 md:p-2 flex items-center justify-center text-slate-400 hover:text-brand-orange transition-all border-white/5"
-                      title={t.settings}
-                    >
-                      <Globe size={14} />
-                    </motion.button>
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Tier 2: Navigation Bar */}
-              <div className="bg-slate-900/40 backdrop-blur-md border-b border-white/10 py-2 px-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                  <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
-                    {[
-                      { id: 'home', icon: Home, label: t.home },
-                      { id: 'video', icon: Video, label: t.videoGen },
-                      { id: 'shorts', icon: Zap, label: t.shortsGen },
-                      { id: 'idea', icon: Lightbulb, label: t.ideaGen },
-                      { id: 'image', icon: Palette, label: t.imageGen },
-                      { id: 'voice', icon: Mic, label: t.voiceOver },
-                      { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
-                    ].map((item) => (
-                      <button 
-                        key={item.id}
-                        onClick={() => {
-                          setCurrentView(item.id as any);
-                          if (item.id === 'video') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                          } else if (item.id === 'shorts') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
-                          }
-                        }}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 shrink-0 border border-transparent",
-                          currentView === item.id 
-                            ? "bg-brand-orange/10 text-brand-orange border-brand-orange/20 font-bold" 
-                            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                        )}
-                      >
-                        <item.icon size={16} />
-                        <span className="text-[10px] md:text-xs whitespace-nowrap">{item.label}</span>
-                      </button>
-                    ))}
-                  </nav>
-                  
-                  <div className="flex items-center gap-2 border-l border-white/10 pl-4">
-                    <button 
-                      onClick={downloadPdf}
-                      disabled={!currentResult || currentResult.imageUrl || currentResult.audioUrl}
-                      className={cn(
-                        "p-2 rounded-lg transition-all duration-300 shrink-0 border",
-                        (currentResult && !currentResult.imageUrl && !currentResult.audioUrl) 
-                          ? "text-blue-500 border-blue-500/20 hover:bg-blue-500/10" 
-                          : "text-slate-600 border-white/5 cursor-not-allowed opacity-50"
-                      )}
-                      title={t.downloadReport}
-                    >
-                      <Download size={16} />
-                    </button>
                   </div>
                 </div>
+                
+                <div className="w-[1px] h-8 bg-[var(--border-main)]" />
+                
+                <div className="flex items-center gap-3">
+                  <div className="relative group">
+                    <select
+                      value={uiLang}
+                      onChange={(e) => setUiLang(e.target.value as 'en' | 'bn')}
+                      className="appearance-none bg-transparent text-xs font-bold text-[var(--text-muted)] hover:text-brand-purple transition-colors outline-none cursor-pointer pr-5"
+                    >
+                      <option value="en" className="bg-[var(--bg-card)] text-[var(--text-main)]">EN</option>
+                      <option value="bn" className="bg-[var(--bg-card)] text-[var(--text-main)]">BN</option>
+                    </select>
+                    <Languages size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-hover:text-brand-purple transition-colors" />
+                  </div>
+
+                  <button
+                    onClick={handleRefresh}
+                    className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                  >
+                    <RefreshCw size={16} className={cn(loading && "animate-spin")} />
+                  </button>
+
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                  >
+                    <Globe size={16} />
+                  </button>
+                </div>
               </div>
+
+              {/* Navigation Pill */}
+              <nav className="glass-card px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-hide pointer-events-auto shadow-2xl border-brand-purple/20 max-w-full">
+                {[
+                  { id: 'home', icon: Home, label: t.home },
+                  { id: 'video', icon: Video, label: t.videoGen },
+                  { id: 'shorts', icon: Zap, label: t.shortsGen },
+                  { id: 'idea', icon: Lightbulb, label: t.ideaGen },
+                  { id: 'image', icon: Palette, label: t.imageGen },
+                  { id: 'voice', icon: Mic, label: t.voiceOver },
+                  { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
+                ].map((item) => (
+                  <button 
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentView(item.id as any);
+                      if (item.id === 'video') {
+                        setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                      } else if (item.id === 'shorts') {
+                        setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap",
+                      currentView === item.id 
+                        ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/30 scale-105" 
+                        : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]"
+                    )}
+                  >
+                    <item.icon size={14} />
+                    <span className="hidden lg:block">{item.label}</span>
+                  </button>
+                ))}
+                
+                <div className="w-[1px] h-6 bg-[var(--border-main)] mx-2" />
+                
+                <button 
+                  onClick={downloadPdf}
+                  disabled={!currentResult || currentResult.imageUrl || currentResult.audioUrl}
+                  className={cn(
+                    "p-2.5 rounded-xl transition-all duration-300 shrink-0",
+                    (currentResult && !currentResult.imageUrl && !currentResult.audioUrl) 
+                      ? "text-brand-purple bg-brand-purple/10 hover:bg-brand-purple/20" 
+                      : "text-slate-600 cursor-not-allowed opacity-50"
+                  )}
+                  title={t.downloadReport}
+                >
+                  <Download size={16} />
+                </button>
+              </nav>
             </header>
 
 
@@ -2515,11 +2171,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="space-y-8"
+        className="space-y-8 pt-32 md:pt-24"
       >
         {/* Dashboard Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-3">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-3">
             <div className="w-8 h-[1px] bg-brand-orange/30"></div>
             <LayoutDashboard size={14} className="text-brand-orange" /> {t.dashboardOverview}
           </h2>
@@ -2540,90 +2196,71 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
         {/* Dashboard Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <motion.div 
-            whileHover={{ y: -5 }}
-            className="glass-card p-4 flex items-center gap-4 bg-linear-to-br from-brand-orange/10 to-transparent border-brand-orange/20"
-          >
-            <div className="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center text-brand-orange shadow-lg shadow-brand-orange/20">
-              <Zap size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-black">{t.activeModel}</p>
-              <p className="text-sm font-black text-white capitalize">{aiProvider}</p>
-            </div>
-          </motion.div>
-          <motion.div 
-            whileHover={{ y: -5 }}
-            className="glass-card p-4 flex items-center gap-4 bg-linear-to-br from-blue-500/10 to-transparent border-blue-500/20"
-          >
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shadow-lg shadow-blue-500/20">
-              <History size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-black">{t.totalHistory}</p>
-              <p className="text-sm font-black text-white">{history.length}</p>
-            </div>
-          </motion.div>
-          <motion.div 
-            whileHover={{ y: -5 }}
-            className="glass-card p-4 flex items-center gap-4 bg-linear-to-br from-emerald-500/10 to-transparent border-emerald-500/20"
-          >
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/20">
-              <Globe size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-black">{t.language}</p>
-              <p className="text-sm font-black text-white uppercase">{uiLang}</p>
-            </div>
-          </motion.div>
-          <motion.div 
-            whileHover={{ y: -5 }}
-            className="glass-card p-4 flex items-center gap-4 bg-linear-to-br from-purple-500/10 to-transparent border-purple-500/20"
-          >
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 shadow-lg shadow-purple-500/20">
-              <Sparkles size={20} />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-black">{t.currentView}</p>
-              <p className="text-sm font-black text-white capitalize">{currentView}</p>
-            </div>
-          </motion.div>
+          {[
+            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-brand-purple", bg: "bg-brand-purple/10", border: "border-brand-purple/20" },
+            { label: t.totalHistory, value: history.length, icon: History, color: "text-brand-blue-glow", bg: "bg-brand-blue-glow/10", border: "border-brand-blue-glow/20" },
+            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-brand-orange", bg: "bg-brand-orange/10", border: "border-brand-orange/20" }
+          ].map((stat, i) => (
+            <motion.div 
+              key={i}
+              whileHover={{ y: -4, scale: 1.01 }}
+              className="p-6 rounded-[2rem] bg-[var(--bg-card)]/30 border border-[var(--border-main)] glass-card flex items-center gap-5 shadow-xl group transition-all duration-300 relative overflow-hidden"
+            >
+              <div className={cn("absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40", stat.bg)} />
+              
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6",
+                stat.bg, stat.color, stat.border
+              )}>
+                <stat.icon size={20} />
+              </div>
+              <div className="space-y-0.5 z-10">
+                <p className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-bold">{stat.label}</p>
+                <p className="text-xl font-black text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Inputs */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-            <section className="glass-card p-6 md:p-8 space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                {currentView === 'home' && <LayoutDashboard size={20} className="text-brand-orange" />}
-                {currentView === 'youtube' && <Youtube size={20} className="text-brand-orange" />}
-                {currentView === 'video' && <Video size={20} className="text-brand-orange" />}
-                {currentView === 'shorts' && <Zap size={20} className="text-brand-orange" />}
-                {currentView === 'idea' && <Lightbulb size={20} className="text-brand-orange" />}
-                {currentView === 'image' && (
-                  <div className="flex items-center gap-1">
-                    <Palette size={20} className="text-brand-orange" />
-                    <Search size={16} className="text-brand-orange/60" />
+            <section className="studio-card p-8 md:p-12 space-y-12">
+            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-8">
+              <div className="space-y-1">
+                <h2 className="text-3xl font-black tracking-tighter flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple shadow-xl">
+                    {currentView === 'home' && <LayoutDashboard size={28} />}
+                    {currentView === 'youtube' && <Youtube size={28} />}
+                    {currentView === 'video' && <Video size={28} />}
+                    {currentView === 'shorts' && <Zap size={28} />}
+                    {currentView === 'idea' && <Lightbulb size={28} />}
+                    {currentView === 'image' && <Palette size={28} />}
+                    {currentView === 'voice' && <Mic size={28} />}
+                    {currentView === 'voiceExtractor' && <AudioLines size={28} />}
                   </div>
-                )}
-                {currentView === 'voice' && <Mic size={20} className="text-brand-orange" />}
-                {currentView === 'voiceExtractor' && <AudioLines size={20} className="text-brand-orange" />}
-                {currentView === 'home' ? t.dashboard : 
-                 currentView === 'youtube' ? t.youtubeToolset : 
-                 currentView === 'video' ? t.videoPrompter : 
-                 currentView === 'shorts' ? t.shortsGenTitle : 
-                 currentView === 'idea' ? t.viralIdeas :
-                 currentView === 'image' ? t.imageGenerator : 
-                 currentView === 'voice' ? t.voiceOverTitle :
-                 currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
-              </h2>
+                  <span className="premium-gradient-text">
+                    {currentView === 'home' ? t.dashboard : 
+                     currentView === 'youtube' ? t.youtubeToolset : 
+                     currentView === 'video' ? t.videoPrompter : 
+                     currentView === 'shorts' ? t.shortsGenTitle : 
+                     currentView === 'idea' ? t.viralIdeas :
+                     currentView === 'image' ? t.imageGenerator : 
+                     currentView === 'voice' ? t.voiceOverTitle :
+                     currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
+                  </span>
+                </h2>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black ml-16">
+                  {uiLang === 'en' ? "AI Powered Creative Studio" : "এআই চালিত ক্রিয়েটিভ স্টুডিও"}
+                </p>
+              </div>
               <button 
                 onClick={() => setShowHistory(!showHistory)}
-                className="text-slate-400 hover:text-brand-orange transition-colors flex items-center gap-2 text-sm"
+                className="group flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all text-[10px] font-black uppercase tracking-widest shadow-xl"
               >
-                <History size={16} /> {t.history}
+                <History size={16} className="group-hover:rotate-[-45deg] transition-transform" /> {t.history}
               </button>
             </div>
 
@@ -2636,8 +2273,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             >
               {currentView !== 'voiceExtractor' && (
                 <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                    <FileText size={14} /> {
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                    <FileText size={14} className="text-brand-purple" /> {
                       currentView === 'video' ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
@@ -2657,7 +2294,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         currentView === 'promptGen' ? t.promptGenPlaceholder :
                         t.topicPlaceholder
                       }
-                      className="w-full input-field min-h-[100px] resize-none"
+                      className="w-full input-field min-h-[120px] resize-none text-base font-medium"
                       value={currentTopic}
                       onFocus={() => setShowAllTopics(true)}
                       onBlur={() => setTimeout(() => setShowAllTopics(false), 200)}
@@ -2669,12 +2306,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       }}
                     />
                     {showAllTopics && (currentView === 'idea' || currentView === 'home') && (
-                      <div className="absolute z-10 w-full mt-1 bg-black/90 border border-brand-border rounded-xl shadow-xl overflow-hidden max-h-[200px] overflow-y-auto custom-scrollbar">
+                      <div className="absolute z-10 w-full mt-1 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl shadow-xl overflow-hidden max-h-[200px] overflow-y-auto custom-scrollbar">
                         {currentView === 'idea' ? (
                           trendingTopics.map((trend, idx) => (
                             <div 
                               key={idx} 
-                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-slate-300 hover:text-white"
+                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)]"
                               onClick={() => {
                                 setTopics(prev => ({ ...prev, [currentView]: trend.topic }));
                                 setShowAllTopics(false);
@@ -2687,7 +2324,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           POPULAR_TOPICS.map((topic, idx) => (
                             <div 
                               key={idx} 
-                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-slate-300 hover:text-white"
+                              className="p-2 hover:bg-brand-orange/20 cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)]"
                               onClick={() => {
                                 setTopics(prev => ({ ...prev, [currentView]: uiLang === 'bn' ? topic.bn : topic.en }));
                                 setShowAllTopics(false);
@@ -2704,7 +2341,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {(currentView === 'image' || currentView === 'video') && (
                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-500">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-brand-orange font-black">
+                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-brand-purple font-black">
                           <Sparkles size={12} /> {uiLang === 'en' ? "Prompt Suggestions" : "প্রম্পট সাজেশন"}
                         </div>
                         {topics[currentView].trim() !== "" && (
@@ -2713,7 +2350,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               setTopics(prev => ({ ...prev, [currentView]: "" }));
                               toast.info(uiLang === 'en' ? "Prompt cleared" : "প্রম্পট মুছে ফেলা হয়েছে");
                             }}
-                            className="text-[9px] uppercase tracking-widest text-slate-500 hover:text-brand-orange transition-colors font-bold flex items-center gap-1"
+                            className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple transition-colors font-bold flex items-center gap-1"
                           >
                             <Trash2 size={10} /> {uiLang === 'en' ? "Clear" : "মুছুন"}
                           </button>
@@ -2723,14 +2360,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="space-y-3">
                         {/* Scene Presets */}
                         <div className="space-y-2">
-                          <span className="text-[9px] uppercase tracking-tighter text-brand-orange font-black px-1 flex items-center gap-1">
+                          <span className="text-[9px] uppercase tracking-tighter text-brand-purple font-black px-1 flex items-center gap-1">
                             <Zap size={10} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(242, 125, 38, 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -2746,7 +2383,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   }));
                                   toast.success(`${preset[uiLang]} ${uiLang === 'en' ? "applied!" : "যুক্ত হয়েছে!"}`);
                                 }}
-                                className="text-[10px] px-2.5 py-1.5 rounded-lg bg-brand-orange/10 border border-brand-orange/20 hover:border-brand-orange/50 transition-all flex items-center gap-1.5 text-brand-orange font-bold"
+                                className="text-[10px] px-2.5 py-1.5 rounded-lg bg-brand-purple/10 border border-brand-purple/20 hover:border-brand-purple/50 transition-all flex items-center gap-1.5 text-brand-purple font-bold"
                               >
                                 <span>{preset.icon}</span>
                                 {preset[uiLang]}
@@ -2769,7 +2406,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   onClick={() => setExpandedCategories(prev => 
                                     prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
                                   )}
-                                  className="w-full flex items-center justify-between text-[9px] uppercase tracking-tighter text-slate-500 font-bold px-1 hover:text-slate-300 transition-colors"
+                                  className="w-full flex items-center justify-between text-[9px] uppercase tracking-tighter text-[var(--text-muted)] font-bold px-1 hover:text-[var(--text-main)] transition-colors"
                                 >
                                   <span>
                                     {category === 'subject' ? (uiLang === 'en' ? "Subjects" : "বিষয়") :
@@ -2852,7 +2489,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {currentView === 'voiceExtractor' && (
                 <div className="space-y-4 pt-4">
-                  <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                     <Languages size={14} className="text-brand-orange" /> {t.targetLanguage}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -2861,8 +2498,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'en' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-brand-border text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'en' ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-black/40 text-slate-400 hover:bg-black/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        options.language === 'en' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'en' && <Check size={16} />} {t.en}
@@ -2872,8 +2509,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'bn' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-brand-border text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'bn' ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-black/40 text-slate-400 hover:bg-black/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        options.language === 'bn' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'bn' && <Check size={16} />} {t.bn}
@@ -2883,8 +2520,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'hi' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-brand-border text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'hi' ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-black/40 text-slate-400 hover:bg-black/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
+                        options.language === 'hi' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'hi' && <Check size={16} />} {t.hi}
@@ -2895,7 +2532,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {currentView === 'promptGen' && (
                 <div className="space-y-4 pt-4">
-                  <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                     <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -2906,8 +2543,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                         className={cn(
-                          "py-3 rounded-xl border border-brand-border text-sm font-bold transition-all flex items-center justify-center gap-2",
-                          options.promptCategory === cat ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-black/40 text-slate-400 hover:bg-black/60"
+                          "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
+                          options.promptCategory === cat ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                         )}
                       >
                         {options.promptCategory === cat && <Check size={16} />} 
@@ -2933,7 +2570,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {loadingTrends ? (
                       Array(4).fill(0).map((_, i) => (
-                        <div key={i} className="h-20 rounded-xl bg-white/5 animate-pulse border border-white/5" />
+                        <div key={i} className="h-20 rounded-xl bg-[var(--bg-card)]/5 animate-pulse border border-[var(--border-main)]/5" />
                       ))
                     ) : (
                       trendingTopics.map((trend, idx) => (
@@ -2945,15 +2582,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setTopics(prev => ({ ...prev, idea: trend.topic }));
                             toast.info(t.clickToUse);
                           }}
-                          className="p-3 rounded-xl bg-black/20 border border-brand-border hover:border-brand-orange transition-all cursor-pointer group relative overflow-hidden"
+                          className="p-3 rounded-xl bg-[var(--bg-card)]/20 border border-brand-border hover:border-brand-orange transition-all cursor-pointer group relative overflow-hidden"
                         >
                           <div className="absolute top-0 right-0 p-1 bg-brand-orange/20 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity">
                             <Zap size={10} className="text-brand-orange" />
                           </div>
-                          <h4 className="text-sm font-bold text-slate-200 group-hover:text-brand-orange transition-colors line-clamp-1">
+                          <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-orange transition-colors line-clamp-1">
                             {trend.topic}
                           </h4>
-                          <p className="text-[10px] text-slate-500 line-clamp-2 mt-1 leading-tight">
+                          <p className="text-[10px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-tight">
                             {trend.reason}
                           </p>
                         </motion.div>
@@ -2990,7 +2627,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             "w-full flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border transition-all group",
                             selectedCategory === idx 
                               ? "bg-brand-orange/10 border-brand-orange/50 shadow-[0_0_20px_rgba(242,125,38,0.1)]" 
-                              : "bg-[#1a1c23] border-white/5 hover:border-brand-orange/30"
+                              : "bg-[var(--bg-card)] border-[var(--border-main)]/5 hover:border-brand-orange/30"
                           )}
                         >
                           <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
@@ -3035,7 +2672,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowAllTopics(!showAllTopics)}
-                      className="px-8 py-2.5 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-slate-400 hover:text-white hover:border-white/20 transition-all flex items-center gap-2"
+                      className="px-8 py-2.5 rounded-full border border-[var(--border-main)] bg-[var(--bg-card)]/40 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--border-main)] transition-all flex items-center gap-2"
                     >
                       {showAllTopics ? t.showLess : t.showMore}
                       <span className={cn("transition-transform duration-300", showAllTopics ? "rotate-180" : "")}>
@@ -3049,7 +2686,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
                         <Sparkles size={20} className="text-brand-orange" />
-                        <h2 className="text-sm font-bold text-white tracking-wide">
+                        <h2 className="text-sm font-bold text-[var(--text-main)] tracking-wide">
                           {t.promptGen}
                         </h2>
                       </div>
@@ -3060,7 +2697,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="glass-card p-6 space-y-6 border-brand-orange/20 bg-brand-orange/5">
                       <div className="space-y-4">
-                        <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                           <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -3072,7 +2709,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                               className={cn(
                                 "py-2.5 rounded-xl border border-brand-border text-xs font-bold transition-all flex items-center justify-center gap-2",
-                                options.promptCategory === cat ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-black/40 text-slate-400 hover:bg-black/60"
+                                options.promptCategory === cat ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                               )}
                             >
                               {options.promptCategory === cat && <Check size={14} />} 
@@ -3088,32 +2725,32 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {/* New Dropdowns */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold">Visual Style</label>
-                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-black/40 border border-brand-border rounded-xl p-2 text-sm text-slate-300">
+                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Visual Style</label>
+                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
                             {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch'].map(style => <option key={style} value={style}>{style}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold">Camera Angle</label>
-                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-black/40 border border-brand-border rounded-xl p-2 text-sm text-slate-300">
+                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Camera Angle</label>
+                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
                             {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold">Mood</label>
-                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-black/40 border border-brand-border rounded-xl p-2 text-sm text-slate-300">
+                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Mood</label>
+                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
                             {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
                           </select>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                           <FileText size={14} /> {uiLang === 'en' ? 'Topic for Prompt' : 'প্রম্পটের বিষয়'}
                         </label>
                         <textarea 
                           placeholder={uiLang === 'en' ? "Enter a topic to generate unique prompts (e.g. A futuristic city)" : "ইউনিক প্রম্পট তৈরি করতে একটি বিষয় লিখুন (যেমন: একটি ভবিষ্যতের শহর)"}
-                          className="w-full input-field min-h-[100px] resize-none bg-black/40"
+                          className="w-full input-field min-h-[100px] resize-none bg-[var(--bg-card)]/40"
                           value={topics.promptGen}
                           onChange={(e) => {
                             const val = e.target.value;
@@ -3132,36 +2769,36 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="space-y-6 pt-8 border-t border-white/5">
                     <div className="flex items-center gap-2 px-1">
                       <span className="text-xl">⏰</span>
-                      <h2 className="text-sm font-bold text-white tracking-wide">
+                      <h2 className="text-sm font-bold text-[var(--text-main)] tracking-wide">
                         {t.bestPostingTime}
                       </h2>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {BEST_POSTING_TIMES.map((item, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: idx * 0.05 }}
-                          whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.03)" }}
-                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[#1a1c23] border border-white/5 text-center"
-                        >
-                          <span className="text-2xl mb-1">{item.icon}</span>
-                          <span className="text-sm font-black text-brand-orange tracking-tight">
-                            {item.time}
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                            {item.platform} {uiLang === 'bn' ? (
-                              item.period === 'morning' ? 'সকাল' :
-                              item.period === 'afternoon' ? 'দুপুর' :
-                              item.period === 'evening' ? 'সন্ধ্যা' :
-                              item.period === 'night' ? 'রাত' : ''
-                            ) : item.period}
-                          </span>
-                        </motion.div>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {BEST_POSTING_TIMES.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.05 }}
+                        whileHover={{ y: -5, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
+                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-center glass-card"
+                      >
+                        <span className="text-2xl mb-1">{item.icon}</span>
+                        <span className="text-sm font-black text-brand-purple tracking-tight">
+                          {item.time}
+                        </span>
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                          {item.platform} {uiLang === 'bn' ? (
+                            item.period === 'morning' ? 'সকাল' :
+                            item.period === 'afternoon' ? 'দুপুর' :
+                            item.period === 'evening' ? 'সন্ধ্যা' :
+                            item.period === 'night' ? 'রাত' : ''
+                          ) : item.period}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
                   </div>
                 </div>
               )}
@@ -3169,7 +2806,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'voice' && (
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                    <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                       <Languages size={14} /> {t.voiceLang}
                     </label>
                     <div className="flex gap-2">
@@ -3185,7 +2822,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
                           className={cn(
                             "flex-1 py-2 rounded-xl border border-brand-border text-sm transition-all",
-                            options.voiceLanguage === lang.id ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-black/20 text-slate-400"
+                            options.voiceLanguage === lang.id ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-[var(--bg-card)]/20 text-[var(--text-muted)]"
                           )}
                         >
                           {lang.flag} {lang.label}
@@ -3195,13 +2832,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                    <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
                       <Volume2 size={14} /> {t.selectVoice}
                     </label>
                     
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t.femaleVoices}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{t.femaleVoices}</p>
                         <div className="grid grid-cols-2 gap-2">
                           {[
                             { id: 'Kore', label: 'Kore (Warm)', desc: 'Natural & Soft' },
@@ -3225,7 +2862,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
 
                       <div className="space-y-2">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t.maleVoices}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{t.maleVoices}</p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
                             { id: 'Puck', label: 'Puck', desc: 'Friendly' },
@@ -3405,10 +3042,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
           {/* Template Presets */}
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && currentView !== 'promptGen' && !currentSelectedMedia && (
-            <section className="space-y-4 mb-8">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold flex items-center gap-2 text-white">
-                  <LayoutTemplate size={24} className="text-brand-orange" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
+            <section className="space-y-6 mb-10">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+                  <LayoutTemplate size={18} className="text-brand-purple" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -3441,9 +3078,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <button
                     key={template.id}
                     onClick={() => setOptions(prev => ({ ...prev, ...template.preset }))}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-brand-orange/20 hover:border-brand-orange/50 transition-all text-sm text-slate-300 hover:text-white"
+                    className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/50 hover:bg-brand-purple/5 transition-all text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
                   >
-                    <template.icon size={16} className="text-brand-orange" />
+                    <template.icon size={18} className="text-brand-purple" />
                     {template.label}
                   </button>
                 ))}
@@ -3453,17 +3090,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
           {/* Options Grid (Original for all views) */}
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && !currentSelectedMedia && (
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold flex items-center gap-2 text-white">
-                  <Sparkles size={24} className="text-brand-orange animate-pulse" /> {t.whatToCreate}
+            <section className="space-y-8">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+                  <Sparkles size={18} className="text-brand-purple animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[10px] uppercase tracking-widest text-brand-orange font-bold bg-brand-orange/10 px-3 py-1 rounded-full border border-brand-orange/20">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-brand-purple font-black bg-brand-purple/10 px-4 py-1.5 rounded-full border border-brand-purple/20 shadow-sm">
                   AI Powered
                 </span>
               </div>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[
                   { id: 'generateImagePrompt', label: t.imagePromptLabel, desc: t.imagePromptDesc, icon: ImageIcon, color: "from-blue-500/20 to-cyan-500/20" },
                   { id: 'generateVideoPrompt', label: t.videoPromptLabel, desc: t.videoPromptDesc, icon: Video, color: "from-purple-500/20 to-pink-500/20" },
@@ -3475,37 +3112,37 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   { id: 'generateKeywords', label: t.keywordsLabel, desc: t.keywordsDesc, icon: Search, color: "from-rose-500/20 to-pink-500/20" },
                 ].map((opt) => (
                   <motion.div 
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -5 }}
                     whileTap={{ scale: 0.98 }}
                     key={opt.id}
                     onClick={() => setOptions(prev => ({ ...prev, [opt.id]: !prev[opt.id as keyof typeof prev] }))}
                     className={cn(
-                      "relative group cursor-pointer rounded-xl p-3 transition-all duration-300 border overflow-hidden flex items-center gap-3",
+                      "relative group cursor-pointer rounded-2xl p-4 transition-all duration-300 border overflow-hidden flex flex-col gap-4",
                       options[opt.id as keyof typeof options] 
-                        ? "bg-brand-orange/10 border-brand-orange shadow-sm" 
-                        : "bg-white/5 border-white/10 hover:border-white/20"
+                        ? "bg-brand-purple/10 border-brand-purple shadow-lg shadow-brand-purple/5" 
+                        : "bg-[var(--bg-card)]/40 border-[var(--border-main)] hover:border-brand-purple/30"
                     )}
                   >
                     <div className={cn(
-                      "w-9 h-9 shrink-0 rounded-lg flex items-center justify-center transition-all duration-300",
-                      options[opt.id as keyof typeof options] ? "bg-brand-orange text-white" : "bg-white/10 text-slate-400 group-hover:text-white"
+                      "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm",
+                      options[opt.id as keyof typeof options] ? "bg-brand-purple text-white" : "bg-[var(--bg-card)]/60 text-[var(--text-muted)] group-hover:text-brand-purple"
                     )}>
-                      <opt.icon size={18} />
+                      <opt.icon size={24} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={cn(
-                        "font-bold text-[11px] transition-colors truncate",
-                        options[opt.id as keyof typeof options] ? "text-brand-orange" : "text-white"
+                        "font-bold text-xs transition-colors uppercase tracking-widest",
+                        options[opt.id as keyof typeof options] ? "text-brand-purple" : "text-[var(--text-main)]"
                       )}>
                         {opt.label}
                       </h3>
-                      <p className="text-[9px] text-slate-500 line-clamp-1">
+                      <p className="text-[10px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-relaxed">
                         {opt.desc}
                       </p>
                     </div>
                     {options[opt.id as keyof typeof options] && (
-                      <div className="w-4 h-4 shrink-0 rounded-full bg-brand-orange flex items-center justify-center">
-                        <Check size={10} className="text-white" />
+                      <div className="absolute top-3 right-3 w-5 h-5 shrink-0 rounded-full bg-brand-purple flex items-center justify-center shadow-lg">
+                        <Check size={12} className="text-white" />
                       </div>
                     )}
                   </motion.div>
@@ -3577,12 +3214,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                            <Type size={14} /> {t.scriptCharacters}
+                          <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                            <Type size={14} className="text-brand-purple" /> {t.scriptCharacters}
                           </label>
-                          <span className="text-brand-orange font-bold text-sm">
+                          <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                             {options.scriptCharacterCount} {t.charLimit}
                           </span>
                         </div>
@@ -3593,9 +3230,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           step="50"
                           value={options.scriptCharacterCount}
                           onChange={(e) => setOptions(prev => ({ ...prev, scriptCharacterCount: parseInt(e.target.value) }))}
-                          className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                          className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                         />
-                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                        <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                           <span>100</span>
                           <span>20000</span>
                         </div>
@@ -3604,12 +3241,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   )}
 
                   {options.generateVideoPrompt && currentView !== 'shorts' && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                          <Clock size={14} /> {t.videoDuration}
+                        <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                          <Clock size={14} className="text-brand-purple" /> {t.videoDuration}
                         </label>
-                        <span className="text-brand-orange font-bold text-sm">
+                        <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                           {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
                         </span>
                       </div>
@@ -3629,9 +3266,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             scriptWordCount: words
                           }));
                         }}
-                        className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                       />
-                      <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                         <span>8s</span>
                         <span>20m</span>
                       </div>
@@ -3639,12 +3276,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   )}
 
                   {options.generateScript && currentView !== 'shorts' && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                          <Type size={14} /> {t.scriptWords}
+                        <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                          <Type size={14} className="text-brand-purple" /> {t.scriptWords}
                         </label>
-                        <span className="text-brand-orange font-bold text-sm">
+                        <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                           {options.scriptWordCount} {t.words}
                         </span>
                       </div>
@@ -3664,9 +3301,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             videoDuration: duration
                           }));
                         }}
-                        className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                       />
-                      <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                         <span>100w</span>
                         <span>5000w</span>
                       </div>
@@ -3678,20 +3315,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           {currentView === 'image' && (
-            <section className="glass-card p-6 space-y-6">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <ImageIcon size={20} className="text-brand-orange" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
+            <section className="glass-card p-8 space-y-8">
+              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+                <ImageIcon size={18} className="text-brand-purple" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {['1:1', '3:4', '4:3', '9:16', '16:9', '2:3', '3:2', '21:9'].map((ratio) => (
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
                     key={ratio}
                     onClick={() => setOptions(prev => ({ ...prev, aspectRatio: ratio as any }))}
                     className={cn(
-                      "py-2 rounded-xl border border-brand-border text-sm transition-all",
-                      options.aspectRatio === ratio ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-black/20 text-slate-400"
+                      "py-3 rounded-2xl border text-xs font-black transition-all shadow-sm",
+                      options.aspectRatio === ratio 
+                        ? "bg-brand-purple text-white border-brand-purple shadow-lg shadow-brand-purple/20" 
+                        : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] border-[var(--border-main)] hover:border-brand-purple/30"
                     )}
                   >
                     {ratio}
@@ -3702,29 +3341,36 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01, y: -2 }}
+            whileTap={{ scale: 0.99 }}
             onClick={handleGenerate}
             disabled={loading || (!(currentView === 'home' ? (topics.home || topics.promptGen) : currentTopic) && !currentSelectedMedia)}
-            className="w-full btn-primary py-4 text-lg"
+            className="w-full relative overflow-hidden rounded-3xl p-[2px] group"
           >
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" /> {t.processing}
-              </>
-            ) : (
-              <>
-                <Zap size={20} /> {
-                  currentView === 'video' ? t.genPrompt : 
-                  currentView === 'idea' ? t.genIdea : 
-                  currentView === 'image' ? t.genImage :
-                  currentView === 'voice' ? t.genVoice :
-                  currentView === 'voiceExtractor' ? t.genVoiceExtractor :
-                  (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
-                  (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
-                }
-              </>
-            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[shine_3s_linear_infinite]" />
+            <div className="relative bg-[var(--bg-main)] rounded-[22px] px-8 py-6 flex items-center justify-center gap-3 transition-colors duration-500 group-hover:bg-[var(--bg-main)]/80">
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin text-brand-purple" size={24} /> 
+                  <span className="text-xl font-black tracking-[0.1em] text-brand-purple uppercase">{t.processing}</span>
+                </>
+              ) : (
+                <>
+                  <Zap size={24} className="text-brand-purple group-hover:rotate-12 transition-transform" /> 
+                  <span className="text-xl font-black tracking-[0.1em] text-[var(--text-main)] uppercase">
+                    {
+                      currentView === 'video' ? t.genPrompt : 
+                      currentView === 'idea' ? t.genIdea : 
+                      currentView === 'image' ? t.genImage :
+                      currentView === 'voice' ? t.genVoice :
+                      currentView === 'voiceExtractor' ? t.genVoiceExtractor :
+                      (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
+                      (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
+                    }
+                  </span>
+                </>
+              )}
+            </div>
           </motion.button>
         </div>
 
@@ -3733,14 +3379,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           <AnimatePresence mode="wait">
             <motion.div 
               key="result"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-6 md:p-8 min-h-[400px] md:min-h-[500px] flex flex-col"
+              className="glass-card p-8 md:p-12 min-h-[500px] md:min-h-[600px] flex flex-col shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[var(--border-main)] relative overflow-hidden group"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <Sparkles size={20} className="text-brand-orange" /> {t.outputPreview}
-                </h2>
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <div className="flex items-center justify-between mb-10">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3">
+                    <Sparkles size={24} className="text-brand-orange animate-pulse" /> 
+                    <span className="premium-gradient-text">{t.outputPreview}</span>
+                  </h2>
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black ml-9">
+                    {uiLang === 'en' ? "AI Generated Result" : "এআই জেনারেটেড রেজাল্ট"}
+                  </p>
+                </div>
                 {currentResult && !currentResult.imageUrl && !currentResult.audioUrl && (
                   <button 
                     onClick={() => {
@@ -3779,10 +3433,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {/* Quick Suggestions Bento Grid */}
                   <div className="grid grid-cols-2 gap-4 w-full pt-8">
                     {[
-                      { label: t.viralScript, icon: ScrollText, view: 'video' },
-                      { label: t.seoTags, icon: Tag, view: 'youtube' },
-                      { label: t.thumbnail, icon: ImageIcon, view: 'image' },
-                      { label: t.aiVideo, icon: Video, view: 'video' }
+                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-brand-purple", bg: "bg-brand-purple/10", border: "border-brand-purple/20" },
+                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-brand-blue-glow", bg: "bg-brand-blue-glow/10", border: "border-brand-blue-glow/20" },
+                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
+                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-brand-orange", bg: "bg-brand-orange/10", border: "border-brand-orange/20" }
                     ].map((item, i) => (
                       <button 
                         key={i}
@@ -3792,10 +3446,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
                           }
                         }}
-                        className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-orange/30 hover:bg-white/10 transition-all flex flex-col items-center gap-3 group"
+                        className="p-5 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--text-muted)]/30 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden"
                       >
-                        <item.icon size={20} className="text-slate-500 group-hover:text-brand-orange transition-colors" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 group-hover:text-slate-300">{item.label}</span>
+                        <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500", item.bg)} />
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", item.bg, item.color, item.border)}>
+                          <item.icon size={20} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">{item.label}</span>
                       </button>
                     ))}
                   </div>
@@ -3803,68 +3460,71 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               )}
 
               {loading && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-8">
-                    <div className="relative">
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-[var(--bg-card)]/30 rounded-[2.5rem] border border-[var(--border-main)] backdrop-blur-sm relative overflow-hidden">
+                    {/* Background glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-purple/10 rounded-full blur-[80px]" />
+                    
+                    <div className="relative z-10">
                       <motion.div 
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                        className="w-32 h-32 rounded-full border-2 border-dashed border-brand-orange/30"
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        className="w-32 h-32 rounded-full border border-[var(--border-main)] border-t-brand-purple/50 border-r-brand-purple/30"
                       />
                       <motion.div 
                         animate={{ rotate: -360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-2 rounded-full border-2 border-dashed border-brand-orange/20"
+                        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-2 rounded-full border border-[var(--border-main)] border-b-brand-blue-glow/50 border-l-brand-blue-glow/30"
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
                           <motion.div
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange glow-border"
+                            animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-purple/20 to-transparent flex items-center justify-center text-brand-purple border border-brand-purple/20 shadow-[0_0_30px_rgba(139,92,246,0.2)] backdrop-blur-md"
                           >
                             <Sparkles size={32} />
                           </motion.div>
-                          <motion.div 
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-brand-orange rounded-full"
-                            animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                          />
                         </div>
                       </div>
                     </div>
 
-                    <div className="w-full max-w-md space-y-4">
-                      <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold">
-                        <span className="text-brand-orange animate-pulse">
-                          {t.loadingSteps[loadingStep] || t.processing}
-                        </span>
-                        <span className="text-slate-500">{Math.round(loadingProgress)}%</span>
+                    <div className="w-full max-w-sm space-y-6 z-10">
+                      <div className="flex justify-between items-end">
+                        <div className="text-xs uppercase tracking-[0.2em] font-bold text-brand-purple h-4">
+                          <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="typewriter-text" />
+                        </div>
+                        <span className="text-xs font-mono text-[var(--text-muted)]">{Math.round(loadingProgress)}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <div className="h-1.5 w-full bg-[var(--bg-main)] rounded-full overflow-hidden border border-[var(--border-main)] relative">
+                        <div className="absolute inset-0 bg-brand-purple/10" />
                         <motion.div 
-                          className="h-full bg-linear-to-r from-brand-orange to-orange-600 shadow-[0_0_15px_rgba(242,125,38,0.5)]"
+                          className="h-full bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
-                          transition={{ type: "spring", stiffness: 50 }}
-                        />
+                          transition={{ type: "spring", stiffness: 40, damping: 15 }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shine_2s_linear_infinite]" />
+                        </motion.div>
                       </div>
-                      <div className="flex justify-center gap-1">
+                      <div className="flex justify-center gap-3">
                         {t.loadingSteps.map((_, i) => (
                           <div 
                             key={i} 
                             className={cn(
-                              "w-1.5 h-1.5 rounded-full transition-all duration-500",
-                              i <= loadingStep ? "bg-brand-orange scale-110 shadow-[0_0_8px_rgba(242,125,38,0.5)]" : "bg-white/10"
+                              "w-1.5 h-1.5 rounded-full transition-all duration-700",
+                              i <= loadingStep 
+                                ? "bg-brand-purple shadow-[0_0_10px_rgba(139,92,246,0.5)] scale-125" 
+                                : "bg-[var(--border-main)]"
                             )}
                           />
                         ))}
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-500 italic animate-pulse text-center max-w-xs">
+                    <p className="text-xs text-[var(--text-muted)] font-medium text-center max-w-xs leading-relaxed z-10 opacity-70">
                       {uiLang === 'en' 
-                        ? "Our AI is crafting your viral content using advanced algorithms..." 
-                        : "আমাদের এআই উন্নত অ্যালগরিদম ব্যবহার করে আপনার ভাইরাল কন্টেন্ট তৈরি করছে..."}
+                        ? "Synthesizing creative parameters..." 
+                        : "সৃজনশীল পরামিতি সংশ্লেষণ করা হচ্ছে..."}
                     </p>
                   </div>
                 )}
@@ -3881,7 +3541,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           onClick={downloadPdf}
-                          className="py-4 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all flex items-center justify-center gap-3"
+                          className="py-4 rounded-2xl bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
                         >
                           <Download size={20} />
                           {uiLang === 'en' ? "PDF" : "পিডিএফ"}
@@ -3890,7 +3550,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           onClick={shareContent}
-                          className="py-4 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-3"
+                          className="py-4 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
                         >
                           <Share2 size={20} />
                           {uiLang === 'en' ? "Share" : "শেয়ার"}
@@ -3933,34 +3593,38 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : currentResult.prompts ? (
                       <div className="space-y-4">
                         {currentResult.prompts.map((prompt: string, idx: number) => (
-                          <div key={idx} className="p-4 rounded-xl bg-black/40 border border-brand-border space-y-2 group">
+                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-brand-orange font-bold text-sm">Option {idx + 1}</h3>
+                              <h3 className="text-brand-purple font-black text-xs uppercase tracking-widest">Option {idx + 1}</h3>
                               <button 
                                 onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                className="text-slate-500 hover:text-brand-orange transition-colors"
+                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
                               >
-                                {copied === `prompt-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-wrap">{prompt}</p>
+                            <div className="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
+                              <TypewriterText text={prompt} className="typewriter-text" />
+                            </div>
                           </div>
                         ))}
                       </div>
                     ) : currentResult.ideas ? (
                       <div className="space-y-4">
                         {currentResult.ideas.map((idea: any, idx: number) => (
-                          <div key={idx} className="p-4 rounded-xl bg-black/40 border border-brand-border space-y-2 group">
+                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-brand-orange font-bold text-sm">{idx + 1}. {idea.title}</h3>
+                              <h3 className="text-brand-purple font-black text-xs uppercase tracking-widest">{idx + 1}. {idea.title}</h3>
                               <button 
                                 onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
-                                className="text-slate-500 hover:text-brand-orange transition-colors"
+                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
                               >
-                                {copied === `idea-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">{idea.description}</p>
+                            <div className="text-sm text-[var(--text-main)] leading-relaxed">
+                              <TypewriterText text={idea.description} className="typewriter-text" />
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -3981,12 +3645,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           const langName = langNames[langKey] || langKey;
           
           return (
-            <div key={`subtitle-${langKey}`} className="space-y-2 group">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] uppercase tracking-widest text-brand-orange font-bold flex items-center gap-2">
-                  <Languages size={12} /> {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
+            <div key={`subtitle-${langKey}`} className="space-y-3 group">
+              <div className="flex items-center justify-between px-2">
+                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                    <Languages size={12} />
+                  </div>
+                  {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                   <button 
                     onClick={() => {
                       const blob = new Blob([String(langValue)], { type: 'text/plain' });
@@ -3997,21 +3664,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="text-slate-500 hover:text-brand-orange transition-colors"
+                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
                     title="Download .srt"
                   >
-                    <Download size={14} />
+                    <Download size={18} />
                   </button>
                   <button 
                     onClick={() => copyToClipboard(String(langValue), `subtitle-${langKey}`)}
-                    className="text-slate-500 hover:text-brand-orange transition-colors"
+                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
                   >
-                    {copied === `subtitle-${langKey}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    {copied === `subtitle-${langKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                   </button>
                 </div>
               </div>
-              <div className="p-4 rounded-xl bg-black/40 border border-brand-border text-sm text-slate-300 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar">
-                {String(langValue)}
+              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
+                <TypewriterText text={String(langValue)} className="typewriter-text" />
               </div>
             </div>
           );
@@ -4033,20 +3700,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
           
           return (
-            <div key={`${key}-${mKey}`} className="space-y-2 group">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] uppercase tracking-widest text-brand-orange font-bold flex items-center gap-2">
-                  <mConfig.icon size={12} /> {mConfig.label}
+            <div key={`${key}-${mKey}`} className="space-y-3 group">
+              <div className="flex items-center justify-between px-2">
+                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                    <mConfig.icon size={12} />
+                  </div>
+                  {mConfig.label}
                 </label>
                 <button 
                   onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                  className="text-slate-500 hover:text-brand-orange transition-colors"
+                  className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
                 >
-                  {copied === `${key}-${mKey}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                  {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                 </button>
               </div>
-              <div className="p-4 rounded-xl bg-black/40 border border-brand-border text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-                {displayValue}
+              <div className="p-6 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-lg group-hover:border-brand-purple/20 transition-all duration-500">
+                <TypewriterText text={displayValue} className="typewriter-text" />
               </div>
             </div>
           );
@@ -4065,65 +3735,65 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             </div>
             <div className="space-y-4">
               {value.map((scene: any, idx: number) => (
-                <div key={idx} className="p-5 rounded-2xl bg-black/40 border border-brand-border space-y-4 hover:border-brand-orange/30 transition-colors group">
+                <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-orange/20 flex items-center justify-center text-brand-orange font-black text-xs">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-black text-sm shadow-inner">
                         {scene.scene || idx + 1}
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        <Clock size={12} /> {scene.time || "0:00"}
+                      <div className="flex items-center gap-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
+                        <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
                       </div>
                     </div>
                     <button 
                       onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
-                      className="text-slate-500 hover:text-brand-orange transition-colors"
+                      className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
                     >
-                      {copied === `scene-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                      {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                     </button>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <label className="text-[9px] uppercase tracking-widest text-slate-500 font-black flex items-center gap-2">
-                          <MessageSquare size={12} className="text-brand-orange" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                          <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
                         </label>
                         <div className="flex items-center gap-2">
                           {sceneAudioUrls[`scene-${idx}`] ? (
                             <audio 
                               src={sceneAudioUrls[`scene-${idx}`]} 
                               controls 
-                              className="h-6 w-32 custom-audio-mini"
+                              className="h-7 w-36 custom-audio-mini"
                             />
                           ) : (
                             <button
                               onClick={() => handleSceneVoiceOver(idx, scene.script)}
                               disabled={loadingSceneAudio === `scene-${idx}`}
                               className={cn(
-                                "text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-brand-orange/10 text-brand-orange border border-brand-orange/20 hover:bg-brand-orange/20 transition-all flex items-center gap-1",
+                                "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
                                 loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
                               )}
                             >
                               {loadingSceneAudio === `scene-${idx}` ? (
-                                <Loader2 size={10} className="animate-spin" />
+                                <Loader2 size={12} className="animate-spin" />
                               ) : (
-                                <Volume2 size={10} />
+                                <Volume2 size={12} />
                               )}
-                              {uiLang === 'en' ? "Gen Voice" : "ভয়েস তৈরি"}
+                              {uiLang === 'en' ? "Voice" : "ভয়েস"}
                             </button>
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
+                      <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-2xl border border-[var(--border-main)]/50">
                         {scene.script}
                       </p>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[9px] uppercase tracking-widest text-slate-500 font-black flex items-center gap-2">
-                        <Eye size={12} className="text-brand-orange" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                        <Eye size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
                       </label>
-                      <p className="text-xs text-slate-400 italic leading-relaxed bg-brand-orange/5 p-3 rounded-xl border border-brand-orange/10">
+                      <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-2xl border border-brand-purple/10">
                         {scene.visual}
                       </p>
                     </div>
@@ -4150,51 +3820,60 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
         hashtags: { label: t.hashtags, icon: Hash },
       };
-                        const config = labelMap[key] || { label: key, icon: Sparkles };
-                        
-                        return (
-                          <div key={key} className="space-y-2 group">
-                            <div className="flex items-center justify-between">
-                              <label className="text-[10px] uppercase tracking-widest text-brand-orange font-bold flex items-center gap-2">
-                                <config.icon size={12} /> {config.label}
+
+      return (
+        <div className="space-y-12">
+          {Object.entries(currentResult)
+            .filter(([key]) => !['imageUrl', 'audioUrl', 'prompts', 'ideas', 'scenes'].includes(key))
+            .map(([key, value]) => {
+              const config = labelMap[key] || { label: key, icon: Sparkles };
+              
+              return (
+                          <div key={key} className="space-y-3 group">
+                            <div className="flex items-center justify-between px-2">
+                              <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                  <config.icon size={12} />
+                                </div>
+                                {config.label}
                               </label>
-                              <div className="flex gap-2">
+                              <div className="flex gap-4">
                                 {key === 'script' && (
-                                  <div className="flex gap-1">
+                                  <div className="flex gap-3 items-center">
                                     <button 
                                       onClick={() => shareScript('facebook', String(value))}
-                                      className="text-slate-500 hover:text-[#1877F2] transition-colors"
+                                      className="text-[var(--text-muted)] hover:text-[#1877F2] transition-all hover:scale-110"
                                       title="Share on Facebook"
                                     >
-                                      <Facebook size={14} />
+                                      <Facebook size={18} />
                                     </button>
                                     <button 
                                       onClick={() => shareScript('twitter', String(value))}
-                                      className="text-slate-500 hover:text-[#1DA1F2] transition-colors"
+                                      className="text-[var(--text-muted)] hover:text-[#1DA1F2] transition-all hover:scale-110"
                                       title="Share on Twitter"
                                     >
-                                      <Twitter size={14} />
+                                      <Twitter size={18} />
                                     </button>
                                     <button 
                                       onClick={() => shareScript('whatsapp', String(value))}
-                                      className="text-slate-500 hover:text-[#25D366] transition-colors"
+                                      className="text-[var(--text-muted)] hover:text-[#25D366] transition-all hover:scale-110"
                                       title="Share on WhatsApp"
                                     >
-                                      <MessageCircle size={14} />
+                                      <MessageCircle size={18} />
                                     </button>
                                     <button 
                                       onClick={() => shareScript('native', String(value))}
-                                      className="text-slate-500 hover:text-white transition-colors"
+                                      className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
                                       title="Share"
                                     >
-                                      <Share2 size={14} />
+                                      <Share2 size={18} />
                                     </button>
                                     <button 
                                       onClick={downloadPdf}
-                                      className="text-slate-500 hover:text-blue-400 transition-colors"
+                                      className="text-[var(--text-muted)] hover:text-indigo-400 transition-all hover:scale-110"
                                       title="Download PDF"
                                     >
-                                      <Download size={14} />
+                                      <Download size={18} />
                                     </button>
                                   </div>
                                 )}
@@ -4207,43 +3886,43 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       copyToClipboard(String(value), key);
                                     }
                                   }}
-                                  className="text-slate-500 hover:text-brand-orange transition-colors"
+                                  className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
                                 >
-                                  {copied === key ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                  {copied === key ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                 </button>
                               </div>
                             </div>
-                            <div className="p-4 rounded-xl bg-black/40 border border-brand-border text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                            <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
                               {key === 'keywords' && Array.isArray(value) ? (
                                 <div className="overflow-x-auto">
                                   <table className="w-full text-left border-collapse">
                                     <thead>
-                                      <tr className="border-b border-brand-border">
-                                        <th className="py-2 px-3 text-[10px] uppercase text-slate-500 font-bold">Keyword</th>
-                                        <th className="py-2 px-3 text-[10px] uppercase text-slate-500 font-bold">Volume</th>
-                                        <th className="py-2 px-3 text-[10px] uppercase text-slate-500 font-bold">Competition</th>
+                                      <tr className="border-b border-[var(--border-main)]">
+                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Keyword</th>
+                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Volume</th>
+                                        <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Competition</th>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       {value.map((kw: any, i: number) => (
-                                        <tr key={i} className="border-b border-brand-border/50 hover:bg-white/5 transition-colors">
-                                          <td className="py-2 px-3 font-medium text-slate-200">{kw.keyword}</td>
-                                          <td className="py-2 px-3">
+                                        <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-brand-purple/5 transition-colors">
+                                          <td className="py-3 px-4 font-bold text-brand-purple">{kw.keyword}</td>
+                                          <td className="py-3 px-4">
                                             <span className={cn(
-                                              "px-2 py-0.5 rounded-full text-[10px] font-bold",
-                                              kw.searchVolume === 'High' ? "bg-green-500/20 text-green-400" :
-                                              kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-400" :
-                                              "bg-blue-500/20 text-blue-400"
+                                              "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                              kw.searchVolume === 'High' ? "bg-green-500/20 text-green-500" :
+                                              kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
+                                              "bg-blue-500/20 text-blue-500"
                                             )}>
                                               {kw.searchVolume}
                                             </span>
                                           </td>
-                                          <td className="py-2 px-3">
+                                          <td className="py-3 px-4">
                                             <span className={cn(
-                                              "px-2 py-0.5 rounded-full text-[10px] font-bold",
-                                              kw.competition === 'Low' ? "bg-green-500/20 text-green-400" :
-                                              kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-400" :
-                                              "bg-red-500/20 text-red-400"
+                                              "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                              kw.competition === 'Low' ? "bg-green-500/20 text-green-500" :
+                                              kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
+                                              "bg-red-500/20 text-red-500"
                                             )}>
                                               {kw.competition}
                                             </span>
@@ -4254,43 +3933,51 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   </table>
                                 </div>
                               ) : (
-                                String(value)
+                                <TypewriterText text={String(value)} className="typewriter-text" />
                               )}
                             </div>
                           </div>
                         );
-                      })
-                    )}
-                  {relatedIdeas.length > 0 && (
-                    <div className="mt-8 p-6 rounded-2xl bg-black/20 border border-white/10">
-                      <h3 className="text-lg font-bold text-white mb-4">
+                      })}
+                  </div>
+                )
+              })
+            )}
+          </motion.div>
+        )}
+                
+                {relatedIdeas.length > 0 && (
+                    <div className="mt-10 p-8 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card shadow-2xl">
+                      <h3 className="text-xl font-black tracking-tighter flex items-center gap-3 mb-6 text-[var(--text-main)]">
+                        <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                          <Sparkles size={20} />
+                        </div>
                         {uiLang === 'en' ? "Related Video Ideas" : "সম্পর্কিত ভিডিও আইডিয়া"}
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {relatedIdeas.map((idea, idx) => (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(242, 125, 38, 0.1)" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(168, 85, 247, 0.05)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
                               handleGenerate();
                             }}
-                            className="p-4 rounded-xl bg-black/40 border border-white/5 hover:border-brand-orange transition-all text-left"
+                            className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/30 transition-all text-left glass-card group"
                           >
-                            <h4 className="text-sm font-bold text-slate-200">{idea.title}</h4>
-                            <p className="text-xs text-slate-400 mt-1">{idea.description}</p>
+                            <h4 className="text-sm font-black text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{idea.title}</h4>
+                            <p className="text-xs text-[var(--text-muted)] mt-2 leading-relaxed">{idea.description}</p>
                           </motion.button>
                         ))}
                       </div>
                     </div>
                   )}
-                  </motion.div>
-                )}
-              </motion.div>
-          </AnimatePresence>
-        </div> {/* End of Right Column */}
-      </div> {/* End of Main Content Grid */}
+                </motion.div>
+              </AnimatePresence>
+            </div> {/* End of Right Column */}
+          </div> {/* End of Main Content Grid */}
+        </motion.main>
 
       {/* Settings Modal */}
           <AnimatePresence>
@@ -4312,30 +3999,33 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-lg glass-card p-5 sm:p-8 space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                    className="relative w-full max-w-lg glass-card p-6 sm:p-10 space-y-8 shadow-[0_0_80px_rgba(0,0,0,0.6)] border border-[var(--border-main)] rounded-[2.5rem] overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-orange to-orange-600" />
+                  <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
                   
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tighter flex items-center gap-3">
-                      <Globe size={28} className="text-brand-orange" /> {t.settings}
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-4 text-[var(--text-main)]">
+                      <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple shadow-inner">
+                        <Globe size={28} />
+                      </div>
+                      <span className="premium-gradient-text">{t.settings}</span>
                     </h2>
                     <button 
                       onClick={() => setShowSettings(false)}
-                      className="p-2 -mr-2 text-slate-500 hover:text-white transition-colors rounded-full hover:bg-white/10"
+                      className="p-3 -mr-2 text-[var(--text-muted)] hover:text-brand-purple transition-all rounded-full hover:bg-brand-purple/10 hover:rotate-90 duration-300"
                     >
-                      <X size={24} />
+                      <X size={28} />
                     </button>
                   </div>
 
                   <div className="space-y-8">
                     {/* Theme Selection */}
-                    <div className="space-y-3">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black flex items-center gap-2">
-                        <Palette size={14} className="text-brand-orange" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
+                    <div className="space-y-4">
+                      <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black flex items-center gap-2 px-1">
+                        <Palette size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
                       </label>
-                      <div className="grid grid-cols-3 gap-3 p-1.5 bg-black/40 rounded-2xl border border-white/5">
+                      <div className="grid grid-cols-3 gap-4 p-2 bg-[var(--bg-card)]/40 rounded-[1.5rem] border border-[var(--border-main)] shadow-inner">
                         {[
                           { id: 'dark', label: uiLang === 'en' ? 'Dark' : 'ডার্ক', icon: Moon },
                           { id: 'light', label: uiLang === 'en' ? 'Light' : 'লাইট', icon: Sun },
@@ -4347,20 +4037,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setTheme(t.id as any)}
                             className={cn(
-                              "relative py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors flex flex-col items-center gap-2 z-10",
-                              theme === t.id ? "text-brand-orange" : "text-slate-500 hover:text-slate-300"
+                              "relative py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
+                              theme === t.id ? "text-brand-purple" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
                             )}
                           >
                             {theme === t.id && (
                               <motion.div
                                 layoutId="activeTheme"
-                                className="absolute inset-0 bg-brand-orange/10 border border-brand-orange/20 rounded-xl -z-10 shadow-[0_0_15px_rgba(242,125,38,0.1)]"
+                                className="absolute inset-0 bg-brand-purple/10 border border-brand-purple/20 rounded-2xl -z-10 shadow-lg shadow-brand-purple/10"
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                               />
                             )}
-                            <t.icon size={16} className={cn(
-                              "transition-transform duration-300",
-                              theme === t.id ? "scale-110" : "scale-100"
+                            <t.icon size={20} className={cn(
+                              "transition-all duration-500",
+                              theme === t.id ? "scale-110 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" : "scale-100"
                             )} />
                             {t.label}
                           </motion.button>
@@ -4371,35 +4061,35 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="space-y-6">
                       {/* API Keys List */}
                       <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black flex items-center gap-2">
-                          <Zap size={14} className="text-brand-orange" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
+                        <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black flex items-center gap-2 px-1">
+                          <Zap size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
                         </label>
                         
-                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-brand-orange/20 scrollbar-track-transparent">
+                        <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                           {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma'] as AIProvider[]).map((p) => (
-                            <div key={p} className="p-4 rounded-2xl bg-black/40 border border-brand-border space-y-3 group hover:border-brand-orange/30 transition-all">
+                            <div key={p} className="p-5 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group hover:border-brand-purple/30 transition-all glass-card">
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-4">
                                   <div className={cn(
-                                    "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black uppercase tracking-tighter",
-                                    aiProvider === p ? "bg-brand-orange text-white" : "bg-white/5 text-slate-500"
+                                    "w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter shadow-inner",
+                                    aiProvider === p ? "bg-brand-purple text-white" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)]"
                                   )}>
                                     {p.charAt(0)}
                                   </div>
                                   <div>
-                                    <h4 className="text-xs font-black text-slate-300 uppercase tracking-wider">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p}</h4>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                    <h4 className="text-xs font-black text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p}</h4>
+                                    <div className="flex items-center gap-1.5 mt-1">
                                       <div className={cn(
                                         "w-1.5 h-1.5 rounded-full",
                                         connectionStatus[p] === 'connected' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : 
                                         connectionStatus[p] === 'testing' ? "bg-blue-500 animate-pulse" :
-                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-slate-700"
+                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-[var(--bg-card)]/20"
                                       )} />
                                       <span className={cn(
-                                        "text-[9px] font-bold uppercase tracking-widest",
+                                        "text-[9px] font-black uppercase tracking-[0.1em]",
                                         connectionStatus[p] === 'connected' ? "text-green-500" : 
                                         connectionStatus[p] === 'testing' ? "text-blue-500" :
-                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-slate-500"
+                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-[var(--text-muted)]"
                                       )}>
                                         {connectionStatus[p]}
                                       </span>
@@ -4411,15 +4101,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   <button
                                     onClick={() => testConnection(p)}
                                     disabled={testingConnection[p]}
-                                    className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-orange hover:border-brand-orange/30 transition-all disabled:opacity-50"
+                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all disabled:opacity-50"
                                   >
-                                    {testingConnection[p] ? <RefreshCw size={10} className="animate-spin" /> : "Test"}
+                                    {testingConnection[p] ? <RefreshCw size={12} className="animate-spin" /> : "Test"}
                                   </button>
                                   <button
                                     onClick={() => setAiProvider(p)}
                                     className={cn(
-                                      "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
-                                      aiProvider === p ? "bg-brand-orange text-white" : "bg-white/5 text-slate-500 hover:text-slate-300"
+                                      "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                      aiProvider === p ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)] hover:text-[var(--text-main)]"
                                     )}
                                   >
                                     {aiProvider === p ? "Active" : "Select"}
@@ -4431,7 +4121,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 <input 
                                   type="password" 
                                   placeholder={`${p.toUpperCase()} API Key...`}
-                                  className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none focus:border-brand-orange/50 transition-all"
+                                  className="w-full bg-[var(--bg-card)]/30 border border-[var(--border-main)] rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:border-brand-purple/50 transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50"
                                   value={
                                     p === 'gemini' ? customGeminiKey : 
                                     p === 'openai' ? customOpenaiKey : 
@@ -4453,30 +4143,38 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     setConnectionStatus(prev => ({ ...prev, [p]: val ? 'connected' : 'disconnected' }));
                                   }}
                                 />
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700">
-                                  <Key size={12} />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40">
+                                  <Key size={14} />
                                 </div>
                               </div>
                             </div>
                           ))}
                         </div>
                         
-                        <p className="text-[10px] text-slate-500 italic leading-relaxed px-1">
+                        <p className="text-[10px] text-[var(--text-muted)] italic leading-relaxed px-1">
                           {t.apiNote}
                         </p>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col gap-3 pt-4">
+                    <div className="flex flex-col gap-4 pt-6">
                       <button 
                         onClick={saveAIConfig}
-                        className="w-full py-4.5 rounded-2xl bg-brand-orange text-white font-black text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(242,125,38,0.3)] hover:shadow-[0_15px_40px_rgba(242,125,38,0.5)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                       >
-                        <Check size={22} /> {t.save}
+                        <Save size={20} />
+                        {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
                       </button>
+                      <button 
+                        onClick={() => setShowSettings(false)}
+                        className="w-full py-5 rounded-[1.5rem] bg-[var(--bg-card)]/20 border border-[var(--border-main)] text-[var(--text-main)] font-black text-xs uppercase tracking-[0.2em] hover:bg-[var(--bg-card)]/40 transition-all active:scale-[0.98]"
+                      >
+                        {uiLang === 'en' ? "Close Settings" : "সেটিংস বন্ধ করুন"}
+                      </button>
+                    </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <button 
                           onClick={() => {
                             resetAIConfig();
@@ -4489,23 +4187,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             toast.success(uiLang === 'en' ? "AI Configuration Reset!" : "AI কনফিগারেশন রিসেট করা হয়েছে!");
                             setTimeout(() => window.location.reload(), 1000);
                           }}
-                          className="w-full py-3.5 rounded-xl bg-white/5 border border-brand-border text-slate-400 font-bold text-[11px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
                         >
-                          <RefreshCw size={16} /> {uiLang === 'en' ? "Reset to Default" : "ডিফল্ট এ ফিরে যান"}
+                          <RefreshCw size={16} /> {uiLang === 'en' ? "Reset Default" : "ডিফল্ট রিসেট"}
                         </button>
 
                         <button 
                           onClick={downloadHistory}
-                          className="w-full py-3.5 rounded-xl bg-white/5 border border-brand-border text-slate-300 font-bold text-[11px] uppercase tracking-wider hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-black text-[10px] uppercase tracking-widest hover:bg-brand-purple/10 hover:text-brand-purple hover:border-brand-purple/30 transition-all flex items-center justify-center gap-3"
                         >
-                          <Download size={16} /> {uiLang === 'en' ? "Export JSON" : "JSON এক্সপোর্ট"}
+                          <Download size={16} /> {uiLang === 'en' ? "Export Data" : "ডেটা এক্সপোর্ট"}
                         </button>
                       </div>
 
                       {deferredPrompt && (
                         <button 
                           onClick={installApp}
-                          className="w-full py-4 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                          className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
                           <Download size={22} /> {uiLang === 'en' ? "Install as Android App" : "অ্যান্ড্রয়েড অ্যাপ হিসেবে ইনস্টল করুন"}
                         </button>
@@ -4513,25 +4211,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                       <button 
                         onClick={clearHistory}
-                        className="w-full py-3.5 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-bold text-[11px] uppercase tracking-wider hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
                       >
                         <Trash2 size={16} /> {t.clearHistory}
                       </button>
-                      
-                      <button 
-                        onClick={() => setShowSettings(false)}
-                        className="sm:hidden w-full py-3 text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] hover:text-white transition-colors"
-                      >
-                        {uiLang === 'en' ? "Close Settings" : "সেটিংস বন্ধ করুন"}
-                      </button>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               </div>
-            </div>
-          )}
-        </AnimatePresence>
-      </motion.main>
+            )}
+          </AnimatePresence>
 
       <footer className="mt-12 text-center text-slate-600 text-xs pb-8 space-y-4">
         <div className="flex items-center justify-center gap-6">
@@ -4600,62 +4289,83 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl glass-card p-6 h-[80vh] flex flex-col overflow-hidden"
+              className="relative w-full max-w-2xl glass-card p-8 h-[85vh] flex flex-col overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.7)] border border-[var(--border-main)]"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-brand-orange to-orange-600" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
               
-                <div className="flex flex-col gap-2 w-full">
-                  <div className="flex items-center gap-2">
-                    <select 
-                      value={historyFilter} 
-                      onChange={(e) => setHistoryFilter(e.target.value)}
-                      className="bg-black/40 text-[10px] uppercase font-bold text-slate-400 px-3 py-1.5 rounded-full border border-brand-border outline-none"
-                    >
-                      <option value="all">All</option>
-                      <option value="idea">Idea Gen</option>
-                      <option value="image">Image Gen</option>
-                      <option value="voice">Voice Gen</option>
-                      <option value="shorts">Shorts Gen</option>
-                      <option value="youtube">YouTube AI</option>
-                    </select>
-                    <button 
-                      onClick={() => setHistorySort(s => s === 'newest' ? 'oldest' : 'newest')}
-                      className="bg-black/40 text-[10px] uppercase font-bold text-slate-400 px-3 py-1.5 rounded-full border border-brand-border"
-                    >
-                      {historySort === 'newest' ? 'Newest' : 'Oldest'}
-                    </button>
+              <div className="flex flex-col gap-6 w-full mb-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3 text-[var(--text-main)]">
+                    <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                      <History size={20} />
+                    </div>
+                    {uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}
+                  </h2>
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={downloadHistory} 
-                      className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-brand-orange transition-colors"
+                      className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all shadow-sm"
                       title="Download History"
                     >
-                      <Download size={16} />
+                      <Download size={18} />
                     </button>
                     <button 
                       onClick={clearHistory} 
-                      className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors"
+                      className="p-2.5 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500/70 hover:bg-red-500/10 hover:text-red-500 transition-all shadow-sm"
+                      title="Clear History"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={18} />
                     </button>
                     <button 
                       onClick={() => setShowHistory(false)}
-                      className="text-slate-500 hover:text-white transition-colors"
+                      className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all hover:rotate-90 duration-300 shadow-sm"
                     >
-                      <X size={20} />
+                      <X size={18} />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2">
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <select 
+                    value={historyFilter} 
+                    onChange={(e) => setHistoryFilter(e.target.value)}
+                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-black text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="idea">Idea Gen</option>
+                    <option value="image">Image Gen</option>
+                    <option value="voice">Voice Gen</option>
+                    <option value="shorts">Shorts Gen</option>
+                    <option value="youtube">YouTube AI</option>
+                  </select>
+                  <button 
+                    onClick={() => setHistorySort(s => s === 'newest' ? 'oldest' : 'newest')}
+                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-black text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 transition-all flex items-center gap-2"
+                  >
+                    {historySort === 'newest' ? <ArrowDownWideNarrow size={12} /> : <ArrowUpWideNarrow size={12} />}
+                    {historySort === 'newest' ? 'Newest First' : 'Oldest First'}
+                  </button>
+                  <div className="flex-1 min-w-[200px] relative">
                     <input 
                       type="text"
                       placeholder="Search keywords..."
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="bg-black/40 text-[10px] font-bold text-slate-400 px-3 py-1.5 rounded-full border border-brand-border outline-none flex-1"
+                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-black text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all placeholder:text-[var(--text-muted)]/50"
                     />
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-black/40 text-[10px] text-slate-400 px-2 py-1.5 rounded-full border border-brand-border" />
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-black/40 text-[10px] text-slate-400 px-2 py-1.5 rounded-full border border-brand-border" />
+                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40" />
                   </div>
                 </div>
+
+                <div className="flex items-center gap-3 px-1">
+                  <div className="flex items-center gap-2 bg-[var(--bg-card)]/20 p-1 rounded-full border border-[var(--border-main)]">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] px-3">Date Range:</span>
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-black text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
+                    <span className="text-[var(--text-muted)] text-[10px]">→</span>
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-black text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
+                  </div>
+                </div>
+              </div>
 
               <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                 {history
@@ -4667,7 +4377,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   )
                   .sort((a, b) => historySort === 'newest' ? Number(new Date(b.id)) - Number(new Date(a.id)) : Number(new Date(a.id)) - Number(new Date(b.id)))
                   .length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                  <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
                     <Clock size={64} className="mb-4 opacity-10" />
                     <p className="font-medium">{t.noHistory}</p>
                   </div>
@@ -4684,7 +4394,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       .map((item) => (
                       <motion.div 
                         key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(168, 85, 247, 0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);
@@ -4692,18 +4402,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           setResults(prev => ({ ...prev, [targetView]: item.result }));
                           setShowHistory(false);
                         }}
-                        className="p-4 rounded-xl bg-white/5 border border-brand-border hover:border-brand-orange transition-all cursor-pointer group"
+                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/30 transition-all cursor-pointer group glass-card shadow-lg"
                       >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center gap-1.5">
-                            {item.type === 'idea' && <Lightbulb size={14} className="text-yellow-500" />}
-                            {item.type === 'image' && <ImageIcon size={14} className="text-blue-500" />}
-                            {item.type === 'voice' && <Mic size={14} className="text-purple-500" />}
-                            {item.type === 'voiceExtractor' && <AudioLines size={14} className="text-green-500" />}
-                            {item.type === 'promptGen' && <Sparkles size={14} className="text-brand-orange" />}
-                            {item.type === 'shorts' && <Zap size={14} className="text-brand-orange" />}
-                            {item.type === 'image-to-prompt' && <Search size={14} className="text-cyan-500" />}
-                            <span className="text-[10px] uppercase tracking-tighter text-brand-orange font-bold">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                              {item.type === 'idea' && <Lightbulb size={16} />}
+                              {item.type === 'image' && <ImageIcon size={16} />}
+                              {item.type === 'voice' && <Mic size={16} />}
+                              {item.type === 'voiceExtractor' && <AudioLines size={16} />}
+                              {item.type === 'promptGen' && <Sparkles size={16} />}
+                              {item.type === 'shorts' && <Zap size={16} />}
+                              {item.type === 'image-to-prompt' && <Search size={16} />}
+                              {item.type === 'youtube' && <Video size={16} />}
+                            </div>
+                            <span className="text-[10px] uppercase tracking-widest text-brand-purple font-black">
                               {
                                 item.type === 'youtube' ? (uiLang === 'en' ? 'YouTube AI' : 'ইউটিউব এআই') : 
                                 item.type === 'idea' ? t.ideaGenHistory : 
@@ -4716,12 +4429,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               }
                             </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
+                          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest flex items-center gap-1.5 bg-[var(--bg-card)]/20 px-3 py-1 rounded-full border border-[var(--border-main)]">
                             <Clock size={10} />
-                            {format(item.timestamp, 'MMM d, yyyy • HH:mm')}
+                            {format(item.timestamp, 'MMM d, HH:mm')}
                           </span>
                         </div>
-                        <p className="text-sm font-medium line-clamp-2 group-hover:text-brand-orange transition-colors text-slate-300">
+                        <p className="text-sm font-black line-clamp-2 group-hover:text-brand-purple transition-colors text-[var(--text-main)] leading-relaxed">
                           {item.topic}
                         </p>
                       </motion.div>
@@ -4749,41 +4462,54 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md glass-card p-8 space-y-6 overflow-hidden"
+              className="relative w-full max-w-md glass-card p-10 space-y-8 overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.7)] border border-[var(--border-main)]"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-brand-orange to-orange-600" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
               
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black tracking-tighter flex items-center gap-3">
-                  <MessageCircle size={24} className="text-brand-orange" /> {t.contact}
+                <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3 text-[var(--text-main)]">
+                  <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                    <MessageCircle size={20} />
+                  </div>
+                  {t.contact}
                 </h2>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="text-slate-500 hover:text-white transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all hover:rotate-90 duration-300 shadow-sm"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Have questions or feedback? We'd love to hear from you.
+              <div className="space-y-6">
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed font-medium">
+                  {uiLang === 'en' ? "Have questions or feedback? We'd love to hear from you. Our team is here to help you grow your channel." : "আপনার কি কোনো প্রশ্ন বা মতামত আছে? আমরা আপনার কথা শুনতে পছন্দ করব। আমাদের টিম আপনার চ্যানেল বড় করতে সাহায্য করার জন্য এখানে আছে।"}
                 </p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-brand-border">
-                    <Globe size={18} className="text-brand-orange" />
-                    <span className="text-sm text-slate-300">{APP_CONFIG.supportEmail}</span>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-brand-purple/30 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:scale-110 transition-transform">
+                      <Globe size={20} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black mb-0.5">Support Email</span>
+                      <span className="text-sm text-[var(--text-main)] font-black">{APP_CONFIG.supportEmail}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-brand-border">
-                    <Facebook size={18} className="text-brand-orange" />
-                    <span className="text-sm text-slate-300">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-brand-orange/30 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:scale-110 transition-transform">
+                      <Facebook size={20} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black mb-0.5">Facebook Page</span>
+                      <span className="text-sm text-[var(--text-main)] font-black">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
+                    </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="w-full py-3 rounded-xl bg-brand-orange text-white font-bold text-sm shadow-[0_0_20px_rgba(242,125,38,0.3)] hover:shadow-[0_0_30px_rgba(242,125,38,0.5)] transition-all"
+                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
                 >
-                  Close
+                  {uiLang === 'en' ? "Close" : "বন্ধ করুন"}
                 </button>
               </div>
             </motion.div>
