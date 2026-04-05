@@ -58,6 +58,10 @@ import {
   Rocket,
   Play,
   Film,
+  Send,
+  Quote,
+  Shield,
+  Users,
   MessageSquare,
   Eye
 } from 'lucide-react';
@@ -2123,333 +2127,258 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col -mt-4 md:-mt-10"
+              className="min-h-screen flex flex-col bg-white"
             >
               {/* Navigation */}
-              <nav className="absolute top-0 left-0 w-full p-4 md:p-8 flex justify-between items-center z-50">
-                <motion.div 
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="flex items-center gap-2 md:gap-4 group cursor-pointer"
+              <nav className="absolute top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-50">
+                <div 
+                  className="flex items-center gap-3 cursor-pointer"
                   onClick={() => setCurrentView('landing')}
                 >
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-linear-to-br from-brand-orange to-[#ff5c00] flex items-center justify-center shadow-xl shadow-brand-orange/20 group-hover:scale-110 transition-transform duration-500">
-                    <Youtube className="text-white" size={24} />
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                    <Youtube className="text-brand-purple" size={24} />
                   </div>
-                  <span className="text-lg md:text-2xl font-display font-black tracking-tighter uppercase glow-text">{t.title}</span>
-                </motion.div>
+                  <span className="text-xl font-display font-black tracking-tighter uppercase text-white">{t.title}</span>
+                </div>
                 
-                <motion.div 
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-400"
-                >
-                  {['Features', 'How it Works', 'FAQ'].map((item) => (
+                <div className="hidden lg:flex items-center gap-10 text-sm font-bold text-white/80">
+                  {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item) => (
                     <button 
                       key={item}
-                      onClick={() => document.getElementById(item.toLowerCase().replace(/ /g, '-'))?.scrollIntoView({ behavior: 'smooth' })}
-                      className="hover:text-brand-orange transition-colors relative group"
+                      className="hover:text-white transition-colors"
                     >
                       {item}
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-orange transition-all duration-300 group-hover:w-full" />
                     </button>
                   ))}
-                </motion.div>
+                </div>
 
-                <motion.div 
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="flex items-center gap-4"
+                <button
+                  onClick={() => setCurrentView('home')}
+                  className="bg-white text-brand-purple font-bold px-8 py-3 rounded-full shadow-xl hover:scale-105 transition-transform"
                 >
-                  <button
-                    onClick={() => setCurrentView('home')}
-                    className="btn-primary px-4 md:px-8 py-2 md:py-3.5 text-xs md:text-sm"
-                  >
-                    {t.getStarted}
-                  </button>
-                </motion.div>
+                  {t.getStarted}
+                </button>
               </nav>
 
-            {/* Hero Section */}
-            <section className="relative pt-48 pb-32 overflow-hidden">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-                <motion.div 
-                  animate={{ 
-                    y: [0, 20, 0],
-                    opacity: [0.1, 0.15, 0.1]
-                  }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-orange/10 rounded-full blur-[150px]" 
-                />
-                <motion.div 
-                  animate={{ 
-                    y: [0, -30, 0],
-                    opacity: [0.1, 0.12, 0.1]
-                  }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute top-1/2 right-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[150px]" 
-                />
-              </div>
-
-              <div className="relative max-w-7xl mx-auto px-6 text-center space-y-12">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-brand-orange uppercase tracking-[0.2em] shadow-2xl backdrop-blur-md"
-                >
-                  <Sparkles size={14} className="animate-pulse" /> {t.subtitle}
-                </motion.div>
-
-                <motion.h1
-                  initial={{ y: 40, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.8 }}
-                  className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-display font-black tracking-tight leading-[0.9] max-w-5xl mx-auto"
-                >
-                  {t.heroTitle.split(' ').map((word, i) => (
-                    <span key={i} className={i === 2 ? "orange-glow-text block md:inline" : "glow-text"}>{word} </span>
-                  ))}
-                </motion.h1>
-
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="max-w-2xl mx-auto text-base md:text-xl text-slate-400 font-light leading-relaxed px-4 md:px-0"
-                >
-                  {t.heroSubtitle}
-                </motion.p>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8"
-                >
-                  <button
-                    onClick={() => setCurrentView('home')}
-                    className="btn-primary group px-10 py-5 text-lg"
+              {/* Hero Section with Wavy Background */}
+              <section className="relative bg-linear-to-br from-brand-purple to-brand-purple-dark pt-48 pb-64 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                  <motion.div
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-left space-y-8"
                   >
-                    <span className="relative flex items-center gap-3">
-                      {t.getStarted} <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="px-10 py-5 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all backdrop-blur-md"
-                  >
-                    {t.features}
-                  </button>
-                </motion.div>
-              </div>
-            </section>
+                    <h1 className="text-5xl md:text-7xl font-display font-black text-white leading-tight">
+                      REVIEW APP TO FIND THEIR <br/> <span className="text-brand-purple-light">BEST CHOICE.</span>
+                    </h1>
+                    <p className="text-white/70 text-lg max-w-lg">
+                      Empower your creativity with our advanced AI tools. Generate scripts, ideas, and content that goes viral instantly.
+                    </p>
+                    <div className="flex gap-4">
+                      <button onClick={() => setCurrentView('home')} className="bg-white text-brand-purple font-bold px-10 py-4 rounded-full shadow-2xl hover:bg-slate-50 transition-colors">
+                        GET STARTED
+                      </button>
+                      <button className="bg-white/10 border border-white/20 text-white font-bold px-10 py-4 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors">
+                        LEARN MORE
+                      </button>
+                    </div>
+                  </motion.div>
 
-            {/* Features Bento Grid */}
-            <section id="features" className="py-32 px-6">
-              <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-20 space-y-4">
-                  <motion.h2 
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-4xl md:text-6xl font-display font-black tracking-tighter glow-text"
+                  <motion.div
+                    initial={{ x: 50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="relative hidden lg:block"
                   >
-                    {t.features}
-                  </motion.h2>
-                  <div className="w-24 h-1.5 bg-brand-orange mx-auto rounded-full shadow-[0_0_15px_rgba(242,125,38,0.5)]" />
+                    <div className="relative z-10 isometric-shadow">
+                      <img 
+                        src="https://picsum.photos/seed/app-ui/800/600" 
+                        alt="App UI" 
+                        className="rounded-3xl transform rotate-[-5deg] skew-x-[5deg] border-8 border-white/10"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-brand-purple-light/30 rounded-full blur-3xl animate-pulse" />
+                    <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-brand-orange/20 rounded-full blur-3xl animate-pulse" />
+                  </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  {/* Feature 1: Main */}
-                  <motion.div 
-                    whileHover={{ y: -5 }}
-                    className="md:col-span-8 glass-card p-10 flex flex-col justify-between min-h-[400px] group"
-                  >
-                    <div className="space-y-6">
-                      <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
-                        <Video size={32} />
-                      </div>
-                      <h3 className="text-3xl font-display font-bold">{t.videoGen}</h3>
-                      <p className="text-slate-400 text-lg max-w-md leading-relaxed">Generate full scripts with viral potential using advanced AI models tailored for your niche.</p>
-                    </div>
-                    <div className="pt-8 flex gap-4">
-                      <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-slate-500">Scripting</div>
-                      <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-slate-500">SEO</div>
-                      <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-slate-500">Viral</div>
-                    </div>
-                  </motion.div>
+                {/* Wavy Divider */}
+                <div className="wavy-divider-bottom">
+                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                  </svg>
+                </div>
+              </section>
 
-                  {/* Feature 2: Side */}
-                  <motion.div 
-                    whileHover={{ y: -5 }}
-                    className="md:col-span-4 glass-card p-10 flex flex-col justify-between group"
-                  >
-                    <div className="space-y-6">
-                      <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500">
-                        <Lightbulb size={32} />
-                      </div>
-                      <h3 className="text-2xl font-display font-bold">{t.viralIdeas}</h3>
-                      <p className="text-slate-400 text-sm leading-relaxed">Find trending topics and niche-specific video ideas instantly with our global trend analyzer.</p>
-                    </div>
-                    <button onClick={() => setCurrentView('idea')} className="text-blue-400 text-sm font-bold flex items-center gap-2 group-hover:gap-3 transition-all">
-                      Explore Ideas <ChevronRight size={16} />
-                    </button>
-                  </motion.div>
+              {/* About Section */}
+              <section className="py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-6 text-center space-y-16">
+                  <div className="space-y-4">
+                    <h2 className="text-sm font-black text-brand-purple uppercase tracking-[0.3em]">About App</h2>
+                    <h3 className="text-4xl md:text-5xl font-display font-black text-slate-900">Why Choose Us?</h3>
+                    <div className="w-20 h-1.5 bg-brand-purple mx-auto rounded-full" />
+                  </div>
 
-                  {/* Feature 3: Bottom Left */}
-                  <motion.div 
-                    whileHover={{ y: -5 }}
-                    className="md:col-span-4 glass-card p-10 flex flex-col justify-between group"
-                  >
-                    <div className="space-y-6">
-                      <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
-                        <Mic size={32} />
-                      </div>
-                      <h3 className="text-2xl font-display font-bold">{t.voiceOver}</h3>
-                      <p className="text-slate-400 text-sm leading-relaxed">Professional AI voiceovers in multiple languages, tones, and accents for your videos.</p>
-                    </div>
-                  </motion.div>
-
-                  {/* Feature 4: Bottom Right */}
-                  <motion.div 
-                    whileHover={{ y: -5 }}
-                    className="md:col-span-8 glass-card p-10 flex flex-col justify-between min-h-[300px] group"
-                  >
-                    <div className="flex flex-col md:flex-row gap-10 items-start md:items-center">
-                      <div className="space-y-6 flex-1">
-                        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500">
-                          <Palette size={32} />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    {[
+                      { icon: <Zap size={40} />, title: "Fast Performance", desc: "Lightning fast content generation using state-of-the-art AI models." },
+                      { icon: <Shield size={40} />, title: "Secure & Private", desc: "Your data and API keys are encrypted and stored locally on your device." },
+                      { icon: <Users size={40} />, title: "Creator Focused", desc: "Built specifically for YouTubers and digital content creators." }
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        whileHover={{ y: -10 }}
+                        className="p-10 rounded-3xl bg-slate-50 border border-slate-100 space-y-6"
+                      >
+                        <div className="w-20 h-20 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple mx-auto">
+                          {item.icon}
                         </div>
-                        <h3 className="text-3xl font-display font-bold">{t.imageGen}</h3>
-                        <p className="text-slate-400 text-lg leading-relaxed">Extract high-quality prompts and generate stunning AI visuals for thumbnails and b-roll.</p>
-                      </div>
-                      <div className="w-full md:w-48 aspect-square rounded-2xl bg-linear-to-br from-purple-500/20 to-brand-orange/20 border border-white/5 flex items-center justify-center">
-                        <ImageIcon size={64} className="text-white/20" />
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </section>
-
-            {/* How it Works */}
-            <section id="how-it-works" className="py-24">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="text-center mb-16 space-y-4">
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tighter">How it Works</h2>
-                  <div className="w-20 h-1 bg-brand-orange mx-auto rounded-full" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                  {[
-                    { step: "01", title: "Input Topic", desc: "Enter your video topic or niche." },
-                    { step: "02", title: "AI Generation", desc: "Our AI crafts the perfect script and visuals." },
-                    { step: "03", title: "Review & Export", desc: "Review, edit, and export your content." }
-                  ].map((item, i) => (
-                    <motion.div 
-                      key={i} 
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.2 }}
-                      className="text-center space-y-4"
-                    >
-                      <div className="text-4xl font-black text-brand-orange/20">{item.step}</div>
-                      <h3 className="text-xl font-bold">{item.title}</h3>
-                      <p className="text-slate-400 text-sm">{item.desc}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* FAQ Section */}
-            <section id="faq" className="py-24">
-              <div className="max-w-3xl mx-auto px-6">
-                <div className="text-center mb-16 space-y-4">
-                  <h2 className="text-3xl md:text-5xl font-black tracking-tighter">{t.faq}</h2>
-                  <div className="w-20 h-1 bg-brand-orange mx-auto rounded-full" />
-                </div>
-
-                <div className="space-y-4">
-                  {[
-                    { q: "Is this tool free to use?", a: "Yes, you can use it with our default API or connect your own for higher limits." },
-                    { q: "Which AI models are supported?", a: "We support Google Gemini, OpenAI (GPT-4), and Groq for lightning-fast speeds." },
-                    { q: "Can I download my scripts?", a: "Absolutely! You can download your generated content as a professional PDF report." }
-                  ].map((item, i) => (
-                    <motion.details 
-                      key={i} 
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="glass-card group"
-                    >
-                      <summary className="p-6 cursor-pointer list-none flex items-center justify-between font-bold">
-                        {item.q}
-                        <ChevronRight size={18} className="group-open:rotate-90 transition-transform" />
-                      </summary>
-                      <div className="px-6 pb-6 text-slate-400 text-sm">
-                        {item.a}
-                      </div>
-                    </motion.details>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="mt-auto py-12 border-t border-brand-border bg-black/40 rounded-t-3xl">
-              <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-brand-orange to-orange-600 flex items-center justify-center shadow-lg shadow-brand-orange/20">
-                      <Youtube className="text-white" size={24} />
-                    </div>
-                    <span className="text-xl font-black tracking-tighter uppercase">{t.title}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Empowering creators with the world's most advanced AI tools for YouTube growth.
-                  </p>
-                </div>
-                
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-slate-300">{t.features}</h4>
-                  <ul className="space-y-2 text-xs text-slate-500">
-                    <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={() => setCurrentView('video')}>{t.videoGen}</li>
-                    <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={() => setCurrentView('idea')}>{t.ideaGen}</li>
-                    <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={() => setCurrentView('image')}>{t.imageGen}</li>
-                  </ul>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-slate-300">Company</h4>
-                  <ul className="space-y-2 text-xs text-slate-500">
-                    <li className="hover:text-brand-orange cursor-pointer transition-colors">{t.about}</li>
-                    <li 
-                      className="hover:text-brand-orange cursor-pointer transition-colors"
-                      onClick={() => setShowContact(true)}
-                    >
-                      {t.contact}
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-slate-300">Connect</h4>
-                  <div className="flex gap-4">
-                    <Facebook size={20} className="text-slate-500 hover:text-brand-orange cursor-pointer transition-colors" />
-                    <Twitter size={20} className="text-slate-500 hover:text-brand-orange cursor-pointer transition-colors" />
-                    <Github size={20} className="text-slate-500 hover:text-brand-orange cursor-pointer transition-colors" />
-                    <Share2 size={20} className="text-slate-500 hover:text-brand-orange cursor-pointer transition-colors" />
+                        <h4 className="text-xl font-bold text-slate-900">{item.title}</h4>
+                        <p className="text-slate-500 leading-relaxed">{item.desc}</p>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-              </div>
-              <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-brand-border text-center text-[10px] text-slate-600">
-                © {new Date().getFullYear()} {t.title}. All Rights Reserved.
-              </div>
-            </footer>
-          </motion.div>
-        ) : (
+              </section>
+
+              {/* Features Section (Purple) */}
+              <section className="relative py-32 bg-brand-purple overflow-hidden">
+                <div className="wavy-divider-top">
+                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                  </svg>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                    <div className="space-y-8">
+                      <h2 className="text-4xl md:text-6xl font-display font-black text-white leading-tight">
+                        Our Powerful <br/> Features
+                      </h2>
+                      <p className="text-white/70 text-lg">
+                        We provide everything you need to grow your channel and automate your workflow.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {[
+                          { title: "Script Generator", desc: "Viral scripts in seconds." },
+                          { title: "Shorts Creator", desc: "Optimized for vertical video." },
+                          { title: "SEO Tools", desc: "Rank higher on search." },
+                          { title: "Voice Over", desc: "Natural AI voices." }
+                        ].map((f, i) => (
+                          <div key={i} className="p-6 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+                            <h4 className="font-bold text-white mb-2">{f.title}</h4>
+                            <p className="text-white/50 text-sm">{f.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <img 
+                        src="https://picsum.photos/seed/features/800/800" 
+                        alt="Features" 
+                        className="rounded-3xl shadow-3xl isometric-shadow"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="wavy-divider-bottom">
+                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                  </svg>
+                </div>
+              </section>
+
+              {/* Testimonials */}
+              <section className="py-32 bg-white">
+                <div className="max-w-7xl mx-auto px-6 space-y-16">
+                  <div className="text-center space-y-4">
+                    <h2 className="text-4xl md:text-5xl font-display font-black text-slate-900">Happy Clients Say</h2>
+                    <div className="w-20 h-1.5 bg-brand-purple mx-auto rounded-full" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { name: "John Doe", role: "YouTuber", text: "This tool changed my life. I can now produce 3 times more content than before." },
+                      { name: "Sarah Smith", role: "Content Creator", text: "The AI scripts are incredibly accurate and engaging. Highly recommended!" },
+                      { name: "Mike Johnson", role: "Digital Marketer", text: "Best AI tool for video marketing. The SEO features are top-notch." }
+                    ].map((t, i) => (
+                      <div key={i} className="p-10 rounded-3xl bg-slate-50 border border-slate-100 space-y-6 relative">
+                        <Quote className="absolute top-6 right-6 text-brand-purple/10" size={48} />
+                        <p className="text-slate-600 italic leading-relaxed">"{t.text}"</p>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-brand-purple/20" />
+                          <div>
+                            <h5 className="font-bold text-slate-900">{t.name}</h5>
+                            <p className="text-xs text-slate-400">{t.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Footer */}
+              <footer className="relative bg-brand-purple-dark pt-48 pb-20 overflow-hidden">
+                <div className="wavy-divider-top">
+                  <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#ffffff" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                  </svg>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                          <Youtube className="text-brand-purple" size={24} />
+                        </div>
+                        <span className="text-2xl font-display font-black tracking-tighter uppercase text-white">{t.title}</span>
+                      </div>
+                      <p className="text-white/50 text-sm leading-relaxed">
+                        The ultimate AI toolkit for modern content creators.
+                      </p>
+                    </div>
+
+                    <div className="space-y-6">
+                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Quick Links</h4>
+                      <ul className="space-y-3 text-white/50 text-sm">
+                        <li className="hover:text-white cursor-pointer transition-colors">Home</li>
+                        <li className="hover:text-white cursor-pointer transition-colors">About</li>
+                        <li className="hover:text-white cursor-pointer transition-colors">Features</li>
+                        <li className="hover:text-white cursor-pointer transition-colors">Contact</li>
+                      </ul>
+                    </div>
+
+                    <div className="space-y-6">
+                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Support</h4>
+                      <ul className="space-y-3 text-white/50 text-sm">
+                        <li className="hover:text-white cursor-pointer transition-colors">Help Center</li>
+                        <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
+                        <li className="hover:text-white cursor-pointer transition-colors">Terms of Service</li>
+                      </ul>
+                    </div>
+
+                    <div className="space-y-6">
+                      <h4 className="text-white font-bold uppercase tracking-widest text-sm">Newsletter</h4>
+                      <div className="flex gap-2">
+                        <input type="text" placeholder="Email" className="bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-sm w-full outline-none focus:border-white/30" />
+                        <button className="bg-white text-brand-purple p-2 rounded-xl"><Send size={20} /></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-20 pt-8 border-t border-white/10 text-center text-white/30 text-xs">
+                    © {new Date().getFullYear()} {t.title}. All Rights Reserved.
+                  </div>
+                </div>
+              </footer>
+            </motion.div>
+          ) : (
           <motion.div
             key="app"
             initial={{ opacity: 0 }}

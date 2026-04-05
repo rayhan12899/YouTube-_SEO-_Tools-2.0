@@ -5,33 +5,31 @@
   --font-sans: "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
   
+  --color-brand-purple: #6c5ce7;
+  --color-brand-purple-dark: #4834d4;
+  --color-brand-purple-light: #a29bfe;
   --color-brand-orange: #f27d26;
   --color-brand-dark: #06070a;
   --color-brand-card: #111218;
   --color-brand-border: rgba(255, 255, 255, 0.08);
-  --color-brand-glow: rgba(242, 125, 38, 0.15);
+  --color-brand-glow: rgba(108, 92, 231, 0.15);
   --color-brand-blue-glow: rgba(0, 163, 255, 0.15);
 }
 
 :root {
-  --bg-main: #06070a;
-  --bg-card: #111218;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-main: rgba(255, 255, 255, 0.08);
-  --accent-main: #f27d26;
-  --accent-glow: rgba(242, 125, 38, 0.15);
+  --bg-main: #ffffff;
+  --bg-card: #ffffff;
+  --text-main: #2d3436;
+  --text-muted: #636e72;
+  --border-main: rgba(0, 0, 0, 0.05);
+  --accent-main: #6c5ce7;
+  --accent-glow: rgba(108, 92, 231, 0.15);
   --accent-secondary: rgba(0, 163, 255, 0.15);
 }
 
 @layer base {
   body {
-    @apply bg-brand-dark text-slate-200 min-h-screen font-sans overflow-x-hidden selection:bg-brand-orange/30 selection:text-white;
-    background-image: 
-      radial-gradient(circle at 0% 0%, rgba(242, 125, 38, 0.1) 0%, transparent 40%),
-      radial-gradient(circle at 100% 0%, rgba(0, 163, 255, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 50% 50%, rgba(192, 38, 211, 0.05) 0%, transparent 50%);
-    background-attachment: fixed;
+    @apply bg-white text-slate-800 min-h-screen font-sans overflow-x-hidden selection:bg-brand-purple/30 selection:text-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -41,31 +39,28 @@
 
 @layer components {
   .glass-card {
-    @apply bg-brand-card/60 backdrop-blur-xl border border-brand-border rounded-3xl shadow-2xl relative overflow-hidden transition-all duration-500;
-    box-shadow: 
-      0 25px 50px -12px rgba(0, 0, 0, 0.5),
-      inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    @apply bg-white border border-slate-100 rounded-3xl shadow-xl relative overflow-hidden transition-all duration-500;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
   }
 
   .glass-card:hover {
-    @apply border-brand-orange/20 shadow-brand-glow/20;
+    @apply border-brand-purple/20 shadow-brand-glow/20 -translate-y-1;
+  }
+
+  .studio-card {
+    @apply bg-brand-card/60 backdrop-blur-xl border border-brand-border rounded-3xl shadow-2xl relative overflow-hidden transition-all duration-500;
   }
 
   .input-field {
-    @apply bg-black/40 border border-brand-border rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-brand-orange/50 focus:ring-4 focus:ring-brand-orange/10 transition-all duration-300 placeholder:text-slate-500;
+    @apply bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm text-slate-900 focus:outline-none focus:border-brand-purple/50 focus:ring-4 focus:ring-brand-purple/10 transition-all duration-300 placeholder:text-slate-400;
   }
 
   .btn-primary {
-    @apply relative overflow-hidden bg-linear-to-br from-brand-orange to-[#ff5c00] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-10px_rgba(242,125,38,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3;
+    @apply relative overflow-hidden bg-linear-to-br from-brand-purple to-brand-purple-dark text-white font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_-10px_rgba(108,92,231,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3;
   }
 
-  .btn-primary::before {
-    content: "";
-    @apply absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-1000;
-  }
-
-  .btn-primary:hover::before {
-    @apply translate-x-full;
+  .btn-secondary {
+    @apply bg-white border border-slate-200 text-slate-800 font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 active:scale-95 flex items-center justify-center gap-3;
   }
 
   .nav-btn {
@@ -73,21 +68,27 @@
   }
 
   .nav-btn-active {
-    @apply bg-brand-orange text-white shadow-lg shadow-brand-orange/30 border-brand-orange/20;
+    @apply bg-brand-purple text-white shadow-lg shadow-brand-purple/30 border-brand-purple/20;
   }
 
   .nav-btn-inactive {
-    @apply text-slate-400 hover:bg-white/5 hover:text-white hover:border-white/10;
+    @apply text-slate-500 hover:bg-slate-100 hover:text-slate-900;
   }
 
-  .glow-text {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-white via-white to-slate-400;
-    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+  .purple-glow-text {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-brand-purple to-brand-purple-dark;
   }
 
-  .orange-glow-text {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-brand-orange to-[#ff8c3a];
-    filter: drop-shadow(0 0 15px rgba(242, 125, 38, 0.3));
+  .wavy-divider-bottom {
+    @apply absolute bottom-0 left-0 w-full leading-[0];
+  }
+
+  .wavy-divider-top {
+    @apply absolute top-0 left-0 w-full leading-[0] rotate-180;
+  }
+
+  .isometric-shadow {
+    filter: drop-shadow(30px 30px 50px rgba(0, 0, 0, 0.1));
   }
 }
 
