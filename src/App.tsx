@@ -216,13 +216,15 @@ export default function App() {
   const [customDeepseekKey, setCustomDeepseekKey] = useState('');
   const [customPerplexityKey, setCustomPerplexityKey] = useState('');
   const [customGemmaKey, setCustomGemmaKey] = useState('');
+  const [customOpenrouterKey, setCustomOpenrouterKey] = useState('');
   const [testingConnection, setTestingConnection] = useState<Record<AIProvider, boolean>>({
     gemini: false,
     openai: false,
     groq: false,
     deepseek: false,
     perplexity: false,
-    gemma: false
+    gemma: false,
+    openrouter: false
   });
   const [connectionStatus, setConnectionStatus] = useState<Record<AIProvider, 'connected' | 'disconnected' | 'testing' | 'error'>>({
     gemini: customGeminiKey ? 'connected' : 'disconnected',
@@ -230,7 +232,8 @@ export default function App() {
     groq: customGroqKey ? 'connected' : 'disconnected',
     deepseek: customDeepseekKey ? 'connected' : 'disconnected',
     perplexity: customPerplexityKey ? 'connected' : 'disconnected',
-    gemma: customGemmaKey ? 'connected' : 'disconnected'
+    gemma: customGemmaKey ? 'connected' : 'disconnected',
+    openrouter: customOpenrouterKey ? 'connected' : 'disconnected'
   });
 
   const testConnection = async (provider: AIProvider) => {
@@ -240,7 +243,8 @@ export default function App() {
       groq: customGroqKey,
       deepseek: customDeepseekKey,
       perplexity: customPerplexityKey,
-      gemma: customGemmaKey
+      gemma: customGemmaKey,
+      openrouter: customOpenrouterKey
     };
 
     const key = keyMap[provider];
@@ -272,14 +276,16 @@ export default function App() {
           groq: "https://api.groq.com/openai/v1",
           deepseek: "https://api.deepseek.com",
           perplexity: "https://api.perplexity.ai",
-          gemma: "https://api.groq.com/openai/v1"
+          gemma: "https://api.groq.com/openai/v1",
+          openrouter: "https://openrouter.ai/api/v1"
         };
         const models: Record<string, string> = {
           openai: "gpt-4o",
           groq: "llama-3.3-70b-versatile",
           deepseek: "deepseek-chat",
           perplexity: "llama-3.1-sonar-large-128k-online",
-          gemma: "google/gemma-4-31B-it"
+          gemma: "google/gemma-4-31B-it",
+          openrouter: "google/gemini-2.5-flash"
         };
 
         const client = new OpenAI({ 
@@ -1238,7 +1244,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       groq: customGroqKey,
       deepseek: customDeepseekKey,
       perplexity: customPerplexityKey,
-      gemma: customGemmaKey
+      gemma: customGemmaKey,
+      openrouter: customOpenrouterKey
     });
     toast.success(uiLang === 'en' ? "AI Configuration Saved!" : "AI কনফিগারেশন সেভ করা হয়েছে!");
     setShowSettings(false);
@@ -4086,7 +4093,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         </label>
                         
                         <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma'] as AIProvider[]).map((p) => (
+                          {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma', 'openrouter'] as AIProvider[]).map((p) => (
                             <div key={p} className="p-5 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group hover:border-brand-purple/30 transition-all glass-card">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
@@ -4097,7 +4104,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     {p.charAt(0)}
                                   </div>
                                   <div>
-                                    <h4 className="text-xs font-black text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p}</h4>
+                                    <h4 className="text-xs font-black text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
                                     <div className="flex items-center gap-1.5 mt-1">
                                       <div className={cn(
                                         "w-1.5 h-1.5 rounded-full",
@@ -4148,7 +4155,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     p === 'groq' ? customGroqKey :
                                     p === 'deepseek' ? customDeepseekKey :
                                     p === 'perplexity' ? customPerplexityKey :
-                                    customGemmaKey
+                                    p === 'gemma' ? customGemmaKey :
+                                    customOpenrouterKey
                                   }
                                   onChange={(e) => {
                                     const val = e.target.value;
@@ -4158,6 +4166,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     else if (p === 'deepseek') setCustomDeepseekKey(val);
                                     else if (p === 'perplexity') setCustomPerplexityKey(val);
                                     else if (p === 'gemma') setCustomGemmaKey(val);
+                                    else if (p === 'openrouter') setCustomOpenrouterKey(val);
                                     
                                     // Reset status when key changes
                                     setConnectionStatus(prev => ({ ...prev, [p]: val ? 'connected' : 'disconnected' }));

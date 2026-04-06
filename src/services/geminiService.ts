@@ -1,7 +1,7 @@
 import { GoogleGenAI, Modality, ThinkingLevel } from "@google/genai";
 import OpenAI from "openai";
 
-export type AIProvider = 'gemini' | 'openai' | 'groq' | 'deepseek' | 'perplexity' | 'gemma';
+export type AIProvider = 'gemini' | 'openai' | 'groq' | 'deepseek' | 'perplexity' | 'gemma' | 'openrouter';
 
 // Function to get the current provider
 const getProvider = (): AIProvider => {
@@ -20,7 +20,8 @@ const getApiKey = (provider: AIProvider) => {
       groq: 'CUSTOM_GROQ_API_KEY',
       deepseek: 'CUSTOM_DEEPSEEK_API_KEY',
       perplexity: 'CUSTOM_PERPLEXITY_API_KEY',
-      gemma: 'CUSTOM_GEMMA_API_KEY'
+      gemma: 'CUSTOM_GEMMA_API_KEY',
+      openrouter: 'CUSTOM_OPENROUTER_API_KEY'
     };
     const savedKey = localStorage.getItem(keyMap[provider]);
     if (savedKey) return savedKey;
@@ -37,6 +38,7 @@ let groqClient: OpenAI | null = null;
 let deepseekClient: OpenAI | null = null;
 let perplexityClient: OpenAI | null = null;
 let gemmaClient: OpenAI | null = null;
+let openrouterClient: OpenAI | null = null;
 
 const initClients = () => {
   const provider = getProvider();
@@ -46,6 +48,7 @@ const initClients = () => {
   const deepseekKey = getApiKey('deepseek');
   const perplexityKey = getApiKey('perplexity');
   const gemmaKey = getApiKey('gemma');
+  const openrouterKey = getApiKey('openrouter');
 
   ai = new GoogleGenAI({ apiKey: geminiKey || "OFFLINE_MODE" });
   
@@ -84,6 +87,14 @@ const initClients = () => {
       dangerouslyAllowBrowser: true 
     });
   }
+
+  if (openrouterKey) {
+    openrouterClient = new OpenAI({ 
+      apiKey: openrouterKey, 
+      baseURL: "https://openrouter.ai/api/v1",
+      dangerouslyAllowBrowser: true 
+    });
+  }
 };
 
 initClients();
@@ -100,6 +111,7 @@ export const updateAIConfig = (provider: AIProvider, keys: Partial<Record<AIProv
     if (keys.deepseek) localStorage.setItem('CUSTOM_DEEPSEEK_API_KEY', keys.deepseek);
     if (keys.perplexity) localStorage.setItem('CUSTOM_PERPLEXITY_API_KEY', keys.perplexity);
     if (keys.gemma) localStorage.setItem('CUSTOM_GEMMA_API_KEY', keys.gemma);
+    if (keys.openrouter) localStorage.setItem('CUSTOM_OPENROUTER_API_KEY', keys.openrouter);
   }
   initClients();
   const currentKey = getApiKey(provider);
@@ -278,6 +290,10 @@ const callAI = async (prompt: string, responseMimeType: string = "text/plain", r
         case 'gemma':
           client = gemmaClient;
           modelName = "google/gemma-4-31B-it";
+          break;
+        case 'openrouter':
+          client = openrouterClient;
+          modelName = "google/gemini-2.5-flash"; // Defaulting to a fast/cheap model on OpenRouter
           break;
       }
 
