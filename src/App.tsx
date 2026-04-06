@@ -1574,28 +1574,28 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               className="min-h-screen flex flex-col bg-[var(--bg-main)]"
             >
               {/* Navigation */}
-              <nav className="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-[100] pointer-events-none">
+              <nav className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-[100] pointer-events-none">
                 <motion.div 
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   className="flex items-center gap-4 cursor-pointer pointer-events-auto group"
                   onClick={() => setCurrentView('landing')}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card)]/40 backdrop-blur-xl flex items-center justify-center shadow-2xl border border-[var(--border-main)] group-hover:scale-110 transition-transform duration-500">
-                    <Youtube className="text-brand-purple" size={28} />
+                  <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center border border-brand-purple/20 group-hover:scale-105 transition-transform duration-300">
+                    <Youtube className="text-brand-purple" size={24} />
                   </div>
-                  <span className="text-3xl font-black tracking-tighter uppercase text-[var(--text-main)] group-hover:opacity-80 transition-opacity">{t.title}</span>
+                  <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{t.title}</span>
                 </motion.div>
                 
                 <motion.div 
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  className="hidden lg:flex items-center gap-10 px-10 py-4 rounded-full bg-[var(--bg-card)]/40 backdrop-blur-xl border border-[var(--border-main)] shadow-2xl pointer-events-auto"
+                  className="hidden lg:flex items-center gap-8 px-8 py-3 rounded-2xl glass-card pointer-events-auto"
                 >
                   {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item) => (
                     <button 
                       key={item}
-                      className="text-[10px] uppercase font-black tracking-[0.3em] text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                      className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
                     >
                       {item}
                     </button>
@@ -1609,7 +1609,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 >
                   <button
                     onClick={() => setCurrentView('home')}
-                    className="bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.3em] px-10 py-4 rounded-full shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
+                    className="btn-primary py-3 px-6 text-sm"
                   >
                     {t.getStarted}
                   </button>
@@ -1618,32 +1618,32 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {/* Hero Section */}
               <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-brand-purple/10 rounded-full blur-[150px] -z-10 animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-brand-orange/5 rounded-full blur-[120px] -z-10" />
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-purple/5 rounded-full blur-[100px] -z-10" />
                 
-                <div className="max-w-6xl mx-auto px-6 text-center space-y-16 relative z-10">
+                <div className="max-w-5xl mx-auto px-6 text-center space-y-12 relative z-10">
                   <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-brand-purple/10 backdrop-blur-md"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-xs font-semibold tracking-wide"
                   >
-                    <Sparkles size={16} className="animate-pulse" /> {t.subtitle}
+                    <Sparkles size={14} /> {t.subtitle}
                   </motion.div>
                   
                   <motion.h1 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-7xl md:text-[10rem] font-black tracking-tighter leading-[0.8] text-[var(--text-main)]"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] text-[var(--text-main)]"
                   >
                     {uiLang === 'en' ? (
                       <>
-                        CREATE <span className="text-brand-purple font-serif italic font-light">Viral</span><br />
-                        CONTENT WITH <span className="premium-gradient-text">AI</span>
+                        Create <span className="text-brand-purple">Viral</span><br />
+                        Content with AI
                       </>
                     ) : (
                       <>
                         এআই দিয়ে তৈরি করুন <br />
-                        <span className="premium-gradient-text">ভাইরাল কন্টেন্ট</span>
+                        <span className="text-brand-purple">ভাইরাল কন্টেন্ট</span>
                       </>
                     )}
                   </motion.h1>
@@ -1651,7 +1651,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <motion.p 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-xl md:text-3xl text-[var(--text-muted)] max-w-3xl mx-auto leading-relaxed font-medium"
+                    transition={{ delay: 0.2 }}
+                    className="text-lg md:text-2xl text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed"
                   >
                     {t.heroSubtitle}
                   </motion.p>
@@ -1659,19 +1660,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col sm:flex-row gap-8 justify-center items-center"
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
                   >
                     <button 
                       onClick={() => setCurrentView('home')} 
-                      className="group relative px-12 py-6 rounded-[2rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-xs uppercase tracking-[0.3em] shadow-[0_30px_60px_rgba(168,85,247,0.3)] hover:shadow-[0_40px_80px_rgba(168,85,247,0.5)] hover:-translate-y-2 transition-all active:scale-95 overflow-hidden"
+                      className="btn-primary w-full sm:w-auto"
                     >
-                      <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
-                      <span className="relative flex items-center gap-3">
-                        {t.getStarted} <ChevronRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                      </span>
+                      {t.getStarted} <ChevronRight size={18} />
                     </button>
-                    <button className="px-12 py-6 rounded-[2rem] bg-[var(--bg-card)]/40 backdrop-blur-xl border border-[var(--border-main)] text-[var(--text-main)] font-black text-xs uppercase tracking-[0.3em] hover:bg-[var(--bg-card)]/60 hover:-translate-y-2 transition-all shadow-2xl">
+                    <button className="btn-secondary w-full sm:w-auto">
                       {t.features}
                     </button>
                   </motion.div>
@@ -1684,11 +1682,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto space-y-24">
                   <div className="text-center space-y-6 max-w-3xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.4em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
                       <Info size={14} />
                       {t.about}
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                    <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] tracking-tight leading-none">
                       Engineered for <span className="text-brand-purple italic">Creators</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
@@ -1698,25 +1696,25 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                     <motion.div 
-                      whileHover={{ y: -10 }}
-                      className="md:col-span-8 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group relative overflow-hidden shadow-2xl"
+                      whileHover={{ y: -5 }}
+                      className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
                     >
-                      <div className="relative z-10 space-y-8">
-                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
-                          <Zap size={32} />
+                      <div className="relative z-10 space-y-6">
+                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                          <Zap size={28} />
                         </div>
-                        <div className="space-y-4">
-                          <h4 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
-                          <p className="text-[var(--text-muted)] text-lg leading-relaxed max-w-xl font-medium">
+                        <div className="space-y-3">
+                          <h4 className="text-2xl md:text-3xl font-bold text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
+                          <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed max-w-xl">
                             Our AI models are optimized for speed, delivering high-quality scripts, ideas, and images in under 5 seconds. No more waiting for inspiration.
                           </p>
                         </div>
                       </div>
-                      <div className="mt-12 relative h-64 overflow-hidden rounded-[2rem] border border-[var(--border-main)]/50">
-                        <img src="https://picsum.photos/seed/speed/1200/600" className="w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
-                        <div className="absolute inset-0 bg-linear-to-t from-[var(--bg-card)] via-transparent to-transparent" />
-                        <div className="absolute bottom-8 left-8">
-                          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
+                      <div className="mt-10 relative h-56 overflow-hidden rounded-2xl border border-[var(--border-main)]/50">
+                        <img src="https://picsum.photos/seed/speed/1200/600" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent" />
+                        <div className="absolute bottom-6 left-6">
+                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold tracking-wide">
                             <Clock size={14} /> 4.2s Avg Response
                           </div>
                         </div>
@@ -1724,75 +1722,75 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </motion.div>
 
                     <motion.div 
-                      whileHover={{ y: -10 }}
-                      className="md:col-span-4 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group shadow-2xl flex flex-col justify-between"
+                      whileHover={{ y: -5 }}
+                      className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
-                      <div className="space-y-8">
-                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
-                          <Shield size={32} />
+                      <div className="space-y-6">
+                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                          <Shield size={28} />
                         </div>
-                        <div className="space-y-4">
-                          <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">Privacy First</h4>
-                          <p className="text-[var(--text-muted)] leading-relaxed font-medium">
+                        <div className="space-y-3">
+                          <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">Privacy First</h4>
+                          <p className="text-[var(--text-muted)] leading-relaxed">
                             Your API keys and content never leave your browser. We prioritize your data security and creative intellectual property.
                           </p>
                         </div>
                       </div>
-                      <div className="mt-8 p-6 rounded-2xl bg-green-500/5 border border-green-500/20 flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
-                          <Lock size={20} />
+                      <div className="mt-8 p-4 rounded-xl bg-green-500/5 border border-green-500/20 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                          <Lock size={16} />
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-green-500">End-to-End Encrypted</span>
+                        <span className="text-xs font-semibold text-green-500">End-to-End Encrypted</span>
                       </div>
                     </motion.div>
 
                     <motion.div 
-                      whileHover={{ y: -10 }}
-                      className="md:col-span-4 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group shadow-2xl flex flex-col justify-between"
+                      whileHover={{ y: -5 }}
+                      className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
-                      <div className="space-y-8">
-                        <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
-                          <Users size={32} />
+                      <div className="space-y-6">
+                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                          <Users size={28} />
                         </div>
-                        <div className="space-y-4">
-                          <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">Creator Community</h4>
-                          <p className="text-[var(--text-muted)] leading-relaxed font-medium">
+                        <div className="space-y-3">
+                          <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">Creator Community</h4>
+                          <p className="text-[var(--text-muted)] leading-relaxed">
                             Join thousands of creators who are scaling their channels with our AI tools. Share tips and grow together.
                           </p>
                         </div>
                       </div>
-                      <div className="mt-8 flex -space-x-4">
+                      <div className="mt-8 flex -space-x-3">
                         {[1, 2, 3, 4].map(i => (
-                          <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-12 h-12 rounded-full border-4 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
+                          <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
                         ))}
-                        <div className="w-12 h-12 rounded-full border-4 border-[var(--bg-card)] bg-brand-purple flex items-center justify-center text-white text-[10px] font-black">
+                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-brand-purple flex items-center justify-center text-white text-xs font-bold">
                           +10k
                         </div>
                       </div>
                     </motion.div>
 
                     <motion.div 
-                      whileHover={{ y: -10 }}
-                      className="md:col-span-8 p-10 rounded-[3rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group relative overflow-hidden shadow-2xl"
+                      whileHover={{ y: -5 }}
+                      className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
                     >
-                      <div className="flex flex-col md:flex-row gap-12 items-center h-full">
+                      <div className="flex flex-col md:flex-row gap-10 items-center h-full">
                         <div className="space-y-6 flex-1">
-                          <div className="w-16 h-16 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500 shadow-lg">
-                            <Globe size={32} />
+                          <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                            <Globe size={28} />
                           </div>
-                          <div className="space-y-4">
-                            <h4 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
-                            <p className="text-[var(--text-muted)] text-lg leading-relaxed font-medium">
+                          <div className="space-y-3">
+                            <h4 className="text-2xl md:text-3xl font-bold text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
+                            <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed">
                               Create content in English, Bengali, and Hindi with perfect cultural context and nuance. Reach a global audience effortlessly.
                             </p>
                           </div>
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex gap-3">
                           {['🇺🇸', '🇧🇩', '🇮🇳'].map(f => (
                             <motion.div 
                               key={f} 
-                              whileHover={{ scale: 1.1, rotate: 5 }}
-                              className="w-20 h-20 rounded-3xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-4xl shadow-2xl"
+                              whileHover={{ scale: 1.05, rotate: 5 }}
+                              className="w-16 h-16 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-3xl shadow-md"
                             >
                               {f}
                             </motion.div>
@@ -1813,11 +1811,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                     <div className="space-y-10">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.3em] backdrop-blur-md">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
                         <Zap size={14} className="text-yellow-400" />
                         {uiLang === 'en' ? "Powerful Capabilities" : "শক্তিশালী ক্ষমতা"}
                       </div>
-                      <h2 className="text-5xl md:text-7xl font-black text-white leading-[0.9] tracking-tighter">
+                      <h2 className="text-5xl md:text-7xl font-bold text-white leading-[0.9] tracking-tight">
                         Our Powerful <br/> <span className="text-white/50 italic">Features</span>
                       </h2>
                       <p className="text-white/70 text-lg font-medium leading-relaxed max-w-lg">
@@ -1838,7 +1836,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
                               {f.icon}
                             </div>
-                            <h4 className="text-lg font-black text-white mb-2 tracking-tight">{f.title}</h4>
+                            <h4 className="text-lg font-bold text-white mb-2 tracking-tight">{f.title}</h4>
                             <p className="text-white/50 text-sm font-medium leading-relaxed">{f.desc}</p>
                           </motion.div>
                         ))}
@@ -1863,11 +1861,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto px-6 space-y-24">
                   <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.3em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
                       <MessageSquare size={14} />
                       {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                    <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
                       Happy <span className="text-brand-purple italic">Creators</span> <br/> Say
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
@@ -1883,19 +1881,19 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ].map((t, i) => (
                       <motion.div 
                         key={i} 
-                        whileHover={{ y: -10 }}
-                        className="p-10 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-8 relative glass-card group transition-all shadow-xl"
+                        whileHover={{ y: -5 }}
+                        className="p-8 md:p-10 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-6 relative glass-card group transition-all shadow-md hover:shadow-xl"
                       >
-                        <Quote className="absolute top-8 right-8 text-brand-purple/5 group-hover:text-brand-purple/10 transition-colors" size={64} />
+                        <Quote className="absolute top-6 right-6 text-brand-purple/5 group-hover:text-brand-purple/10 transition-colors" size={48} />
                         <div className="flex gap-1">
                           {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-brand-orange text-brand-orange" />)}
                         </div>
-                        <p className="text-[var(--text-main)] font-medium italic leading-relaxed text-lg relative z-10">"{t.text}"</p>
-                        <div className="flex items-center gap-4 pt-4 border-t border-[var(--border-main)]/50">
-                          <img src={t.avatar} alt={t.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-brand-purple/20" referrerPolicy="no-referrer" />
+                        <p className="text-[var(--text-main)] font-medium leading-relaxed text-base md:text-lg relative z-10">"{t.text}"</p>
+                        <div className="flex items-center gap-4 pt-6 border-t border-[var(--border-main)]/50">
+                          <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-brand-purple/20" referrerPolicy="no-referrer" />
                           <div>
-                            <h5 className="font-black text-[var(--text-main)] tracking-tight">{t.name}</h5>
-                            <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">{t.role}</p>
+                            <h5 className="font-bold text-[var(--text-main)] tracking-tight">{t.name}</h5>
+                            <p className="text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wide">{t.role}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -1910,11 +1908,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto px-6 space-y-24">
                   <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-black uppercase tracking-[0.3em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
                       <CreditCard size={14} />
                       {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-black text-[var(--text-main)] tracking-tighter leading-none">
+                    <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
                       Scale Your <span className="text-brand-purple italic">Growth</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
@@ -1951,25 +1949,25 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ].map((plan, i) => (
                       <motion.div 
                         key={i} 
-                        whileHover={{ y: -10 }}
+                        whileHover={{ y: -5 }}
                         className={cn(
-                          "p-10 rounded-[3rem] border space-y-8 relative glass-card group transition-all shadow-2xl flex flex-col justify-between",
-                          plan.popular ? "bg-brand-purple/10 border-brand-purple/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
+                          "p-8 md:p-10 rounded-[2.5rem] border space-y-8 relative glass-card group transition-all shadow-xl flex flex-col justify-between",
+                          plan.popular ? "bg-brand-purple/5 border-brand-purple/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
                         )}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-linear-to-r from-brand-purple to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-brand-purple text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
                             Most Popular
                           </div>
                         )}
                         <div className="space-y-6">
                           <div className="space-y-2">
-                            <h4 className="text-2xl font-black text-[var(--text-main)] tracking-tight">{plan.name}</h4>
+                            <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">{plan.name}</h4>
                             <p className="text-[var(--text-muted)] text-sm font-medium">{plan.desc}</p>
                           </div>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black text-[var(--text-main)] tracking-tighter">{plan.price}</span>
-                            {plan.price !== "Free" && <span className="text-[var(--text-muted)] font-black uppercase text-[10px] tracking-widest">/ Month</span>}
+                            <span className="text-4xl md:text-5xl font-bold text-[var(--text-main)] tracking-tighter">{plan.price}</span>
+                            {plan.price !== "Free" && <span className="text-[var(--text-muted)] font-semibold uppercase text-xs tracking-wide">/ Month</span>}
                           </div>
                           <div className="h-px bg-[var(--border-main)] w-full" />
                           <ul className="space-y-4">
@@ -1984,9 +1982,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           </ul>
                         </div>
                         <button className={cn(
-                          "w-full py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl",
+                          "w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-md",
                           plan.popular 
-                            ? "bg-linear-to-r from-brand-purple to-indigo-600 text-white shadow-brand-purple/20 hover:shadow-brand-purple/40" 
+                            ? "bg-brand-purple text-white hover:bg-brand-purple/90" 
                             : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-card)]"
                         )}>
                           {plan.button}
@@ -2003,86 +2001,86 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
-                    <div className="md:col-span-4 space-y-8">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[var(--bg-main)] flex items-center justify-center shadow-2xl border border-[var(--border-main)] group cursor-pointer">
-                          <Youtube className="text-brand-purple group-hover:scale-110 transition-transform" size={28} />
+                    <div className="md:col-span-4 space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--bg-main)] flex items-center justify-center shadow-md border border-[var(--border-main)] group cursor-pointer">
+                          <Youtube className="text-brand-purple group-hover:scale-110 transition-transform" size={20} />
                         </div>
-                        <span className="text-3xl font-black tracking-tighter uppercase text-[var(--text-main)]">{t.title}</span>
+                        <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">{t.title}</span>
                       </div>
-                      <p className="text-[var(--text-muted)] text-base font-medium leading-relaxed max-w-sm">
+                      <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-sm">
                         {uiLang === 'en' ? "The ultimate AI toolkit for modern content creators. Automate your workflow, grow your audience, and save time." : "আধুনিক কন্টেন্ট ক্রিয়েটরদের জন্য সেরা এআই টুলকিট। আপনার ওয়ার্কফ্লো অটোমেট করুন, অডিয়েন্স বাড়ান এবং সময় বাঁচান।"}
                       </p>
-                      <div className="flex gap-4">
+                      <div className="flex gap-3">
                         {[Facebook, Twitter, Instagram, Github].map((Icon, i) => (
                           <motion.button 
                             key={i} 
-                            whileHover={{ y: -3, color: "var(--brand-purple)" }}
-                            className="w-10 h-10 rounded-xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
+                            whileHover={{ y: -2, color: "var(--brand-purple)" }}
+                            className="w-8 h-8 rounded-lg bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
                           >
-                            <Icon size={18} />
+                            <Icon size={14} />
                           </motion.button>
                         ))}
                       </div>
                     </div>
 
-                    <div className="md:col-span-2 space-y-8">
-                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Quick Links</h4>
-                      <ul className="space-y-4 text-[var(--text-muted)] text-sm font-black uppercase tracking-widest">
+                    <div className="md:col-span-2 space-y-6">
+                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Quick Links</h4>
+                      <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Home
                         </li>
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           About
                         </li>
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Features
                         </li>
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Contact
                         </li>
                       </ul>
                     </div>
 
-                    <div className="md:col-span-2 space-y-8">
-                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Support</h4>
-                      <ul className="space-y-4 text-[var(--text-muted)] text-sm font-black uppercase tracking-widest">
+                    <div className="md:col-span-2 space-y-6">
+                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Support</h4>
+                      <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Help Center
                         </li>
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Privacy Policy
                         </li>
                         <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
                           Terms of Service
                         </li>
                       </ul>
                     </div>
 
-                    <div className="md:col-span-4 space-y-8">
-                      <h4 className="text-[var(--text-main)] font-black uppercase tracking-[0.2em] text-xs">Stay Updated</h4>
-                      <p className="text-[var(--text-muted)] text-sm font-medium">Subscribe to our newsletter for the latest AI tips.</p>
-                      <div className="flex gap-2 p-1.5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl focus-within:border-brand-purple/50 transition-all">
+                    <div className="md:col-span-4 space-y-6">
+                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Stay Updated</h4>
+                      <p className="text-[var(--text-muted)] text-sm">Subscribe to our newsletter for the latest AI tips.</p>
+                      <div className="flex gap-2 p-1 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl focus-within:border-brand-purple/50 transition-all">
                         <input 
                           type="text" 
                           placeholder="Email Address" 
-                          className="bg-transparent px-4 py-2 text-[var(--text-main)] text-sm w-full outline-none font-medium" 
+                          className="bg-transparent px-3 py-2 text-[var(--text-main)] text-sm w-full outline-none" 
                         />
-                        <button className="bg-brand-purple text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-lg shadow-brand-purple/20">
+                        <button className="bg-brand-purple text-white px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-brand-purple/20 hover:bg-brand-purple/90">
                           Join
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-24 pt-10 border-t border-[var(--border-main)] flex flex-col md:flex-row justify-between items-center gap-6 text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[0.2em]">
+                  <div className="mt-20 pt-8 border-t border-[var(--border-main)] flex flex-col md:flex-row justify-between items-center gap-4 text-[var(--text-muted)] text-xs font-medium">
                     <p>© {new Date().getFullYear()} {t.title}. All Rights Reserved.</p>
                     <div className="flex gap-8">
                       <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Privacy</span>
@@ -2111,7 +2109,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <Youtube className="text-brand-purple" size={20} />
                   </div>
                   <div className="hidden sm:flex flex-col">
-                    <span className="text-sm font-black tracking-tighter uppercase group-hover:text-brand-purple transition-colors leading-none">Studio</span>
+                    <span className="text-sm font-bold tracking-tight uppercase group-hover:text-brand-purple transition-colors leading-none">Studio</span>
                     <div className="flex items-center gap-1 mt-1">
                       <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" : "bg-amber-500")} />
                       <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{isApiConnected ? 'Online' : 'Offline'}</span>
@@ -2151,7 +2149,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
 
               {/* Navigation Pill */}
-              <nav className="glass-card px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-hide pointer-events-auto shadow-2xl border-brand-purple/20 max-w-full">
+              <nav className="glass-card px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-hide pointer-events-auto shadow-sm max-w-full">
                 {[
                   { id: 'home', icon: Home, label: t.home },
                   { id: 'video', icon: Video, label: t.videoGen },
@@ -2172,13 +2170,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       }
                     }}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap",
+                      "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 text-xs font-semibold whitespace-nowrap",
                       currentView === item.id 
-                        ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/30 scale-105" 
-                        : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--border-main)]"
+                        ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" 
+                        : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)]"
                     )}
                   >
-                    <item.icon size={14} />
+                    <item.icon size={16} />
                     <span className="hidden lg:block">{item.label}</span>
                   </button>
                 ))}
@@ -2210,7 +2208,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
       >
         {/* Dashboard Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-3">
+          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-3">
             <div className="w-8 h-[1px] bg-brand-orange/30"></div>
             <LayoutDashboard size={14} className="text-brand-orange" /> {t.dashboardOverview}
           </h2>
@@ -2221,7 +2219,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={installApp}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-md shadow-blue-600/20 hover:shadow-blue-600/40 transition-all"
             >
               <Download size={14} />
               {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
@@ -2239,44 +2237,44 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           ].map((stat, i) => (
             <motion.div 
               key={i}
-              whileHover={{ y: -4, scale: 1.01 }}
-              className="p-6 rounded-[2rem] bg-[var(--bg-card)]/30 border border-[var(--border-main)] glass-card flex items-center gap-5 shadow-xl group transition-all duration-300 relative overflow-hidden"
+              whileHover={{ y: -2, scale: 1.01 }}
+              className="p-5 md:p-6 rounded-2xl bg-[var(--bg-card)]/30 border border-[var(--border-main)] glass-card flex items-center gap-4 shadow-md group transition-all duration-300 relative overflow-hidden"
             >
               <div className={cn("absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40", stat.bg)} />
               
               <div className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6",
+                "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-500 group-hover:scale-110",
                 stat.bg, stat.color, stat.border
               )}>
                 <stat.icon size={20} />
               </div>
-              <div className="space-y-0.5 z-10">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-bold">{stat.label}</p>
-                <p className="text-xl font-black text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
+              <div className="space-y-1 z-10">
+                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">{stat.label}</p>
+                <p className="text-lg md:text-xl font-bold text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Inputs */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-            <section className="studio-card p-8 md:p-12 space-y-12">
-            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-8">
+          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+            <section className="studio-card p-6 md:p-8 space-y-8">
+            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-6">
               <div className="space-y-1">
-                <h2 className="text-3xl font-black tracking-tighter flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple shadow-xl">
-                    {currentView === 'home' && <LayoutDashboard size={28} />}
-                    {currentView === 'youtube' && <Youtube size={28} />}
-                    {currentView === 'video' && <Video size={28} />}
-                    {currentView === 'shorts' && <Zap size={28} />}
-                    {currentView === 'idea' && <Lightbulb size={28} />}
-                    {currentView === 'image' && <Palette size={28} />}
-                    {currentView === 'voice' && <Mic size={28} />}
-                    {currentView === 'voiceExtractor' && <AudioLines size={28} />}
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                    {currentView === 'home' && <LayoutDashboard size={20} />}
+                    {currentView === 'youtube' && <Youtube size={20} />}
+                    {currentView === 'video' && <Video size={20} />}
+                    {currentView === 'shorts' && <Zap size={20} />}
+                    {currentView === 'idea' && <Lightbulb size={20} />}
+                    {currentView === 'image' && <Palette size={20} />}
+                    {currentView === 'voice' && <Mic size={20} />}
+                    {currentView === 'voiceExtractor' && <AudioLines size={20} />}
                   </div>
-                  <span className="premium-gradient-text">
+                  <span className="text-[var(--text-main)]">
                     {currentView === 'home' ? t.dashboard : 
                      currentView === 'youtube' ? t.youtubeToolset : 
                      currentView === 'video' ? t.videoPrompter : 
@@ -2287,15 +2285,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                      currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
                   </span>
                 </h2>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black ml-16">
+                <p className="text-xs font-medium text-[var(--text-muted)] ml-14">
                   {uiLang === 'en' ? "AI Powered Creative Studio" : "এআই চালিত ক্রিয়েটিভ স্টুডিও"}
                 </p>
               </div>
               <button 
                 onClick={() => setShowHistory(!showHistory)}
-                className="group flex items-center gap-3 px-5 py-2.5 rounded-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all text-[10px] font-black uppercase tracking-widest shadow-xl"
+                className="btn-secondary py-2 px-4 text-xs"
               >
-                <History size={16} className="group-hover:rotate-[-45deg] transition-transform" /> {t.history}
+                <History size={14} /> {t.history}
               </button>
             </div>
 
@@ -2308,7 +2306,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             >
               {currentView !== 'voiceExtractor' && (
                 <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                     <FileText size={14} className="text-brand-purple" /> {
                       currentView === 'video' ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
@@ -2370,8 +2368,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {(currentView === 'image' || currentView === 'video') && (
                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-500">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-brand-purple font-black">
-                          <Sparkles size={12} /> {uiLang === 'en' ? "Prompt Suggestions" : "প্রম্পট সাজেশন"}
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-brand-purple font-semibold">
+                          <Sparkles size={14} /> {uiLang === 'en' ? "Prompt Suggestions" : "প্রম্পট সাজেশন"}
                         </div>
                         {topics[currentView].trim() !== "" && (
                           <button 
@@ -2379,18 +2377,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               setTopics(prev => ({ ...prev, [currentView]: "" }));
                               toast.info(uiLang === 'en' ? "Prompt cleared" : "প্রম্পট মুছে ফেলা হয়েছে");
                             }}
-                            className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple transition-colors font-bold flex items-center gap-1"
+                            className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple transition-colors font-bold flex items-center gap-1"
                           >
-                            <Trash2 size={10} /> {uiLang === 'en' ? "Clear" : "মুছুন"}
+                            <Trash2 size={12} /> {uiLang === 'en' ? "Clear" : "মুছুন"}
                           </button>
                         )}
                       </div>
                       
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {/* Scene Presets */}
                         <div className="space-y-2">
-                          <span className="text-[9px] uppercase tracking-tighter text-brand-purple font-black px-1 flex items-center gap-1">
-                            <Zap size={10} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
+                          <span className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold px-1 flex items-center gap-1">
+                            <Zap size={12} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
                             {SCENE_PRESETS.map((preset, idx) => (
@@ -2518,7 +2516,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {currentView === 'voiceExtractor' && (
                 <div className="space-y-4 pt-4">
-                  <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                     <Languages size={14} className="text-brand-orange" /> {t.targetLanguage}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
@@ -2527,8 +2525,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'en' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'en' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
+                        options.language === 'en' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'en' && <Check size={16} />} {t.en}
@@ -2538,8 +2536,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'bn' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'bn' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
+                        options.language === 'bn' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'bn' && <Check size={16} />} {t.bn}
@@ -2549,8 +2547,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setOptions(prev => ({ ...prev, language: 'hi' }))}
                       className={cn(
-                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
-                        options.language === 'hi' ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
+                        options.language === 'hi' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'hi' && <Check size={16} />} {t.hi}
@@ -2561,7 +2559,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {currentView === 'promptGen' && (
                 <div className="space-y-4 pt-4">
-                  <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                     <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -2572,8 +2570,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                         className={cn(
-                          "py-3 rounded-xl border border-[var(--border-main)] text-sm font-bold transition-all flex items-center justify-center gap-2",
-                          options.promptCategory === cat ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                          "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
+                          options.promptCategory === cat ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                         )}
                       >
                         {options.promptCategory === cat && <Check size={16} />} 
@@ -2590,7 +2588,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'idea' && (
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                       <Sparkles size={14} className="text-brand-orange" /> {t.trendingNow}
                     </label>
                     {loadingTrends && <Loader2 size={14} className="animate-spin text-brand-orange" />}
@@ -2632,8 +2630,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'home' && (
                 <div className="space-y-6 pt-4">
                   <div className="flex items-center gap-2 px-1">
-                    <LayoutDashboard size={16} className="text-slate-400" />
-                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <LayoutDashboard size={16} className="text-[var(--text-muted)]" />
+                    <h2 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                       {t.popularCategories}
                     </h2>
                   </div>
@@ -2711,22 +2709,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   {/* Unique Prompt Generator Section */}
-                  <div className="space-y-6 pt-8 border-t border-white/5" id="prompt-generator-section">
+                  <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="prompt-generator-section">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
                         <Sparkles size={20} className="text-brand-orange" />
-                        <h2 className="text-sm font-bold text-[var(--text-main)] tracking-wide">
+                        <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
                           {t.promptGen}
                         </h2>
                       </div>
-                      <div className="text-[10px] font-bold text-brand-orange uppercase tracking-widest">
+                      <div className="text-[10px] font-semibold text-brand-orange uppercase tracking-widest">
                         {uiLang === 'en' ? 'AI Powered' : 'এআই চালিত'}
                       </div>
                     </div>
 
                     <div className="glass-card p-6 space-y-6 border-brand-orange/20 bg-brand-orange/5">
                       <div className="space-y-4">
-                        <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                           <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -2737,8 +2735,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               whileTap={{ scale: 0.98 }}
                               onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                               className={cn(
-                                "py-2.5 rounded-xl border border-brand-border text-xs font-bold transition-all flex items-center justify-center gap-2",
-                                options.promptCategory === cat ? "bg-brand-orange text-white shadow-[0_0_15px_rgba(242,125,38,0.3)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                                "py-2.5 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all flex items-center justify-center gap-2",
+                                options.promptCategory === cat ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                               )}
                             >
                               {options.promptCategory === cat && <Check size={14} />} 
@@ -2754,32 +2752,32 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {/* New Dropdowns */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Visual Style</label>
-                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Visual Style</label>
+                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
                             {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch'].map(style => <option key={style} value={style}>{style}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Camera Angle</label>
-                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Camera Angle</label>
+                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
                             {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">Mood</label>
-                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)]">
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Mood</label>
+                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
                             {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
                           </select>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                           <FileText size={14} /> {uiLang === 'en' ? 'Topic for Prompt' : 'প্রম্পটের বিষয়'}
                         </label>
                         <textarea 
                           placeholder={uiLang === 'en' ? "Enter a topic to generate unique prompts (e.g. A futuristic city)" : "ইউনিক প্রম্পট তৈরি করতে একটি বিষয় লিখুন (যেমন: একটি ভবিষ্যতের শহর)"}
-                          className="w-full input-field min-h-[100px] resize-none bg-[var(--bg-card)]/40"
+                          className="w-full input-field min-h-[100px] resize-none bg-[var(--bg-card)]/40 text-sm"
                           value={topics.promptGen}
                           onChange={(e) => {
                             const val = e.target.value;
@@ -2795,10 +2793,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   {/* Best Posting Time Section */}
-                  <div className="space-y-6 pt-8 border-t border-white/5">
+                  <div className="space-y-6 pt-8 border-t border-[var(--border-main)]">
                     <div className="flex items-center gap-2 px-1">
                       <span className="text-xl">⏰</span>
-                      <h2 className="text-sm font-bold text-[var(--text-main)] tracking-wide">
+                      <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
                         {t.bestPostingTime}
                       </h2>
                     </div>
@@ -2810,14 +2808,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.05 }}
-                        whileHover={{ y: -5, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
-                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-center glass-card"
+                        whileHover={{ y: -2, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
+                        className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-center glass-card shadow-sm"
                       >
                         <span className="text-2xl mb-1">{item.icon}</span>
-                        <span className="text-sm font-black text-brand-purple tracking-tight">
+                        <span className="text-sm font-bold text-brand-purple tracking-tight">
                           {item.time}
                         </span>
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                        <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                           {item.platform} {uiLang === 'bn' ? (
                             item.period === 'morning' ? 'সকাল' :
                             item.period === 'afternoon' ? 'দুপুর' :
@@ -2835,8 +2833,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'voice' && (
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
-                      <Languages size={14} /> {t.voiceLang}
+                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                      <Languages size={14} className="text-brand-orange" /> {t.voiceLang}
                     </label>
                     <div className="flex gap-2">
                       {[
@@ -2850,8 +2848,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           key={lang.id}
                           onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
                           className={cn(
-                            "flex-1 py-2 rounded-xl border border-brand-border text-sm transition-all",
-                            options.voiceLanguage === lang.id ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-[var(--bg-card)]/20 text-[var(--text-muted)]"
+                            "flex-1 py-2 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all",
+                            options.voiceLanguage === lang.id ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                           )}
                         >
                           {lang.flag} {lang.label}
@@ -2861,13 +2859,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold flex items-center gap-2">
-                      <Volume2 size={14} /> {t.selectVoice}
+                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                      <Volume2 size={14} className="text-brand-orange" /> {t.selectVoice}
                     </label>
                     
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{t.femaleVoices}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{t.femaleVoices}</p>
                         <div className="grid grid-cols-2 gap-2">
                           {[
                             { id: 'Kore', label: 'Kore (Warm)', desc: 'Natural & Soft' },
@@ -2880,10 +2878,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                               className={cn(
                                 "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.2)]" : "bg-black/20 border-brand-border text-slate-400"
+                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-brand-orange/30"
                               )}
                             >
-                              <span className={cn("text-sm font-bold", options.voice === v.id ? "text-brand-orange" : "text-slate-300")}>{v.label}</span>
+                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-brand-orange" : "text-[var(--text-main)]")}>{v.label}</span>
                               <span className="text-[10px] opacity-60">{v.desc}</span>
                             </motion.button>
                           ))}
@@ -2891,7 +2889,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
 
                       <div className="space-y-2">
-                        <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{t.maleVoices}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{t.maleVoices}</p>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
                             { id: 'Puck', label: 'Puck', desc: 'Friendly' },
@@ -2905,10 +2903,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                               className={cn(
                                 "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.2)]" : "bg-black/20 border-brand-border text-slate-400"
+                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-brand-orange/30"
                               )}
                             >
-                              <span className={cn("text-sm font-bold", options.voice === v.id ? "text-brand-orange" : "text-slate-300")}>{v.label}</span>
+                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-brand-orange" : "text-[var(--text-main)]")}>{v.label}</span>
                               <span className="text-[10px] opacity-60">{v.desc}</span>
                             </motion.button>
                           ))}
@@ -2918,7 +2916,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                       <Sparkles size={14} className="text-brand-orange" /> {t.voiceTone}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -2935,8 +2933,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           key={tone.id}
                           onClick={() => setOptions(prev => ({ ...prev, voiceTone: tone.id }))}
                           className={cn(
-                            "py-2 rounded-xl border border-brand-border text-xs transition-all",
-                            options.voiceTone === tone.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-black/20 text-slate-400"
+                            "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
+                            options.voiceTone === tone.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                           )}
                         >
                           {tone.label}
@@ -2947,7 +2945,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">
-                      <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                      <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                         <Globe size={14} className="text-brand-orange" /> {t.voiceAccent}
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -2963,8 +2961,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             key={acc.id}
                             onClick={() => setOptions(prev => ({ ...prev, voiceAccent: acc.id }))}
                             className={cn(
-                              "py-2 rounded-xl border border-brand-border text-xs transition-all",
-                              options.voiceAccent === acc.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-black/20 text-slate-400"
+                              "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
+                              options.voiceAccent === acc.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                             )}
                           >
                             {acc.label}
@@ -2974,7 +2972,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
+                      <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                         <User size={14} className="text-brand-orange" /> {t.voiceAge}
                       </label>
                       <div className="grid grid-cols-1 gap-2">
@@ -2989,8 +2987,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             key={age.id}
                             onClick={() => setOptions(prev => ({ ...prev, voiceAge: age.id }))}
                             className={cn(
-                              "py-2 rounded-xl border border-brand-border text-xs transition-all",
-                              options.voiceAge === age.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-black/20 text-slate-400"
+                              "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
+                              options.voiceAge === age.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                             )}
                           >
                             {age.label}
@@ -3006,10 +3004,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-brand-border" />
+                      <span className="w-full border-t border-[var(--border-main)]" />
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-brand-card px-2 text-slate-500">
+                    <div className="relative flex justify-center text-xs uppercase tracking-wider font-semibold">
+                      <span className="bg-[var(--bg-card)] px-3 text-[var(--text-muted)]">
                         {currentView === 'video' ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
                          currentView === 'voiceExtractor' ? t.uploadAudio : t.uploadImage}
                       </span>
@@ -3019,7 +3017,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
-                      "border-2 border-dashed border-brand-border rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all hover:bg-brand-orange/5",
+                      "border-2 border-dashed border-[var(--border-main)] rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:bg-brand-orange/5 hover:border-brand-orange/50",
                       currentSelectedMedia && "border-brand-orange bg-brand-orange/5"
                     )}
                   >
@@ -3031,7 +3029,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onChange={handleFileUpload}
                     />
                     {currentSelectedMedia ? (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-brand-orange bg-black flex items-center justify-center">
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-brand-orange bg-black flex items-center justify-center shadow-lg">
                         {mediaMimeType.startsWith('video/') ? (
                           <video src={currentSelectedMedia} className="w-full h-full object-contain" controls />
                         ) : mediaMimeType.startsWith('audio/') ? (
@@ -3044,18 +3042,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             e.stopPropagation();
                             setSelectedMedia(prev => ({ ...prev, [currentView]: null }));
                           }}
-                          className="absolute top-2 right-2 p-2 bg-black/60 rounded-full text-white hover:text-red-500 z-10"
+                          className="absolute top-3 right-3 p-2.5 bg-black/60 rounded-full text-white hover:text-red-500 hover:bg-black/80 transition-all z-10 backdrop-blur-sm"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
                     ) : (
                       <>
-                        <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange">
-                          {currentView === 'video' ? <Video size={20} /> : 
-                           currentView === 'voiceExtractor' ? <AudioLines size={20} /> : <Upload size={20} />}
+                        <div className="w-14 h-14 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange shadow-inner">
+                          {currentView === 'video' ? <Video size={24} /> : 
+                           currentView === 'voiceExtractor' ? <AudioLines size={24} /> : <Upload size={24} />}
                         </div>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-sm font-medium text-[var(--text-muted)] text-center max-w-xs">
                           {currentView === 'video' ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
                            currentView === 'image' ? (uiLang === 'en' ? "Click to upload image for extraction & analysis" : "এক্সট্র্যাকশন ও বিশ্লেষণের জন্য ইমেজ আপলোড করতে ক্লিক করুন") :
                            currentView === 'voiceExtractor' ? t.uploadAudioPrompt :
@@ -3073,7 +3071,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && currentView !== 'promptGen' && !currentSelectedMedia && (
             <section className="space-y-6 mb-10">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                   <LayoutTemplate size={18} className="text-brand-purple" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
                 </h2>
               </div>
@@ -3107,7 +3105,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <button
                     key={template.id}
                     onClick={() => setOptions(prev => ({ ...prev, ...template.preset }))}
-                    className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/50 hover:bg-brand-purple/5 transition-all text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
+                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/50 hover:bg-brand-purple/5 transition-all text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
                   >
                     <template.icon size={18} className="text-brand-purple" />
                     {template.label}
@@ -3121,10 +3119,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && !currentSelectedMedia && (
             <section className="space-y-8">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                   <Sparkles size={18} className="text-brand-purple animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-brand-purple font-black bg-brand-purple/10 px-4 py-1.5 rounded-full border border-brand-purple/20 shadow-sm">
+                <span className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold bg-brand-purple/10 px-3 py-1 rounded-full border border-brand-purple/20 shadow-sm">
                   AI Powered
                 </span>
               </div>
@@ -3207,15 +3205,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
 
               {(options.generateVideoPrompt || options.generateScript || currentView === 'shorts') && (
-                <div className="space-y-6 pt-4 border-t border-brand-border">
+                <div className="space-y-6 pt-4 border-t border-[var(--border-main)]">
                   {currentView === 'shorts' && (
                     <div className="space-y-6">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                            <Clock size={14} /> {t.videoDuration}
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                            <Clock size={14} className="text-brand-orange" /> {t.videoDuration}
                           </label>
-                          <span className="text-brand-orange font-bold text-sm">
+                          <span className="text-brand-orange font-semibold text-sm">
                             {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
                           </span>
                         </div>
@@ -3235,9 +3233,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               scriptCharacterCount: chars
                             }));
                           }}
-                          className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                          className="w-full h-1.5 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
                         />
-                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                        <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold">
                           <span>8s</span>
                           <span>20m</span>
                         </div>
@@ -3245,10 +3243,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                             <Type size={14} className="text-brand-purple" /> {t.scriptCharacters}
                           </label>
-                          <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                          <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                             {options.scriptCharacterCount} {t.charLimit}
                           </span>
                         </div>
@@ -3261,7 +3259,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           onChange={(e) => setOptions(prev => ({ ...prev, scriptCharacterCount: parseInt(e.target.value) }))}
                           className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                         />
-                        <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
+                        <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                           <span>100</span>
                           <span>20000</span>
                         </div>
@@ -3272,10 +3270,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {options.generateVideoPrompt && currentView !== 'shorts' && (
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                           <Clock size={14} className="text-brand-purple" /> {t.videoDuration}
                         </label>
-                        <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                        <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                           {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
                         </span>
                       </div>
@@ -3297,7 +3295,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         }}
                         className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                       />
-                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
+                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>8s</span>
                         <span>20m</span>
                       </div>
@@ -3307,10 +3305,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {options.generateScript && currentView !== 'shorts' && (
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                           <Type size={14} className="text-brand-purple" /> {t.scriptWords}
                         </label>
-                        <span className="text-brand-purple font-black text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                        <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
                           {options.scriptWordCount} {t.words}
                         </span>
                       </div>
@@ -3332,7 +3330,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         }}
                         className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
                       />
-                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
+                      <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>100w</span>
                         <span>5000w</span>
                       </div>
@@ -3345,7 +3343,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
           {currentView === 'image' && (
             <section className="glass-card p-8 space-y-8">
-              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[var(--text-muted)] flex items-center gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
                 <ImageIcon size={18} className="text-brand-purple" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -3356,9 +3354,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     key={ratio}
                     onClick={() => setOptions(prev => ({ ...prev, aspectRatio: ratio as any }))}
                     className={cn(
-                      "py-3 rounded-2xl border text-xs font-black transition-all shadow-sm",
+                      "py-3 rounded-xl border text-xs font-semibold transition-all shadow-sm",
                       options.aspectRatio === ratio 
-                        ? "bg-brand-purple text-white border-brand-purple shadow-lg shadow-brand-purple/20" 
+                        ? "bg-brand-purple text-white border-brand-purple shadow-md shadow-brand-purple/20" 
                         : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] border-[var(--border-main)] hover:border-brand-purple/30"
                     )}
                   >
@@ -3374,19 +3372,19 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             whileTap={{ scale: 0.99 }}
             onClick={handleGenerate}
             disabled={loading || (!(currentView === 'home' ? (topics.home || topics.promptGen) : currentTopic) && !currentSelectedMedia)}
-            className="w-full relative overflow-hidden rounded-3xl p-[2px] group"
+            className="w-full relative overflow-hidden rounded-2xl p-[2px] group shadow-sm"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[shine_3s_linear_infinite]" />
-            <div className="relative bg-[var(--bg-main)] rounded-[22px] px-8 py-6 flex items-center justify-center gap-3 transition-colors duration-500 group-hover:bg-[var(--bg-main)]/80">
+            <div className="relative bg-[var(--bg-main)] rounded-2xl px-8 py-5 flex items-center justify-center gap-3 transition-colors duration-500 group-hover:bg-[var(--bg-main)]/80">
               {loading ? (
                 <>
                   <Loader2 className="animate-spin text-brand-purple" size={24} /> 
-                  <span className="text-xl font-black tracking-[0.1em] text-brand-purple uppercase">{t.processing}</span>
+                  <span className="text-lg font-bold tracking-wider text-brand-purple uppercase">{t.processing}</span>
                 </>
               ) : (
                 <>
                   <Zap size={24} className="text-brand-purple group-hover:rotate-12 transition-transform" /> 
-                  <span className="text-xl font-black tracking-[0.1em] text-[var(--text-main)] uppercase">
+                  <span className="text-lg font-bold tracking-wider text-[var(--text-main)] uppercase">
                     {
                       currentView === 'video' ? t.genPrompt : 
                       currentView === 'idea' ? t.genIdea : 
@@ -3404,23 +3402,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         </div>
 
         {/* Right Column: Results */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-8 lg:sticky lg:top-32">
+        <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-32">
           <AnimatePresence mode="wait">
             <motion.div 
               key="result"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-8 md:p-12 min-h-[500px] md:min-h-[600px] flex flex-col shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[var(--border-main)] relative overflow-hidden group"
+              className="glass-card p-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col relative overflow-hidden group"
             >
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center justify-between mb-8">
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3">
-                    <Sparkles size={24} className="text-brand-orange animate-pulse" /> 
-                    <span className="premium-gradient-text">{t.outputPreview}</span>
+                  <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2 text-[var(--text-main)]">
+                    <Sparkles size={20} className="text-brand-purple" /> 
+                    {t.outputPreview}
                   </h2>
-                  <p className="text-[9px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black ml-9">
+                  <p className="text-xs font-medium text-[var(--text-muted)] ml-7">
                     {uiLang === 'en' ? "AI Generated Result" : "এআই জেনারেটেড রেজাল্ট"}
                   </p>
                 </div>
@@ -3441,7 +3439,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       }
                       copyToClipboard(allText, 'copy-all');
                     }}
-                    className="text-xs flex items-center gap-2 px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition-all text-slate-400 hover:text-brand-orange"
+                    className="text-xs flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 hover:border-[var(--text-muted)]/30 rounded-lg transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
                   >
                     {copied === 'copy-all' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                     {t.copyAll}
@@ -3455,8 +3453,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <Sparkles size={48} />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-slate-300">{t.readyToCreate}</h3>
-                    <p className="text-sm text-slate-500 max-w-xs mx-auto">{t.readySubtitle}</p>
+                    <h3 className="text-xl font-semibold text-[var(--text-main)]">{t.readyToCreate}</h3>
+                    <p className="text-sm text-[var(--text-muted)] max-w-xs mx-auto">{t.readySubtitle}</p>
                   </div>
                   
                   {/* Quick Suggestions Bento Grid */}
@@ -3475,13 +3473,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
                           }
                         }}
-                        className="p-5 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--text-muted)]/30 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden"
+                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--text-muted)]/30 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden shadow-sm"
                       >
                         <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500", item.bg)} />
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", item.bg, item.color, item.border)}>
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", item.bg, item.color, item.border)}>
                           <item.icon size={20} />
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">{item.label}</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">{item.label}</span>
                       </button>
                     ))}
                   </div>
@@ -3489,7 +3487,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               )}
 
               {loading && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-[var(--bg-card)]/30 rounded-[2.5rem] border border-[var(--border-main)] backdrop-blur-sm relative overflow-hidden">
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-[var(--bg-card)]/30 rounded-3xl border border-[var(--border-main)] backdrop-blur-sm relative overflow-hidden">
                     {/* Background glow */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-purple/10 rounded-full blur-[80px]" />
                     
@@ -3509,7 +3507,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <motion.div
                             animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-purple/20 to-transparent flex items-center justify-center text-brand-purple border border-brand-purple/20 shadow-[0_0_30px_rgba(139,92,246,0.2)] backdrop-blur-md"
+                            className="w-16 h-16 rounded-xl bg-gradient-to-br from-brand-purple/20 to-transparent flex items-center justify-center text-brand-purple border border-brand-purple/20 shadow-[0_0_30px_rgba(139,92,246,0.2)] backdrop-blur-md"
                           >
                             <Sparkles size={32} />
                           </motion.div>
@@ -3519,7 +3517,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="w-full max-w-sm space-y-6 z-10">
                       <div className="flex justify-between items-end">
-                        <div className="text-xs uppercase tracking-[0.2em] font-bold text-brand-purple h-4">
+                        <div className="text-xs uppercase tracking-wider font-semibold text-brand-purple h-4">
                           <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="typewriter-text" />
                         </div>
                         <span className="text-xs font-mono text-[var(--text-muted)]">{Math.round(loadingProgress)}%</span>
@@ -3570,114 +3568,27 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           onClick={downloadPdf}
-                          className="py-4 rounded-2xl bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                          className="py-3.5 rounded-xl bg-linear-to-r from-brand-purple to-indigo-600 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                         >
-                          <Download size={20} />
+                          <Download size={18} />
                           {uiLang === 'en' ? "PDF" : "পিডিএফ"}
                         </motion.button>
                         <motion.button
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           onClick={shareContent}
-                          className="py-4 rounded-2xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                          className="py-3.5 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                         >
-                          <Share2 size={20} />
+                          <Share2 size={18} />
                           {uiLang === 'en' ? "Share" : "শেয়ার"}
                         </motion.button>
                       </div>
                     )}
                     {currentResult.imageUrl ? (
                       <div className="space-y-4">
-                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-brand-border group">
-                          <img src={currentResult.imageUrl} alt="Generated" className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                            <a 
-                              href={currentResult.imageUrl} 
-                              download="generated-image.png"
-                              className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white hover:scale-110 transition-transform"
-                            >
-                              <Download size={20} />
-                            </a>
-                          </div>
-                        </div>
-                        <p className="text-xs text-slate-500 text-center italic">{t.generatedImage}</p>
-                      </div>
-                    ) : currentResult.audioUrl ? (
-                      <div className="space-y-6 py-4">
-                        <div className="flex flex-col items-center gap-6">
-                          <div className="w-20 h-20 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange animate-pulse">
-                            <Volume2 size={40} />
-                          </div>
-                          <audio controls src={currentResult.audioUrl} className="w-full" />
-                          <p className="text-[10px] text-slate-500 italic text-center max-w-xs">{t.voiceNote}</p>
-                          <a 
-                            href={currentResult.audioUrl} 
-                            download="voice-over.wav"
-                            className="flex items-center gap-2 px-6 py-3 bg-brand-orange text-white rounded-xl font-bold hover:shadow-[0_0_20px_rgba(242,125,38,0.4)] transition-all"
-                          >
-                            <Download size={18} /> {t.downloadAudio}
-                          </a>
-                        </div>
-                      </div>
-                    ) : currentResult.prompts ? (
-                      <div className="space-y-4">
-                        {currentResult.prompts.map((prompt: string, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-brand-purple font-black text-xs uppercase tracking-widest">Option {idx + 1}</h3>
-                              <button 
-                                onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
-                              >
-                                {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                              </button>
-                            </div>
-                            <div className="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
-                              <TypewriterText text={prompt} className="typewriter-text" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : currentResult.ideas ? (
-                      <div className="space-y-4">
-                        {currentResult.ideas.map((idea: any, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-brand-purple font-black text-xs uppercase tracking-widest">{idx + 1}. {idea.title}</h3>
-                              <button 
-                                onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
-                              >
-                                {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                              </button>
-                            </div>
-                            <div className="text-sm text-[var(--text-main)] leading-relaxed">
-                              <TypewriterText text={idea.description} className="typewriter-text" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-12">
-                        {Object.entries(currentResult).map(([key, value]) => {
-                          if (!value) return null;
-                          
-                          // Handle nested subtitles object
-                          if (key === 'subtitles' && typeof value === 'object' && value !== null) {
-                            return Object.entries(value).map(([langKey, langValue]) => {
-                              const langNames: any = {
-                                en: 'English',
-                                bn: 'Bengali',
-                                hi: 'Hindi',
-                                es: 'Spanish',
-                                fr: 'French'
-                              };
-                              const langName = langNames[langKey] || langKey;
-                              
-                              return (
-                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
+                        <div clas                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
                                   <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
                                       <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
                                         <Languages size={12} />
                                       </div>
@@ -3707,7 +3618,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       </button>
                                     </div>
                                   </div>
-                                  <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
+                                  <div className="p-8 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
                                     <TypewriterText text={String(langValue)} className="typewriter-text" />
                                   </div>
                                 </div>
@@ -3732,7 +3643,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               return (
                                 <div key={`${key}-${mKey}`} className="space-y-3 group">
                                   <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
                                       <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
                                         <mConfig.icon size={12} />
                                       </div>
@@ -3745,7 +3656,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                     </button>
                                   </div>
-                                  <div className="p-6 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-lg group-hover:border-brand-purple/20 transition-all duration-500">
+                                  <div className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
                                     <TypewriterText text={displayValue} className="typewriter-text" />
                                   </div>
                                 </div>
@@ -3757,21 +3668,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           if (key === 'sceneBreakdown' && Array.isArray(value)) {
                             return (
                               <div key="scene-breakdown" className="space-y-6 mt-4">
-                                <div className="flex items-center gap-3 pb-2 border-b border-brand-border">
+                                <div className="flex items-center gap-3 pb-2 border-b border-[var(--border-main)]">
                                   <Film className="text-brand-orange" size={20} />
-                                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-200">
+                                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                                     {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
                                   </h3>
                                 </div>
                                 <div className="space-y-4">
                                   {value.map((scene: any, idx: number) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card">
+                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card shadow-sm">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-black text-sm shadow-inner">
+                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-semibold text-sm shadow-inner">
                                             {scene.scene || idx + 1}
                                           </div>
-                                          <div className="flex items-center gap-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">
+                                          <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                                             <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
                                           </div>
                                         </div>
@@ -3786,7 +3697,79 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-3">
                                           <div className="flex items-center justify-between">
-                                            <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                                            <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                                              <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                              {sceneAudioUrls[`scene-${idx}`] ? (
+                                                <audio 
+                                                  src={sceneAudioUrls[`scene-${idx}`]} 
+                                                  controls 
+                                                  className="h-7 w-36 custom-audio-mini"
+                                                />
+                                              ) : (
+                                                <button
+                                                  onClick={() => handleSceneVoiceOver(idx, scene.script)}
+                                                  disabled={loadingSceneAudio === `scene-${idx}`}ng(mValue);
+                              
+                              return (
+                                <div key={`${key}-${mKey}`} className="space-y-3 group">
+                                  <div className="flex items-center justify-between px-2">
+                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
+                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                        <mConfig.icon size={12} />
+                                      </div>
+                                      {mConfig.label}
+                                    </label>
+                                    <button 
+                                      onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
+                                      className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                    >
+                                      {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                    </button>
+                                  </div>
+                                  <div className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
+                                    <TypewriterText text={displayValue} className="typewriter-text" />
+                                  </div>
+                                </div>
+                              );
+                            });
+                          }
+
+                          // Handle sceneBreakdown array
+                          if (key === 'sceneBreakdown' && Array.isArray(value)) {
+                            return (
+                              <div key="scene-breakdown" className="space-y-6 mt-4">
+                                <div className="flex items-center gap-3 pb-2 border-b border-[var(--border-main)]">
+                                  <Film className="text-brand-orange" size={20} />
+                                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                                    {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
+                                  </h3>
+                                </div>
+                                <div className="space-y-4">
+                                  {value.map((scene: any, idx: number) => (
+                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card shadow-sm">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-semibold text-sm shadow-inner">
+                                            {scene.scene || idx + 1}
+                                          </div>
+                                          <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                                            <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
+                                          </div>
+                                        </div>
+                                        <button 
+                                          onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
+                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                        >
+                                          {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                        </button>
+                                      </div>
+                                      
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-3">
+                                          <div className="flex items-center justify-between">
+                                            <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                                               <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
                                             </label>
                                             <div className="flex items-center gap-2">
@@ -3801,7 +3784,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                                   onClick={() => handleSceneVoiceOver(idx, scene.script)}
                                                   disabled={loadingSceneAudio === `scene-${idx}`}
                                                   className={cn(
-                                                    "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
+                                                    "text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
                                                     loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
                                                   )}
                                                 >
@@ -3815,15 +3798,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                               )}
                                             </div>
                                           </div>
-                                          <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-2xl border border-[var(--border-main)]/50">
+                                          <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-xl border border-[var(--border-main)]/50">
                                             {scene.script}
                                           </p>
                                         </div>
                                         <div className="space-y-3">
-                                          <label className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black flex items-center gap-2">
+                                          <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
                                             <Eye size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
                                           </label>
-                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-2xl border border-brand-purple/10">
+                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-xl border border-brand-purple/10">
                                             {scene.visual}
                                           </p>
                                         </div>
@@ -3860,7 +3843,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           return (
                             <div key={key} className="space-y-3 group">
                               <div className="flex items-center justify-between px-2">
-                                <label className="text-[10px] uppercase tracking-[0.3em] text-brand-purple font-black flex items-center gap-2">
+                                <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
                                     <config.icon size={12} />
                                   </div>
@@ -3927,9 +3910,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     <table className="w-full text-left border-collapse">
                                       <thead>
                                         <tr className="border-b border-[var(--border-main)]">
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Keyword</th>
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Volume</th>
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-black tracking-widest">Competition</th>
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Keyword</th>
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Volume</th>
+                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Competition</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -3938,7 +3921,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                             <td className="py-3 px-4 font-bold text-brand-purple">{kw.keyword}</td>
                                             <td className="py-3 px-4">
                                               <span className={cn(
-                                                "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter",
                                                 kw.searchVolume === 'High' ? "bg-green-500/20 text-green-500" :
                                                 kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
                                                 "bg-blue-500/20 text-blue-500"
@@ -3948,7 +3931,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                             </td>
                                             <td className="py-3 px-4">
                                               <span className={cn(
-                                                "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter",
+                                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter",
                                                 kw.competition === 'Low' ? "bg-green-500/20 text-green-500" :
                                                 kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
                                                 "bg-red-500/20 text-red-500"
@@ -3975,7 +3958,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 {relatedIdeas.length > 0 && (
                     <div className="mt-10 p-8 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card shadow-2xl">
-                      <h3 className="text-xl font-black tracking-tighter flex items-center gap-3 mb-6 text-[var(--text-main)]">
+                      <h3 className="text-xl font-bold tracking-tighter flex items-center gap-3 mb-6 text-[var(--text-main)]">
                         <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
                           <Sparkles size={20} />
                         </div>
@@ -3993,7 +3976,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             }}
                             className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/30 transition-all text-left glass-card group"
                           >
-                            <h4 className="text-sm font-black text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{idea.title}</h4>
+                            <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{idea.title}</h4>
                             <p className="text-xs text-[var(--text-muted)] mt-2 leading-relaxed">{idea.description}</p>
                           </motion.button>
                         ))}
@@ -4026,30 +4009,30 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-lg glass-card p-6 sm:p-10 space-y-8 shadow-[0_0_80px_rgba(0,0,0,0.6)] border border-[var(--border-main)] rounded-[2.5rem] overflow-hidden"
+                    className="relative w-full max-w-lg glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
                   
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-4 text-[var(--text-main)]">
-                      <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple shadow-inner">
-                        <Globe size={28} />
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
+                      <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                        <Globe size={24} />
                       </div>
-                      <span className="premium-gradient-text">{t.settings}</span>
+                      <span>{t.settings}</span>
                     </h2>
                     <button 
                       onClick={() => setShowSettings(false)}
-                      className="p-3 -mr-2 text-[var(--text-muted)] hover:text-brand-purple transition-all rounded-full hover:bg-brand-purple/10 hover:rotate-90 duration-300"
+                      className="p-2 text-[var(--text-muted)] hover:text-brand-purple transition-colors rounded-full hover:bg-[var(--bg-main)]"
                     >
-                      <X size={28} />
+                      <X size={24} />
                     </button>
                   </div>
 
                   <div className="space-y-8">
                     {/* Theme Selection */}
                     <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black flex items-center gap-2 px-1">
+                      <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
                         <Palette size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
                       </label>
                       <div className="grid grid-cols-3 gap-4 p-2 bg-[var(--bg-card)]/40 rounded-[1.5rem] border border-[var(--border-main)] shadow-inner">
@@ -4064,7 +4047,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setTheme(t.id as any)}
                             className={cn(
-                              "relative py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
+                              "relative py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
                               theme === t.id ? "text-brand-purple" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
                             )}
                           >
@@ -4088,7 +4071,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="space-y-6">
                       {/* API Keys List */}
                       <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-black flex items-center gap-2 px-1">
+                        <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
                           <Zap size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
                         </label>
                         
@@ -4098,13 +4081,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                   <div className={cn(
-                                    "w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black uppercase tracking-tighter shadow-inner",
+                                    "w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-inner",
                                     aiProvider === p ? "bg-brand-purple text-white" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)]"
                                   )}>
                                     {p.charAt(0)}
                                   </div>
                                   <div>
-                                    <h4 className="text-xs font-black text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
+                                    <h4 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
                                     <div className="flex items-center gap-1.5 mt-1">
                                       <div className={cn(
                                         "w-1.5 h-1.5 rounded-full",
@@ -4113,7 +4096,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         connectionStatus[p] === 'error' ? "bg-red-500" : "bg-[var(--bg-card)]/20"
                                       )} />
                                       <span className={cn(
-                                        "text-[9px] font-black uppercase tracking-[0.1em]",
+                                        "text-[9px] font-bold uppercase tracking-[0.1em]",
                                         connectionStatus[p] === 'connected' ? "text-green-500" : 
                                         connectionStatus[p] === 'testing' ? "text-blue-500" :
                                         connectionStatus[p] === 'error' ? "text-red-500" : "text-[var(--text-muted)]"
@@ -4128,14 +4111,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   <button
                                     onClick={() => testConnection(p)}
                                     disabled={testingConnection[p]}
-                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all disabled:opacity-50"
+                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all disabled:opacity-50"
                                   >
                                     {testingConnection[p] ? <RefreshCw size={12} className="animate-spin" /> : "Test"}
                                   </button>
                                   <button
                                     onClick={() => setAiProvider(p)}
                                     className={cn(
-                                      "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                      "px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all",
                                       aiProvider === p ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)] hover:text-[var(--text-main)]"
                                     )}
                                   >
@@ -4190,14 +4173,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="flex flex-col gap-4 pt-6">
                       <button 
                         onClick={saveAIConfig}
-                        className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                       >
                         <Save size={20} />
                         {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
                       </button>
                       <button 
                         onClick={() => setShowSettings(false)}
-                        className="w-full py-5 rounded-[1.5rem] bg-[var(--bg-card)]/20 border border-[var(--border-main)] text-[var(--text-main)] font-black text-xs uppercase tracking-[0.2em] hover:bg-[var(--bg-card)]/40 transition-all active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-[var(--bg-card)]/20 border border-[var(--border-main)] text-[var(--text-main)] font-bold text-xs uppercase tracking-[0.2em] hover:bg-[var(--bg-card)]/40 transition-all active:scale-[0.98]"
                       >
                         {uiLang === 'en' ? "Close Settings" : "সেটিংস বন্ধ করুন"}
                       </button>
@@ -4216,14 +4199,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             toast.success(uiLang === 'en' ? "AI Configuration Reset!" : "AI কনফিগারেশন রিসেট করা হয়েছে!");
                             setTimeout(() => window.location.reload(), 1000);
                           }}
-                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
+                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
                         >
                           <RefreshCw size={16} /> {uiLang === 'en' ? "Reset Default" : "ডিফল্ট রিসেট"}
                         </button>
 
                         <button 
                           onClick={downloadHistory}
-                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-black text-[10px] uppercase tracking-widest hover:bg-brand-purple/10 hover:text-brand-purple hover:border-brand-purple/30 transition-all flex items-center justify-center gap-3"
+                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-brand-purple/10 hover:text-brand-purple hover:border-brand-purple/30 transition-all flex items-center justify-center gap-3"
                         >
                           <Download size={16} /> {uiLang === 'en' ? "Export Data" : "ডেটা এক্সপোর্ট"}
                         </button>
@@ -4232,7 +4215,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {deferredPrompt && (
                         <button 
                           onClick={installApp}
-                          className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                          className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
                           <Download size={22} /> {uiLang === 'en' ? "Install as Android App" : "অ্যান্ড্রয়েড অ্যাপ হিসেবে ইনস্টল করুন"}
                         </button>
@@ -4240,7 +4223,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                       <button 
                         onClick={clearHistory}
-                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
+                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
                       >
                         <Trash2 size={16} /> {t.clearHistory}
                       </button>
@@ -4318,38 +4301,38 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl glass-card p-8 h-[85vh] flex flex-col overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.7)] border border-[var(--border-main)]"
+              className="relative w-full max-w-3xl glass-card p-6 sm:p-8 h-[85vh] flex flex-col overflow-hidden shadow-2xl"
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
               
-              <div className="flex flex-col gap-6 w-full mb-8">
+              <div className="flex flex-col gap-6 w-full mb-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3 text-[var(--text-main)]">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
                     <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
                       <History size={20} />
                     </div>
-                    {uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}
+                    <span>{uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}</span>
                   </h2>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button 
                       onClick={downloadHistory} 
-                      className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all shadow-sm"
+                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-brand-purple hover:bg-[var(--bg-main)] transition-colors"
                       title="Download History"
                     >
-                      <Download size={18} />
+                      <Download size={20} />
                     </button>
                     <button 
                       onClick={clearHistory} 
-                      className="p-2.5 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500/70 hover:bg-red-500/10 hover:text-red-500 transition-all shadow-sm"
+                      className="p-2 rounded-xl text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                       title="Clear History"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={20} />
                     </button>
                     <button 
                       onClick={() => setShowHistory(false)}
-                      className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all hover:rotate-90 duration-300 shadow-sm"
+                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors"
                     >
-                      <X size={18} />
+                      <X size={20} />
                     </button>
                   </div>
                 </div>
@@ -4358,7 +4341,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <select 
                     value={historyFilter} 
                     onChange={(e) => setHistoryFilter(e.target.value)}
-                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-black text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
+                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
                   >
                     <option value="all">All Categories</option>
                     <option value="idea">Idea Gen</option>
@@ -4369,7 +4352,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </select>
                   <button 
                     onClick={() => setHistorySort(s => s === 'newest' ? 'oldest' : 'newest')}
-                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-black text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 transition-all flex items-center gap-2"
+                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 transition-all flex items-center gap-2"
                   >
                     {historySort === 'newest' ? <ArrowDownWideNarrow size={12} /> : <ArrowUpWideNarrow size={12} />}
                     {historySort === 'newest' ? 'Newest First' : 'Oldest First'}
@@ -4380,7 +4363,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       placeholder="Search keywords..."
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-black text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all placeholder:text-[var(--text-muted)]/50"
+                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-bold text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all placeholder:text-[var(--text-muted)]/50"
                     />
                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40" />
                   </div>
@@ -4388,10 +4371,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                 <div className="flex items-center gap-3 px-1">
                   <div className="flex items-center gap-2 bg-[var(--bg-card)]/20 p-1 rounded-full border border-[var(--border-main)]">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] px-3">Date Range:</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-black text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] px-3">Date Range:</span>
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-bold text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
                     <span className="text-[var(--text-muted)] text-[10px]">→</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-black text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-bold text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
                   </div>
                 </div>
               </div>
@@ -4445,7 +4428,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {item.type === 'image-to-prompt' && <Search size={16} />}
                               {item.type === 'youtube' && <Video size={16} />}
                             </div>
-                            <span className="text-[10px] uppercase tracking-widest text-brand-purple font-black">
+                            <span className="text-[10px] uppercase tracking-widest text-brand-purple font-bold">
                               {
                                 item.type === 'youtube' ? (uiLang === 'en' ? 'YouTube AI' : 'ইউটিউব এআই') : 
                                 item.type === 'idea' ? t.ideaGenHistory : 
@@ -4458,12 +4441,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               }
                             </span>
                           </div>
-                          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest flex items-center gap-1.5 bg-[var(--bg-card)]/20 px-3 py-1 rounded-full border border-[var(--border-main)]">
+                          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[var(--bg-card)]/20 px-3 py-1 rounded-full border border-[var(--border-main)]">
                             <Clock size={10} />
                             {format(item.timestamp, 'MMM d, HH:mm')}
                           </span>
                         </div>
-                        <p className="text-sm font-black line-clamp-2 group-hover:text-brand-purple transition-colors text-[var(--text-main)] leading-relaxed">
+                        <p className="text-sm font-bold line-clamp-2 group-hover:text-brand-purple transition-colors text-[var(--text-main)] leading-relaxed">
                           {item.topic}
                         </p>
                       </motion.div>
@@ -4491,22 +4474,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md glass-card p-10 space-y-8 overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.7)] border border-[var(--border-main)]"
+              className="relative w-full max-w-md glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
               
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-black tracking-tighter flex items-center gap-3 text-[var(--text-main)]">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
                   <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
-                    <MessageCircle size={20} />
+                    <MessageCircle size={24} />
                   </div>
-                  {t.contact}
+                  <span>{t.contact}</span>
                 </h2>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="p-2.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all hover:rotate-90 duration-300 shadow-sm"
+                  className="p-2 text-[var(--text-muted)] hover:text-brand-purple transition-colors rounded-full hover:bg-[var(--bg-main)]"
                 >
-                  <X size={18} />
+                  <X size={24} />
                 </button>
               </div>
 
@@ -4520,8 +4503,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <Globe size={20} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black mb-0.5">Support Email</span>
-                      <span className="text-sm text-[var(--text-main)] font-black">{APP_CONFIG.supportEmail}</span>
+                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold mb-0.5">Support Email</span>
+                      <span className="text-sm text-[var(--text-main)] font-bold">{APP_CONFIG.supportEmail}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-brand-orange/30 transition-all">
@@ -4529,14 +4512,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <Facebook size={20} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-black mb-0.5">Facebook Page</span>
-                      <span className="text-sm text-[var(--text-main)] font-black">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
+                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold mb-0.5">Facebook Page</span>
+                      <span className="text-sm text-[var(--text-main)] font-bold">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
                     </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-black text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
+                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-bold text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
                 >
                   {uiLang === 'en' ? "Close" : "বন্ধ করুন"}
                 </button>
