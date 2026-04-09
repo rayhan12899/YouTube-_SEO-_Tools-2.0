@@ -1,5 +1,5 @@
 {
-  "name": "Remix: YouTube AI Creator Studio",
+  "name": "YouTube AI Creator Studio 2.0",
   "description": "A futuristic AI-powered tool to generate YouTube scripts, prompts, and metadata from topics or images.",
   "requestFramePermissions": [
     "camera",
