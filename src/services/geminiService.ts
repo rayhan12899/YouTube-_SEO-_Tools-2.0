@@ -146,7 +146,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
 export const analyzeImage = async (imageData: string, mimeType: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: {
         parts: [
           {
@@ -200,6 +200,7 @@ export interface GenerationOptions {
   visualStyle?: string;
   cameraAngle?: string;
   mood?: string;
+  lighting?: string;
   customThumbnailElements?: string;
 }
 
@@ -349,15 +350,18 @@ export const generateContent = async (options: GenerationOptions) => {
               Tone/Mood: ${options.tone || "Professional"}
               Business/Niche: ${options.businessType || "N/A"}
               Visual Style: ${options.visualStyle || "N/A"}
+              Camera Angle: ${options.cameraAngle || "N/A"}
+              Lighting: ${options.lighting || "N/A"}
+              Mood/Atmosphere: ${options.mood || "N/A"}
               Custom Thumbnail Elements: ${options.customThumbnailElements || "N/A"}
               
               Generate the following sections if requested:
-              - Image Prompt: ${options.generateImagePrompt} ${options.visualStyle ? `(Ensure the image prompt specifically requests a ${options.visualStyle} style.)` : ""}
+              - Image Prompt: ${options.generateImagePrompt} ${options.visualStyle ? `(Ensure the image prompt specifically requests a ${options.visualStyle} style with ${options.lighting || 'natural'} lighting and a ${options.cameraAngle || 'eye-level'} angle.)` : ""}
               - Video Prompt: ${options.generateVideoPrompt} ${options.videoDuration ? `(Target duration: ${options.videoDuration} seconds. Provide a highly detailed, cinematic prompt for AI video generators like Sora, Kling, Runway, or Veo 3. 
                   CRITICAL: The video prompt MUST be broken down into SCENES that correspond EXACTLY to the script's scenes. For each scene in the script, provide a matching visual prompt.
                   Include specific details about:
                   1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter' where appropriate.
-                  2. Lighting & Atmosphere: Incorporate "${options.mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                  2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
                   3. Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${options.mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                   4. Pacing: Ensure the prompt aligns with the target duration and word count (${options.scriptWordCount || 'N/A'} words).
                   5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.)` : ""}
@@ -527,7 +531,7 @@ export const generateVoiceExtractor = async (
     const languageName = targetLanguage === 'en' ? 'English' : targetLanguage === 'bn' ? 'Bengali' : 'Hindi';
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: [
         {
           role: "user",
@@ -572,8 +576,7 @@ export const generateVoiceExtractor = async (
         },
       ],
       config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
+        responseMimeType: "application/json"
       },
     });
 
@@ -671,7 +674,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
   }
 };
 
-export const generatePromptsFromVideo = async (base64Video: string, mimeType: string, language: "bn" | "en" | "both" | "hi" = "bn", instruction: string = "", videoDuration?: number, scriptWordCount?: number, visualStyle: string = "cinematic", cameraAngle: string = "wide shot", mood: string = "cinematic") => {
+export const generatePromptsFromVideo = async (base64Video: string, mimeType: string, language: "bn" | "en" | "both" | "hi" = "bn", instruction: string = "", videoDuration?: number, scriptWordCount?: number, visualStyle: string = "cinematic", cameraAngle: string = "wide shot", mood: string = "cinematic", lighting: string = "natural") => {
   if (isOffline) {
     return {
       summary: "This is a mock summary of the uploaded video.",
@@ -697,10 +700,9 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
   
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3-flash-preview",
       config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
+        responseMimeType: "application/json"
       },
       contents: [
         {
@@ -717,6 +719,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               
               Ensure the visual style for both image and video prompts is strictly ${visualStyle}.
               Ensure the camera angle is strictly ${cameraAngle}.
+              Ensure the lighting is strictly ${lighting}.
               Ensure the mood is strictly ${mood}.
               
               Generate:
@@ -726,7 +729,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                  - CRITICAL: The video prompt MUST be broken down into SCENES.
                  - Include specific details about:
                    - Camera Angles & Movements: Incorporate "${cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter'.
-                   - Lighting & Atmosphere: Incorporate "${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                   - Lighting & Atmosphere: Incorporate "${lighting || 'natural'} and ${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
                    - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                    - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' that matches the video's content.
@@ -765,71 +768,43 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
   }
 };
 
-export const generatePromptsFromImage = async (base64Image: string, mimeType: string, language: "bn" | "en" | "both" | "hi" = "bn", instruction: string = "", videoDuration?: number, scriptWordCount?: number, visualStyle: string = "cinematic", cameraAngle: string = "wide shot", mood: string = "cinematic") => {
+export const generateYoutubeTitles = async (topic: string, language: "bn" | "en" = "en") => {
   if (isOffline) {
     return {
-      imagePrompt: "A cinematic thumbnail based on the image.",
-      videoPrompt: "A detailed video prompt for AI generation.",
-      script: "A full script based on the image."
+      titles: [
+        { title: `How to master ${topic}`, highCtrTitle: `The Secret to ${topic} (You Won't Believe It!)` },
+        { title: `Everything you need to know about ${topic}`, highCtrTitle: `Why ${topic} is changing everything` },
+        { title: `A complete guide to ${topic}`, highCtrTitle: `Stop doing ${topic} wrong!` },
+        { title: `Top tips for ${topic}`, highCtrTitle: `The truth about ${topic}` },
+        { title: `Getting started with ${topic}`, highCtrTitle: `Is ${topic} worth it?` }
+      ]
     };
   }
 
-  if (!base64Image || !base64Image.includes(",")) {
-    throw new Error("Invalid image data provided");
-  }
-
-  const actualMimeType = mimeType || base64Image.split(";")[0].split(":")[1] || "image/jpeg";
-  
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3-flash-preview",
       config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
+        responseMimeType: "application/json"
       },
       contents: [
         {
           role: "user",
           parts: [
             {
-              inlineData: {
-                data: base64Image.split(",")[1],
-                mimeType: actualMimeType,
-              },
-            },
-            {
-              text: `Analyze this image and generate:
-              1. A comprehensive 'Summary' (detailed analysis) of what is in the image.
-              2. A detailed 'Image Prompt' for an AI image generator.
-              3. A highly detailed 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3).
-                 - CRITICAL: The video prompt MUST be broken down into SCENES.
-                 - Include specific details about:
-                   - Camera Angles & Movements: Incorporate "${cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter'.
-                   - Lighting & Atmosphere: Incorporate "${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
-                   - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
-                   - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
-              4. A full professional YouTube 'Script' based on the visual elements of this image. 
+              text: `Generate 5 unique, SEO-optimized YouTube title variations for the topic: "${topic}".
               
-              Ensure the visual style for both image and video prompts is strictly ${visualStyle}.
-              Ensure the camera angle is strictly ${cameraAngle}.
-              Ensure the mood is strictly ${mood}.
-              ${videoDuration ? `Target video duration: ${videoDuration} seconds.` : ""}
-              ${scriptWordCount ? `Target script length: approximately ${scriptWordCount} words.` : ""}
-              ${instruction ? `Additional Instruction: ${instruction}` : ""}
+              Prioritize:
+              1. High Click-Through Rate (CTR) - use engaging, curiosity-inducing language.
+              2. Search Visibility - include relevant keywords naturally.
               
-              The script MUST include:
-              1. Scene-by-scene descriptions (what should be happening on screen).
-              2. Engaging dialogue or voiceover text.
-              3. Clear Calls to Action (CTA).
-              4. Pacing suggestions based on the ${videoDuration || 60} seconds duration.
+              For each variation, provide:
+              - 'title': A balanced, SEO-friendly title.
+              - 'highCtrTitle': A more aggressive, high-CTR title (e.g., using brackets, emotional triggers, or questions).
               
-              Provide the content in ${language === 'bn' ? 'Bengali' : language === 'en' ? 'English' : 'both Bengali and English'}.
+              Provide the content in ${language === 'bn' ? 'Bengali' : 'English'}.
               
-              CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
-              
-              Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown. 
-              
-              - 'sceneBreakdown': An array of objects, each with 'scene', 'time', 'script', and 'visual' keys, providing a 1:1 mapping between script and visual prompts.
+              Return as a strictly valid JSON object with a key 'titles' which is an array of objects, each having 'title' and 'highCtrTitle'.
               
               Do not include any text outside the JSON object.`,
             },
@@ -841,7 +816,7 @@ export const generatePromptsFromImage = async (base64Image: string, mimeType: st
     const result = await model;
     return extractJson(result.text);
   } catch (error) {
-    console.error("Image Analysis Error:", error);
+    console.error("Title Generation Error:", error);
     throw error;
   }
 };

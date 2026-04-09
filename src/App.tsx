@@ -1,6 +1,8 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * AI Creator Studio - Viral YouTube Content Generator
  */
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -91,10 +93,11 @@ import {
 } from './constants';
 import { 
   generateContent, 
-  generatePromptsFromImage, 
   generatePromptsFromVideo,
   generateVideoIdeas, 
+  generateYoutubeTitles,
   generateImage, 
+  analyzeImage,
   generateVoiceOver, 
   generateVoiceExtractor,
   getTrendingTopics,
@@ -358,8 +361,9 @@ export default function App() {
       tone: 'professional',
       businessType: 'eCommerce / অনলাইন শপ',
       visualStyle: 'cinematic',
-      cameraAngle: 'wide shot',
-      mood: 'cinematic',
+      cameraAngle: 'Wide',
+      lighting: 'Natural',
+      mood: 'Cinematic',
       customThumbnailElements: ''
     };
   });
@@ -415,7 +419,10 @@ export default function App() {
       scriptWordCount: 500,
       scriptCharacterCount: 1000,
       aspectRatio: '16:9' as '1:1' | '3:4' | '4:3' | '9:16' | '16:9' | '2:3' | '3:2' | '21:9',
-      promptCategory: 'Video' as 'Video' | 'Story' | 'Image' | 'Voice Over'
+      promptCategory: 'Video' as 'Video' | 'Story' | 'Image' | 'Voice Over',
+      cameraAngle: 'Wide',
+      lighting: 'Natural',
+      mood: 'Cinematic'
     };
   });
 
@@ -718,7 +725,7 @@ export default function App() {
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
           } else {
-            const res = await generatePromptsFromImage(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+            const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -807,12 +814,12 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoadingProgress(40);
           // If it's a video file
           if (mediaMimeType.startsWith('video/')) {
-            const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+            const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
           } else {
-            const res = await generatePromptsFromImage(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+            const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -866,6 +873,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (limit to 10MB for stability with inlineData)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(uiLang === 'en' ? "File too large. Please upload a file smaller than 10MB for analysis." : "ফাইলটি অনেক বড়। বিশ্লেষণের জন্য অনুগ্রহ করে ১০ মেগাবাইটের চেয়ে ছোট ফাইল আপলোড করুন।");
+        return;
+      }
       setMediaMimeType(file.type);
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -883,10 +895,10 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               const msg = file.type.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
               toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             } else if (file.type.startsWith('video/')) {
-              res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+              res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
               toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             } else {
-              res = await generatePromptsFromImage(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+              res = await analyzeImage(base64, file.type);
               toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             }
             setResults(prev => ({ ...prev, [currentView]: res }));
@@ -2708,6 +2720,55 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </motion.button>
                   </div>
 
+                  {/* YouTube Title Generator Section */}
+                  <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="title-generator-section">
+                    <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center gap-2">
+                        <Zap size={20} className="text-brand-purple" />
+                        <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
+                          {uiLang === 'en' ? 'YouTube Title Generator' : 'ইউটিউব শিরোনাম জেনারেটর'}
+                        </h2>
+                      </div>
+                      <div className="text-[10px] font-semibold text-brand-purple uppercase tracking-widest">
+                        {uiLang === 'en' ? 'High CTR' : 'হাই সিটিআর'}
+                      </div>
+                    </div>
+
+                    <div className="glass-card p-6 space-y-4 border-brand-purple/20 bg-brand-purple/5">
+                      <div className="space-y-2">
+                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">
+                          {uiLang === 'en' ? 'Video Topic' : 'ভিডিওর বিষয়'}
+                        </label>
+                        <input 
+                          type="text" 
+                          value={options.titleTopic || ''} 
+                          onChange={(e) => setOptions(prev => ({ ...prev, titleTopic: e.target.value }))}
+                          placeholder={uiLang === 'en' ? 'Enter your video topic...' : 'ভিডিওর বিষয় লিখুন...'}
+                          className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-3 text-sm text-[var(--text-main)] outline-none focus:border-brand-purple/50 transition-colors"
+                        />
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={async () => {
+                          if (!options.titleTopic) return;
+                          setLoading(true);
+                          try {
+                            const result = await generateYoutubeTitles(options.titleTopic, uiLang === 'bn' ? 'bn' : 'en');
+                            setResults(prev => ({ ...prev, [currentView]: result }));
+                          } catch (err) {
+                            console.error(err);
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                        className="w-full py-3 rounded-xl bg-brand-purple text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-brand-purple/20 hover:bg-brand-purple-light transition-all"
+                      >
+                        {loading ? (uiLang === 'en' ? 'Generating...' : 'জেনারেট হচ্ছে...') : (uiLang === 'en' ? 'Generate High CTR Titles' : 'হাই সিটিআর শিরোনাম জেনারেট করুন')}
+                      </motion.button>
+                    </div>
+                  </div>
+
                   {/* Unique Prompt Generator Section */}
                   <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="prompt-generator-section">
                     <div className="flex items-center justify-between px-1">
@@ -2750,23 +2811,37 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
 
                       {/* New Dropdowns */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Visual Style</label>
-                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
-                            {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch'].map(style => <option key={style} value={style}>{style}</option>)}
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                            <Palette size={14} className="text-brand-orange" /> Visual Style
+                          </label>
+                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                            {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch', 'Cyberpunk', 'Vintage', 'Minimalist', 'Surreal'].map(style => <option key={style} value={style}>{style}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Camera Angle</label>
-                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
-                            {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                            <Camera size={14} className="text-brand-orange" /> Camera Angle
+                          </label>
+                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                            {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle', 'High Angle', 'Dutch Angle', 'Over the Shoulder', 'POV'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">Mood</label>
-                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors">
-                            {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                            <Sun size={14} className="text-brand-orange" /> Lighting
+                          </label>
+                          <select value={formOptions.lighting} onChange={(e) => setFormOptions(prev => ({...prev, lighting: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                            {['Natural', 'Studio', 'Neon', 'Golden Hour', 'Moody', 'High Key', 'Low Key', 'Soft Diffused', 'Volumetric'].map(light => <option key={light} value={light}>{light}</option>)}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
+                            <Zap size={14} className="text-brand-orange" /> Mood
+                          </label>
+                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                            {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious', 'Romantic', 'Tense', 'Playful', 'Epic'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
                           </select>
                         </div>
                       </div>
@@ -3586,7 +3661,120 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     )}
                     {currentResult.imageUrl ? (
                       <div className="space-y-4">
-                        <div clas                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
+                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-[var(--border-main)] group">
+                          <img src={currentResult.imageUrl} alt="Generated" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                            <a 
+                              href={currentResult.imageUrl} 
+                              download="generated-image.png"
+                              className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white hover:scale-110 transition-transform"
+                            >
+                              <Download size={20} />
+                            </a>
+                          </div>
+                        </div>
+                        <p className="text-xs text-[var(--text-muted)] text-center italic">{t.generatedImage}</p>
+                      </div>
+                    ) : currentResult.audioUrl ? (
+                      <div className="space-y-6 py-4">
+                        <div className="flex flex-col items-center gap-6">
+                          <div className="w-20 h-20 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange animate-pulse">
+                            <Volume2 size={40} />
+                          </div>
+                          <audio controls src={currentResult.audioUrl} className="w-full" />
+                          <p className="text-[10px] text-[var(--text-muted)] italic text-center max-w-xs">{t.voiceNote}</p>
+                          <a 
+                            href={currentResult.audioUrl} 
+                            download="voice-over.wav"
+                            className="flex items-center gap-2 px-6 py-3 bg-brand-orange text-white rounded-xl font-semibold hover:shadow-[0_0_20px_rgba(242,125,38,0.4)] transition-all"
+                          >
+                            <Download size={18} /> {t.downloadAudio}
+                          </a>
+                        </div>
+                      </div>
+                    ) : currentResult.titles ? (
+                      <div className="space-y-4">
+                        {currentResult.titles.map((t: any, idx: number) => (
+                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group glass-card shadow-sm">
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">Variation {idx + 1}</h3>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/20 space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold">SEO Title</label>
+                                <div className="text-sm font-medium text-[var(--text-main)]">{t.title}</div>
+                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-xs text-brand-purple hover:text-brand-purple-light flex items-center gap-1">
+                                  {copied === `title-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
+                                </button>
+                              </div>
+                              <div className="p-4 rounded-xl bg-brand-orange/5 border border-brand-orange/20 space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-brand-orange font-semibold">High CTR Title</label>
+                                <div className="text-sm font-bold text-[var(--text-main)]">{t.highCtrTitle}</div>
+                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-xs text-brand-orange hover:text-brand-orange-light flex items-center gap-1">
+                                  {copied === `highCtr-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : currentResult.prompts ? (
+                      <div className="space-y-4">
+                        {currentResult.prompts.map((prompt: string, idx: number) => (
+                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">Option {idx + 1}</h3>
+                              <button 
+                                onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
+                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                              >
+                                {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                              </button>
+                            </div>
+                            <div className="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
+                              <TypewriterText text={prompt} className="typewriter-text" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : currentResult.ideas ? (
+                      <div className="space-y-4">
+                        {currentResult.ideas.map((idea: any, idx: number) => (
+                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">{idx + 1}. {idea.title}</h3>
+                              <button 
+                                onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
+                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                              >
+                                {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                              </button>
+                            </div>
+                            <div className="text-sm text-[var(--text-main)] leading-relaxed">
+                              <TypewriterText text={idea.description} className="typewriter-text" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-12">
+                        {Object.entries(currentResult).map(([key, value]) => {
+                          if (!value) return null;
+                          
+                          // Handle nested subtitles object
+                          if (key === 'subtitles' && typeof value === 'object' && value !== null) {
+                            return Object.entries(value).map(([langKey, langValue]) => {
+                              const langNames: any = {
+                                en: 'English',
+                                bn: 'Bengali',
+                                hi: 'Hindi',
+                                es: 'Spanish',
+                                fr: 'French'
+                              };
+                              const langName = langNames[langKey] || langKey;
+                              
+                              return (
+                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
                                   <div className="flex items-center justify-between px-2">
                                     <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
                                       <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
@@ -3628,112 +3816,69 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                           // Handle nested metadata object from video analysis
                           if (key === 'metadata' && typeof value === 'object' && value !== null) {
-                            return Object.entries(value).map(([mKey, mValue]) => {
-                              const mLabelMap: any = {
-                                title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
-                                highCtrTitle: { label: t.highCtrTitle, icon: Zap },
-                                thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
-                                description: { label: t.seoDescription, icon: FileText },
-                                tags: { label: t.tagsLabel, icon: Tag },
-                                hashtags: { label: t.hashtags, icon: Hash },
-                              };
-                              const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
-                              const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
-                              
-                              return (
-                                <div key={`${key}-${mKey}`} className="space-y-3 group">
-                                  <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
-                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                                        <mConfig.icon size={12} />
-                                      </div>
-                                      {mConfig.label}
-                                    </label>
-                                    <button 
-                                      onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                      className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                                    >
-                                      {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                                    </button>
-                                  </div>
-                                  <div className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
-                                    <TypewriterText text={displayValue} className="typewriter-text" />
-                                  </div>
-                                </div>
-                              );
-                            });
-                          }
-
-                          // Handle sceneBreakdown array
-                          if (key === 'sceneBreakdown' && Array.isArray(value)) {
                             return (
-                              <div key="scene-breakdown" className="space-y-6 mt-4">
-                                <div className="flex items-center gap-3 pb-2 border-b border-[var(--border-main)]">
-                                  <Film className="text-brand-orange" size={20} />
-                                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                                    {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
-                                  </h3>
-                                </div>
-                                <div className="space-y-4">
-                                  {value.map((scene: any, idx: number) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card shadow-sm">
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-semibold text-sm shadow-inner">
-                                            {scene.scene || idx + 1}
-                                          </div>
-                                          <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                                            <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
-                                          </div>
+                              <div key="metadata-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
+                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                                  <FileText size={16} className="text-brand-orange" />
+                                  {uiLang === 'en' ? "Video Metadata" : "ভিডিও মেটাডেটা"}
+                                </h3>
+                                {Object.entries(value).map(([mKey, mValue]) => {
+                                  const mLabelMap: any = {
+                                    title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
+                                    highCtrTitle: { label: t.highCtrTitle, icon: Zap },
+                                    thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
+                                    description: { label: t.seoDescription, icon: FileText },
+                                    tags: { label: t.tagsLabel, icon: Tag },
+                                    hashtags: { label: t.hashtags, icon: Hash },
+                                  };
+                                  const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
+                                  const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
+                                  
+                                  // Make title more prominent
+                                  if (mKey === 'title' || mKey === 'highCtrTitle') {
+                                    return (
+                                      <div key={`${key}-${mKey}`} className="p-4 rounded-2xl bg-brand-purple/5 border border-brand-purple/20 space-y-2">
+                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
+                                          <mConfig.icon size={12} /> {mConfig.label}
+                                        </label>
+                                        <div className="text-lg font-bold text-[var(--text-main)]">
+                                          {displayValue}
                                         </div>
                                         <button 
-                                          onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
-                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                          onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
+                                          className="text-xs text-brand-purple hover:text-brand-purple-light flex items-center gap-1"
                                         >
-                                          {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                          {copied === `${key}-${mKey}` ? <Check size={14} /> : <Copy size={14} />}
+                                          {uiLang === 'en' ? "Copy Title" : "শিরোনাম কপি করুন"}
                                         </button>
                                       </div>
-                                      
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-3">
-                                          <div className="flex items-center justify-between">
-                                            <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                                              <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
-                                            </label>
-                                            <div className="flex items-center gap-2">
-                                              {sceneAudioUrls[`scene-${idx}`] ? (
-                                                <audio 
-                                                  src={sceneAudioUrls[`scene-${idx}`]} 
-                                                  controls 
-                                                  className="h-7 w-36 custom-audio-mini"
-                                                />
-                                              ) : (
-                                                <button
-                                                  onClick={() => handleSceneVoiceOver(idx, scene.script)}
-                                                  disabled={loadingSceneAudio === `scene-${idx}`}ng(mValue);
-                              
-                              return (
-                                <div key={`${key}-${mKey}`} className="space-y-3 group">
-                                  <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
-                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
-                                        <mConfig.icon size={12} />
+                                    );
+                                  }
+
+                                  return (
+                                    <div key={`${key}-${mKey}`} className="space-y-2 group">
+                                      <div className="flex items-center justify-between px-2">
+                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
+                                          <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                            <mConfig.icon size={12} />
+                                          </div>
+                                          {mConfig.label}
+                                        </label>
+                                        <button 
+                                          onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
+                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        >
+                                          {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                        </button>
                                       </div>
-                                      {mConfig.label}
-                                    </label>
-                                    <button 
-                                      onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                      className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
-                                    >
-                                      {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
-                                    </button>
-                                  </div>
-                                  <div className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
-                                    <TypewriterText text={displayValue} className="typewriter-text" />
-                                  </div>
-                                </div>
-                              );
-                            });
+                                      <div className="p-4 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar">
+                                        {displayValue}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
                           }
 
                           // Handle sceneBreakdown array

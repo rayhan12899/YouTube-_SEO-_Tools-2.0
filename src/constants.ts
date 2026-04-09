@@ -260,5 +260,13 @@ export const MODEL_INFO: Record<AIProvider, {
     weaknesses: ["Smaller context window than Gemini Pro"],
     useCases: ["Local deployment", "Fine-tuning for specific tasks", "General AI assistance"],
     pricing: "Free on some platforms (e.g., Groq); Low cost via API providers."
+  },
+  openrouter: {
+    name: "OpenRouter",
+    description: "A unified API to access any AI model from any provider.",
+    strengths: ["Access to 100+ models", "Single API key", "Competitive pricing"],
+    weaknesses: ["Dependent on upstream provider availability"],
+    useCases: ["Testing multiple models", "Accessing niche models", "Cost optimization"],
+    pricing: "Aggregated pricing from all providers."
   }
 };
