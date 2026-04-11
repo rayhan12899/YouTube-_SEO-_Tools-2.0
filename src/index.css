@@ -18,29 +18,27 @@
 }
 
 :root {
-  --bg-main: #0f172a; /* Slate 900 */
-  --bg-card: #1e293b; /* Slate 800 */
-  --text-main: #f8fafc; /* Slate 50 */
-  --text-muted: #94a3b8; /* Slate 400 */
-  --border-main: rgba(255, 255, 255, 0.08);
-  --accent-main: #6366f1;
-  --accent-glow: rgba(99, 102, 241, 0.15);
-  --accent-secondary: rgba(56, 189, 248, 0.15);
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --bg-main: #050505; /* Deep Black */
+  --bg-card: #111111; /* Near Black */
+  --text-main: #ffffff; /* White */
+  --text-muted: #888888; /* Muted Gray */
+  --border-main: rgba(255, 255, 255, 0.1);
+  --accent-main: #d4af37; /* Gold/Bronze accent */
+  --accent-glow: rgba(212, 175, 55, 0.15);
+  --glass-bg: rgba(20, 20, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.05);
 }
 
-.theme-light {
-  --bg-main: #f8fafc; /* Slate 50 */
-  --bg-card: #ffffff; /* White */
-  --text-main: #0f172a; /* Slate 900 */
-  --text-muted: #64748b; /* Slate 500 */
-  --border-main: rgba(0, 0, 0, 0.06);
-  --accent-main: #6366f1;
+.theme-dark {
+  --bg-main: #030712; /* Gray 950 */
+  --bg-card: #111827; /* Gray 900 */
+  --text-main: #f9fafb; /* Gray 50 */
+  --text-muted: #9ca3af; /* Gray 400 */
+  --border-main: #374151; /* Gray 700 */
+  --accent-main: #6366f1; /* Indigo 500 */
   --accent-glow: rgba(99, 102, 241, 0.1);
-  --accent-secondary: rgba(56, 189, 248, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(17, 24, 39, 0.8);
+  --glass-border: rgba(55, 65, 81, 0.5);
 }
 
 .theme-scifi {
@@ -69,15 +67,15 @@
 
 @layer components {
   .glass-card {
-    @apply bg-[var(--bg-card)] border border-[var(--border-main)] rounded-3xl shadow-sm relative overflow-hidden transition-all duration-300;
+    @apply bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl relative overflow-hidden transition-all duration-300;
   }
 
   .glass-card:hover {
-    @apply border-brand-purple/30 shadow-md shadow-brand-glow/20 -translate-y-0.5;
+    @apply border-[var(--accent-main)]/30 shadow-lg shadow-[var(--accent-glow)] -translate-y-0.5;
   }
 
   .studio-card {
-    @apply bg-[var(--bg-card)] border border-[var(--border-main)] rounded-[2.5rem] shadow-xl relative overflow-hidden transition-all duration-500;
+    @apply bg-[var(--bg-card)] border border-[var(--border-main)] rounded-2xl shadow-xl relative overflow-hidden transition-all duration-500;
   }
 
   .input-field {

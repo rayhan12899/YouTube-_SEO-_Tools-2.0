@@ -636,7 +636,7 @@ export const generateVideoIdeas = async (niche: string, language: "bn" | "en" | 
   }
 };
 
-export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = "bn") => {
+export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = "bn", retries: number = 3) => {
   if (isOffline) {
     return {
       trending: [
@@ -646,8 +646,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
     };
   }
 
-  try {
-    const prompt = `Search for the most viral and trending YouTube topics and video ideas for this week (March 2026). 
+  const prompt = `Search for the most viral and trending YouTube topics and video ideas for this week (March 2026). 
               Analyze current global and local trends. 
               Provide a list of 6 highly trending topics that are likely to go viral.
               Return the result as a strictly valid JSON object with a key 'trending' which is an array of objects, each with 'topic' and 'reason' keys.
@@ -658,28 +657,55 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
               
               Do not include any text outside the JSON object.`;
 
-    // Note: Google Search tool is Gemini-specific. For other providers, we rely on their internal knowledge.
-    const provider = getProvider();
-    let text;
-    if (provider === 'gemini') {
-      const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite-preview",
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        config: {
-          tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
-        },
-      });
-      text = response.text;
-    } else {
-      text = await callAI(prompt, "application/json");
-    }
+  const provider = getProvider();
 
-    return extractJson(text);
-  } catch (error) {
-    console.error("Trending Topics Error:", error);
-    return { trending: [] };
+  for (let i = 0; i <= retries; i++) {
+    try {
+      let text;
+      if (provider === 'gemini') {
+        const response = await ai.models.generateContent({
+          model: "gemini-3.1-flash-lite-preview",
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          config: {
+            tools: [{ googleSearch: {} }],
+            responseMimeType: "application/json",
+          },
+        });
+        text = response.text;
+      } else {
+        text = await callAI(prompt, "application/json");
+      }
+
+      return extractJson(text);
+    } catch (error: any) {
+      console.warn(`Trending Topics call failed (attempt ${i + 1}/${retries + 1}):`, error);
+      
+      // If it's a rate limit error (429), wait and retry
+      if (error?.status === 429 || error?.message?.includes('429') || error?.message?.includes('RESOURCE_EXHAUSTED')) {
+        if (i < retries) {
+          const delay = Math.pow(2, i) * 5000; // Increased delay: 5s, 10s, 20s
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+      }
+      
+      if (i === retries) {
+        console.error("Trending Topics Error after retries:", error);
+        // Fallback to static trending topics if API fails
+        return {
+          trending: [
+            { topic: "AI in 2026", reason: "Rapid advancements in multimodal models." },
+            { topic: "Sustainable Living", reason: "Global focus on environment." },
+            { topic: "Remote Work Trends", reason: "Evolving workplace dynamics." },
+            { topic: "Digital Health", reason: "Increased focus on personal wellness." },
+            { topic: "Renewable Energy", reason: "Global shift to green energy." },
+            { topic: "Cybersecurity", reason: "Growing importance of data protection." }
+          ]
+        };
+      }
+    }
   }
+  return { trending: [] };
 };
 
 export const generatePromptsFromVideo = async (base64Video: string, mimeType: string, language: "bn" | "en" | "both" | "hi" = "bn", instruction: string = "", videoDuration?: number, scriptWordCount?: number, visualStyle: string = "cinematic", cameraAngle: string = "wide shot", mood: string = "cinematic", lighting: string = "natural") => {

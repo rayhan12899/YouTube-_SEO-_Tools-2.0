@@ -143,7 +143,7 @@ type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'v
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [currentView, setCurrentView] = useState<ViewType>('landing');
+  const [currentView, setCurrentView] = useState<ViewType>('home');
   const [uiLang, setUiLang] = useState<'en' | 'bn'>(() => {
     const saved = localStorage.getItem('uiLang');
     return (saved === 'en' || saved === 'bn') ? saved : 'en';
@@ -2112,20 +2112,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-none">
+            <header className="sticky top-0 z-50 w-full bg-[var(--bg-main)]/90 backdrop-blur-xl border-b border-[var(--border-main)] flex items-center justify-center pointer-events-none py-3">
+              <div className="w-[95%] max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto">
               {/* Logo & Settings Pill */}
-              <div className="glass-card px-5 py-3 flex items-center gap-5 pointer-events-auto shadow-2xl border-brand-purple/20">
+              <div className="glass-card px-5 py-2.5 flex items-center gap-5 pointer-events-auto shadow-sm border-[var(--border-main)]">
                 <div 
                   className="flex items-center gap-3 cursor-pointer group"
-                  onClick={() => setCurrentView('landing')}
+                  onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Youtube className="text-brand-purple" size={20} />
+                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Youtube className="text-[var(--accent-main)]" size={18} />
                   </div>
                   <div className="hidden sm:flex flex-col">
-                    <span className="text-sm font-bold tracking-tight uppercase group-hover:text-brand-purple transition-colors leading-none">Studio</span>
+                    <span className="text-sm font-bold tracking-tight uppercase group-hover:text-[var(--accent-main)] transition-colors leading-none">Studio</span>
                     <div className="flex items-center gap-1 mt-1">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" : "bg-amber-500")} />
+                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500")} />
                       <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{isApiConnected ? 'Online' : 'Offline'}</span>
                     </div>
                   </div>
@@ -2172,15 +2173,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   { id: 'image', icon: Palette, label: t.imageGen },
                   { id: 'voice', icon: Mic, label: t.voiceOver },
                   { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
+                  { id: 'download', icon: Download, label: t.downloadReport },
                 ].map((item) => (
                   <button 
                     key={item.id}
                     onClick={() => {
-                      setCurrentView(item.id as any);
-                      if (item.id === 'video') {
-                        setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                      } else if (item.id === 'shorts') {
-                        setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
+                      if (item.id === 'download') {
+                        downloadPdf();
+                      } else {
+                        setCurrentView(item.id as any);
+                        if (item.id === 'video') {
+                          setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                        } else if (item.id === 'shorts') {
+                          setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
+                        }
                       }
                     }}
                     className={cn(
@@ -2194,23 +2200,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <span className="hidden lg:block">{item.label}</span>
                   </button>
                 ))}
-                
-                <div className="w-[1px] h-6 bg-[var(--border-main)] mx-2" />
-                
-                <button 
-                  onClick={downloadPdf}
-                  disabled={!currentResult || currentResult.imageUrl || currentResult.audioUrl}
-                  className={cn(
-                    "p-2.5 rounded-xl transition-all duration-300 shrink-0",
-                    (currentResult && !currentResult.imageUrl && !currentResult.audioUrl) 
-                      ? "text-brand-purple bg-brand-purple/10 hover:bg-brand-purple/20" 
-                      : "text-slate-600 cursor-not-allowed opacity-50"
-                  )}
-                  title={t.downloadReport}
-                >
-                  <Download size={16} />
-                </button>
               </nav>
+            </div>
             </header>
 
 
@@ -2233,7 +2224,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={installApp}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest shadow-md shadow-blue-600/20 hover:shadow-blue-600/40 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)] text-white text-[10px] font-bold uppercase tracking-widest shadow-md shadow-[var(--accent-glow)] hover:shadow-[var(--accent-glow)] transition-all"
             >
               <Download size={14} />
               {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
@@ -2242,51 +2233,49 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         </div>
 
         {/* Dashboard Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {[
-            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-brand-purple", bg: "bg-brand-purple/10", border: "border-brand-purple/20" },
-            { label: t.totalHistory, value: history.length, icon: History, color: "text-brand-blue-glow", bg: "bg-brand-blue-glow/10", border: "border-brand-blue-glow/20" },
-            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-brand-orange", bg: "bg-brand-orange/10", border: "border-brand-orange/20" }
+            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
+            { label: t.totalHistory, value: history.length, icon: History, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
+            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
+            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" }
           ].map((stat, i) => (
             <motion.div 
               key={i}
               whileHover={{ y: -2, scale: 1.01 }}
-              className="p-5 md:p-6 rounded-2xl bg-[var(--bg-card)]/30 border border-[var(--border-main)] glass-card flex items-center gap-4 shadow-md group transition-all duration-300 relative overflow-hidden"
+              className="p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border-main)] shadow-sm flex items-center gap-5 group transition-all duration-300"
             >
-              <div className={cn("absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40", stat.bg)} />
-              
               <div className={cn(
-                "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-500 group-hover:scale-110",
-                stat.bg, stat.color, stat.border
+                "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105",
+                stat.bg, stat.color
               )}>
-                <stat.icon size={20} />
+                <stat.icon size={22} />
               </div>
-              <div className="space-y-1 z-10">
+              <div className="space-y-0.5">
                 <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">{stat.label}</p>
-                <p className="text-lg md:text-xl font-bold text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
+                <p className="text-lg font-bold text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Inputs */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-            <section className="studio-card p-6 md:p-8 space-y-8">
-            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-6">
-              <div className="space-y-1">
-                <h2 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
-                    {currentView === 'home' && <LayoutDashboard size={20} />}
-                    {currentView === 'youtube' && <Youtube size={20} />}
-                    {currentView === 'video' && <Video size={20} />}
-                    {currentView === 'shorts' && <Zap size={20} />}
-                    {currentView === 'idea' && <Lightbulb size={20} />}
-                    {currentView === 'image' && <Palette size={20} />}
-                    {currentView === 'voice' && <Mic size={20} />}
-                    {currentView === 'voiceExtractor' && <AudioLines size={20} />}
+          <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+            <section className="studio-card p-8 md:p-10 space-y-10">
+            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-8">
+              <div className="space-y-2">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
+                    {currentView === 'home' && <LayoutDashboard size={24} />}
+                    {currentView === 'youtube' && <Youtube size={24} />}
+                    {currentView === 'video' && <Video size={24} />}
+                    {currentView === 'shorts' && <Zap size={24} />}
+                    {currentView === 'idea' && <Lightbulb size={24} />}
+                    {currentView === 'image' && <Palette size={24} />}
+                    {currentView === 'voice' && <Mic size={24} />}
+                    {currentView === 'voiceExtractor' && <AudioLines size={24} />}
                   </div>
                   <span className="text-[var(--text-main)]">
                     {currentView === 'home' ? t.dashboard : 
@@ -2299,13 +2288,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                      currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
                   </span>
                 </h2>
-                <p className="text-xs font-medium text-[var(--text-muted)] ml-14">
+                <p className="text-sm font-medium text-[var(--text-muted)] ml-16">
                   {uiLang === 'en' ? "AI Powered Creative Studio" : "এআই চালিত ক্রিয়েটিভ স্টুডিও"}
                 </p>
               </div>
               <button 
                 onClick={() => setShowHistory(!showHistory)}
-                className="btn-secondary py-2 px-4 text-xs"
+                className="btn-secondary py-3 px-6 text-sm"
               >
                 <History size={14} /> {t.history}
               </button>
