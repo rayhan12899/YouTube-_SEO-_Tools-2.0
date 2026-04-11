@@ -652,6 +652,12 @@ export default function App() {
     }
   };
 
+  const playNotificationSound = () => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.warn("Sound play failed:", e));
+  };
+
   const handleGenerate = async () => {
     setRelatedIdeas([]);
     
@@ -698,6 +704,7 @@ export default function App() {
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'idea');
         toast.success(t.ideaGenHistory + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        playNotificationSound();
       } else if (activeView === 'shorts') {
         setLoadingStep(2); // Generating script...
         setLoadingProgress(50);
@@ -717,6 +724,7 @@ export default function App() {
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'shorts');
         toast.success(uiLang === 'en' ? "Shorts Script Generated!" : "শর্টস স্ক্রিপ্ট তৈরি হয়েছে!");
+        playNotificationSound();
       } else if (activeView === 'image') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
@@ -726,11 +734,13 @@ export default function App() {
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            playNotificationSound();
           } else {
             const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            playNotificationSound();
           }
         } else {
             setLoadingStep(2); // Generating...
@@ -739,6 +749,7 @@ export default function App() {
             setResults(prev => ({ ...prev, [activeView]: { imageUrl: res } }));
             saveToHistory(activeTopic, { imageUrl: res }, 'image');
             toast.success(t.imageGenHistory + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            playNotificationSound();
         }
       } else if (activeView === 'promptGen') {
         setLoadingStep(2);
@@ -784,6 +795,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setResults(prev => ({ ...prev, [activeView]: parsed }));
         saveToHistory(activeTopic, parsed, 'promptGen');
         toast.success(t.promptGen + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        playNotificationSound();
       } else if (activeView === 'voice') {
         setLoadingStep(2); // Generating...
         setLoadingProgress(40);
@@ -795,6 +807,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setResults(prev => ({ ...prev, [activeView]: { audioUrl: res } }));
         saveToHistory(activeTopic, { audioUrl: res }, 'voice');
         toast.success(t.voiceGenHistory + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        playNotificationSound();
       } else if (activeView === 'voiceExtractor') {
         if (currentSelectedMedia && (mediaMimeType.startsWith('audio/') || mediaMimeType.startsWith('video/'))) {
           setLoadingStep(3); // Optimizing...
@@ -805,6 +818,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           saveToHistory(activeTopic || "Media Analysis", res, 'voiceExtractor');
           const msg = mediaMimeType.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
           toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+          playNotificationSound();
         } else {
           toast.error(uiLang === 'en' ? "Please upload an audio or video file first." : "অনুগ্রহ করে প্রথমে একটি অডিও বা ভিডিও ফাইল আপলোড করুন।");
           setLoading(false);
@@ -820,11 +834,13 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            playNotificationSound();
           } else {
             const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            playNotificationSound();
           }
         } else {
           setLoadingStep(2); // Generating...
@@ -843,6 +859,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setResults(prev => ({ ...prev, [activeView]: res }));
           saveToHistory(activeTopic, res, 'youtube');
           toast.success((uiLang === 'en' ? "YouTube Content" : "ইউটিউব কন্টেন্ট") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+          playNotificationSound();
         }
       } else {
         const res = await generateContent({
@@ -853,6 +870,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'youtube');
         toast.success((uiLang === 'en' ? "YouTube Content" : "ইউটিউব কন্টেন্ট") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        playNotificationSound();
         
         // Fetch related ideas
         const ideasRes = await generateVideoIdeas(activeTopic, options.language);
@@ -998,8 +1016,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             text-shadow: none !important;
           }
         </style>
-        <div style="border-bottom: 2px solid #f27d26; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
-          <h1 style="color: #f27d26 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
+        <div style="border-bottom: 2px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
+          <h1 style="color: #d4af37 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
           <p style="color: #666 !important; margin: 10px 0 0 0; box-sizing: border-box !important;">Topic: ${currentTopic || "Generated Content"}</p>
           <p style="color: #666 !important; margin: 5px 0 0 0; box-sizing: border-box !important;">Date: ${format(new Date(), 'dd MMM, yyyy HH:mm')}</p>
         </div>
@@ -1021,11 +1039,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.prompts) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #f27d26 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.prompts.map((prompt: string, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #f27d26 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
+                  <strong style="color: #d4af37 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important; white-space: pre-wrap !important;">${prompt}</p>
                 </li>
               `).join('')}
@@ -1037,11 +1055,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.ideas) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #f27d26 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.ideas.map((idea: any, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #f27d26 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
+                  <strong style="color: #d4af37 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important;">${idea.reason || idea.description}</p>
                 </li>
               `).join('')}
@@ -1080,7 +1098,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
 
           contentHtml += `
             <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-              <h2 style="color: #1a1a1a !important; border-left: 4px solid #f27d26 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
+              <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
               <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                 ${content}
               </div>
@@ -1104,7 +1122,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
             contentHtml += `
               <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-                <h2 style="color: #1a1a1a !important; border-left: 4px solid #f27d26 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
+                <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
                 <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                   ${displayValue}
                 </div>
@@ -1339,16 +1357,16 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       margin: 0;
       font-size: 16px;
       font-weight: 800;
-      color: #f27d26;
+      color: #d4af37;
     }
     .btn {
       display: block;
       width: 100%;
       padding: 12px;
       margin-bottom: 8px;
-      background: rgba(242, 125, 38, 0.1);
-      border: 1px solid rgba(242, 125, 38, 0.3);
-      color: #f27d26;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: #d4af37;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -1356,14 +1374,14 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       text-align: center;
     }
     .btn:hover {
-      background: rgba(242, 125, 38, 0.2);
+      background: rgba(212, 175, 55, 0.2);
     }
     .btn-primary {
-      background: #f27d26;
-      color: #fff;
+      background: #d4af37;
+      color: #000;
     }
     .btn-primary:hover {
-      background: #e06c15;
+      background: #b8860b;
     }
     #result {
       margin-top: 16px;
@@ -1381,7 +1399,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       display: none;
       text-align: center;
       margin: 16px 0;
-      color: #f27d26;
+      color: #d4af37;
       font-weight: bold;
     }
   </style>
@@ -1530,7 +1548,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle = '#f27d26';
+          ctx.fillStyle = '#d4af37';
           ctx.beginPath();
           ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
           ctx.fill();
@@ -1574,7 +1592,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
   };
 
   return (
-    <div className={cn("min-h-screen mesh-gradient text-[var(--text-main)] font-sans selection:bg-brand-purple/30 selection:text-white pb-24 md:pb-0", theme)}>
+    <div className={cn("min-h-screen mesh-gradient text-[var(--text-main)] font-sans selection:bg-[var(--accent-main)]/30 selection:text-white pb-24 md:pb-0", theme)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-10">
         <Toaster position="top-right" richColors theme={theme === 'light' ? 'light' : 'dark'} />
         
@@ -1595,10 +1613,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   className="flex items-center gap-4 cursor-pointer pointer-events-auto group"
                   onClick={() => setCurrentView('landing')}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 flex items-center justify-center border border-brand-purple/20 group-hover:scale-105 transition-transform duration-300">
-                    <Youtube className="text-brand-purple" size={24} />
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center border border-[var(--accent-main)]/20 group-hover:scale-105 transition-transform duration-300">
+                    <Youtube className="text-[var(--accent-main)]" size={24} />
                   </div>
-                  <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{t.title}</span>
+                  <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{t.title}</span>
                 </motion.div>
                 
                 <motion.div 
@@ -1632,13 +1650,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {/* Hero Section */}
               <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-purple/5 rounded-full blur-[100px] -z-10" />
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[var(--accent-main)]/5 rounded-full blur-[100px] -z-10" />
                 
                 <div className="max-w-5xl mx-auto px-6 text-center space-y-12 relative z-10">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-xs font-semibold tracking-wide"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 text-[var(--accent-main)] text-xs font-semibold tracking-wide"
                   >
                     <Sparkles size={14} /> {t.subtitle}
                   </motion.div>
@@ -1651,13 +1669,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   >
                     {uiLang === 'en' ? (
                       <>
-                        Create <span className="text-brand-purple">Viral</span><br />
+                        Create <span className="text-[var(--accent-main)]">Viral</span><br />
                         Content with AI
                       </>
                     ) : (
                       <>
                         এআই দিয়ে তৈরি করুন <br />
-                        <span className="text-brand-purple">ভাইরাল কন্টেন্ট</span>
+                        <span className="text-[var(--accent-main)]">ভাইরাল কন্টেন্ট</span>
                       </>
                     )}
                   </motion.h1>
@@ -1696,12 +1714,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto space-y-24">
                   <div className="text-center space-y-6 max-w-3xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
                       <Info size={14} />
                       {t.about}
                     </div>
                     <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] tracking-tight leading-none">
-                      Engineered for <span className="text-brand-purple italic">Creators</span>
+                      Engineered for <span className="text-[var(--accent-main)] italic">Creators</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
                       {uiLang === 'en' ? "We've built the most sophisticated AI engine specifically for video content creators. Every tool is optimized for engagement and growth." : "আমরা ভিডিও কন্টেন্ট ক্রিয়েটরদের জন্য বিশেষভাবে সবচেয়ে উন্নত এআই ইঞ্জিন তৈরি করেছি। প্রতিটি টুল এনগেজমেন্ট এবং গ্রোথের জন্য অপ্টিমাইজ করা হয়েছে।"}
@@ -1714,7 +1732,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
                     >
                       <div className="relative z-10 space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
                           <Zap size={28} />
                         </div>
                         <div className="space-y-3">
@@ -1740,7 +1758,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
                       <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
                           <Shield size={28} />
                         </div>
                         <div className="space-y-3">
@@ -1750,11 +1768,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           </p>
                         </div>
                       </div>
-                      <div className="mt-8 p-4 rounded-xl bg-green-500/5 border border-green-500/20 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                      <div className="mt-8 p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[var(--accent-main)]/20 flex items-center justify-center text-[var(--accent-main)]">
                           <Lock size={16} />
                         </div>
-                        <span className="text-xs font-semibold text-green-500">End-to-End Encrypted</span>
+                        <span className="text-xs font-semibold text-[var(--accent-main)]">End-to-End Encrypted</span>
                       </div>
                     </motion.div>
 
@@ -1763,7 +1781,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
                       <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
                           <Users size={28} />
                         </div>
                         <div className="space-y-3">
@@ -1777,7 +1795,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {[1, 2, 3, 4].map(i => (
                           <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
                         ))}
-                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-brand-purple flex items-center justify-center text-white text-xs font-bold">
+                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-[var(--accent-main)] flex items-center justify-center text-black text-xs font-bold">
                           +10k
                         </div>
                       </div>
@@ -1789,7 +1807,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     >
                       <div className="flex flex-col md:flex-row gap-10 items-center h-full">
                         <div className="space-y-6 flex-1">
-                          <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-all duration-500">
+                          <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
                             <Globe size={28} />
                           </div>
                           <div className="space-y-3">
@@ -1816,23 +1834,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
               </section>
 
-              {/* Features Section (Purple) */}
-              <section className="relative py-32 bg-brand-purple overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]" />
+              {/* Features Section */}
+              <section className="relative py-32 bg-[var(--bg-main)] overflow-hidden">
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,var(--accent-main),transparent_70%)]" />
                 </div>
                 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                     <div className="space-y-10">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
-                        <Zap size={14} className="text-yellow-400" />
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
+                        <Zap size={14} className="text-[var(--accent-main)]" />
                         {uiLang === 'en' ? "Powerful Capabilities" : "শক্তিশালী ক্ষমতা"}
                       </div>
-                      <h2 className="text-5xl md:text-7xl font-bold text-white leading-[0.9] tracking-tight">
-                        Our Powerful <br/> <span className="text-white/50 italic">Features</span>
+                      <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] leading-[0.9] tracking-tight">
+                        Our Powerful <br/> <span className="text-[var(--text-muted)] italic">Features</span>
                       </h2>
-                      <p className="text-white/70 text-lg font-medium leading-relaxed max-w-lg">
+                      <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed max-w-lg">
                         {uiLang === 'en' ? "We provide everything you need to grow your channel and automate your content workflow with cutting-edge AI." : "আমরা আপনার চ্যানেল বড় করতে এবং অত্যাধুনিক এআই দিয়ে আপনার কন্টেন্ট ওয়ার্কফ্লো অটোমেট করতে প্রয়োজনীয় সবকিছু সরবরাহ করি।"}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1844,24 +1862,24 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         ].map((f, i) => (
                           <motion.div 
                             key={i} 
-                            whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
-                            className="p-8 rounded-[2rem] bg-white/10 border border-white/10 backdrop-blur-xl group transition-all"
+                            whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                            className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] backdrop-blur-xl group transition-all"
                           >
-                            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
+                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] mb-6 group-hover:scale-110 transition-transform">
                               {f.icon}
                             </div>
-                            <h4 className="text-lg font-bold text-white mb-2 tracking-tight">{f.title}</h4>
-                            <p className="text-white/50 text-sm font-medium leading-relaxed">{f.desc}</p>
+                            <h4 className="text-lg font-bold text-[var(--text-main)] mb-2 tracking-tight">{f.title}</h4>
+                            <p className="text-[var(--text-muted)] text-sm font-medium leading-relaxed">{f.desc}</p>
                           </motion.div>
                         ))}
                       </div>
                     </div>
                     <div className="relative group">
-                      <div className="absolute -inset-4 bg-white/10 rounded-[4rem] blur-3xl group-hover:bg-white/20 transition-all duration-700" />
+                      <div className="absolute -inset-4 bg-[var(--accent-glow)] rounded-[4rem] blur-3xl group-hover:bg-[var(--accent-glow)]/20 transition-all duration-700" />
                       <img 
                         src="https://picsum.photos/seed/features/1000/1000" 
                         alt="Features" 
-                        className="relative rounded-[3rem] shadow-2xl border border-white/10 transform group-hover:scale-[1.02] transition-transform duration-700"
+                        className="relative rounded-[3rem] shadow-2xl border border-[var(--border-main)] transform group-hover:scale-[1.02] transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
                     </div>
@@ -1875,12 +1893,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto px-6 space-y-24">
                   <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
                       <MessageSquare size={14} />
                       {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
                     </div>
                     <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
-                      Happy <span className="text-brand-purple italic">Creators</span> <br/> Say
+                      Happy <span className="text-[var(--accent-main)] italic">Creators</span> <br/> Say
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
                       {uiLang === 'en' ? "Join thousands of successful creators who have transformed their content with our AI tools." : "হাজার হাজার সফল ক্রিয়েটরদের সাথে যোগ দিন যারা আমাদের এআই টুলস দিয়ে তাদের কন্টেন্ট পরিবর্তন করেছেন।"}
@@ -1898,13 +1916,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         whileHover={{ y: -5 }}
                         className="p-8 md:p-10 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-6 relative glass-card group transition-all shadow-md hover:shadow-xl"
                       >
-                        <Quote className="absolute top-6 right-6 text-brand-purple/5 group-hover:text-brand-purple/10 transition-colors" size={48} />
+                        <Quote className="absolute top-6 right-6 text-[var(--accent-main)]/5 group-hover:text-[var(--accent-main)]/10 transition-colors" size={48} />
                         <div className="flex gap-1">
-                          {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-brand-orange text-brand-orange" />)}
+                          {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-[var(--accent-main)] text-[var(--accent-main)]" />)}
                         </div>
                         <p className="text-[var(--text-main)] font-medium leading-relaxed text-base md:text-lg relative z-10">"{t.text}"</p>
                         <div className="flex items-center gap-4 pt-6 border-t border-[var(--border-main)]/50">
-                          <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-brand-purple/20" referrerPolicy="no-referrer" />
+                          <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-[var(--accent-main)]/20" referrerPolicy="no-referrer" />
                           <div>
                             <h5 className="font-bold text-[var(--text-main)] tracking-tight">{t.name}</h5>
                             <p className="text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wide">{t.role}</p>
@@ -1922,12 +1940,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 
                 <div className="max-w-7xl mx-auto px-6 space-y-24">
                   <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/5 border border-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
                       <CreditCard size={14} />
                       {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
                     </div>
                     <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
-                      Scale Your <span className="text-brand-purple italic">Growth</span>
+                      Scale Your <span className="text-[var(--accent-main)] italic">Growth</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
                       {uiLang === 'en' ? "Choose the plan that's right for your creative journey. No hidden fees." : "আপনার ক্রিয়েটিভ জার্নির জন্য সঠিক প্ল্যানটি বেছে নিন। কোনো লুকানো ফি নেই।"}
@@ -1966,11 +1984,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         whileHover={{ y: -5 }}
                         className={cn(
                           "p-8 md:p-10 rounded-[2.5rem] border space-y-8 relative glass-card group transition-all shadow-xl flex flex-col justify-between",
-                          plan.popular ? "bg-brand-purple/5 border-brand-purple/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
+                          plan.popular ? "bg-[var(--accent-main)]/5 border-[var(--accent-main)]/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
                         )}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-brand-purple text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[var(--accent-main)] text-black text-[10px] font-bold uppercase tracking-widest shadow-md">
                             Most Popular
                           </div>
                         )}
@@ -1987,7 +2005,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <ul className="space-y-4">
                             {plan.features.map((f, i) => (
                               <li key={i} className="flex items-center gap-3 text-sm font-medium text-[var(--text-muted)]">
-                                <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
+                                <div className="w-5 h-5 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                                   <Check size={12} />
                                 </div>
                                 {f}
@@ -1998,7 +2016,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <button className={cn(
                           "w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-md",
                           plan.popular 
-                            ? "bg-brand-purple text-white hover:bg-brand-purple/90" 
+                            ? "bg-[var(--accent-main)] text-black hover:bg-[var(--accent-main)]/90" 
                             : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-card)]"
                         )}>
                           {plan.button}
@@ -2011,14 +2029,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {/* Footer */}
               <footer className="relative bg-[var(--bg-card)] pt-32 pb-16 overflow-hidden border-t border-[var(--border-main)]">
-                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-brand-purple via-indigo-600 to-brand-orange opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-[var(--accent-main)] via-[var(--text-main)] to-[var(--accent-main)] opacity-50" />
                 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
                     <div className="md:col-span-4 space-y-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[var(--bg-main)] flex items-center justify-center shadow-md border border-[var(--border-main)] group cursor-pointer">
-                          <Youtube className="text-brand-purple group-hover:scale-110 transition-transform" size={20} />
+                          <Youtube className="text-[var(--accent-main)] group-hover:scale-110 transition-transform" size={20} />
                         </div>
                         <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">{t.title}</span>
                       </div>
@@ -2029,7 +2047,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {[Facebook, Twitter, Instagram, Github].map((Icon, i) => (
                           <motion.button 
                             key={i} 
-                            whileHover={{ y: -2, color: "var(--brand-purple)" }}
+                            whileHover={{ y: -2, color: "var(--accent-main)" }}
                             className="w-8 h-8 rounded-lg bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
                           >
                             <Icon size={14} />
@@ -2041,20 +2059,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="md:col-span-2 space-y-6">
                       <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Quick Links</h4>
                       <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Home
                         </li>
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           About
                         </li>
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Features
                         </li>
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Contact
                         </li>
                       </ul>
@@ -2063,16 +2081,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="md:col-span-2 space-y-6">
                       <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Support</h4>
                       <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Help Center
                         </li>
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Privacy Policy
                         </li>
-                        <li className="hover:text-brand-purple cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-brand-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
+                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
                           Terms of Service
                         </li>
                       </ul>
@@ -2081,13 +2099,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="md:col-span-4 space-y-6">
                       <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Stay Updated</h4>
                       <p className="text-[var(--text-muted)] text-sm">Subscribe to our newsletter for the latest AI tips.</p>
-                      <div className="flex gap-2 p-1 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl focus-within:border-brand-purple/50 transition-all">
+                      <div className="flex gap-2 p-1 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl focus-within:border-[var(--accent-main)]/50 transition-all">
                         <input 
                           type="text" 
                           placeholder="Email Address" 
                           className="bg-transparent px-3 py-2 text-[var(--text-main)] text-sm w-full outline-none" 
                         />
-                        <button className="bg-brand-purple text-white px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-brand-purple/20 hover:bg-brand-purple/90">
+                        <button className="bg-[var(--accent-main)] text-black px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90">
                           Join
                         </button>
                       </div>
@@ -2126,7 +2144,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="hidden sm:flex flex-col">
                     <span className="text-sm font-bold tracking-tight uppercase group-hover:text-[var(--accent-main)] transition-colors leading-none">Studio</span>
                     <div className="flex items-center gap-1 mt-1">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500")} />
+                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-[var(--accent-main)] animate-pulse" : "bg-[var(--text-muted)]")} />
                       <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{isApiConnected ? 'Online' : 'Offline'}</span>
                     </div>
                   </div>
@@ -2139,24 +2157,24 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <select
                       value={uiLang}
                       onChange={(e) => setUiLang(e.target.value as 'en' | 'bn')}
-                      className="appearance-none bg-transparent text-xs font-bold text-[var(--text-muted)] hover:text-brand-purple transition-colors outline-none cursor-pointer pr-5"
+                      className="appearance-none bg-transparent text-xs font-bold text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors outline-none cursor-pointer pr-5"
                     >
                       <option value="en" className="bg-[var(--bg-card)] text-[var(--text-main)]">EN</option>
                       <option value="bn" className="bg-[var(--bg-card)] text-[var(--text-main)]">BN</option>
                     </select>
-                    <Languages size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-hover:text-brand-purple transition-colors" />
+                    <Languages size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-hover:text-[var(--accent-main)] transition-colors" />
                   </div>
 
                   <button
                     onClick={handleRefresh}
-                    className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                   >
                     <RefreshCw size={16} className={cn(loading && "animate-spin")} />
                   </button>
 
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                   >
                     <Globe size={16} />
                   </button>
@@ -2192,7 +2210,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className={cn(
                       "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 text-xs font-semibold whitespace-nowrap",
                       currentView === item.id 
-                        ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" 
+                        ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-glow)]" 
                         : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)]"
                     )}
                   >
@@ -2214,8 +2232,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         {/* Dashboard Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-3">
-            <div className="w-8 h-[1px] bg-brand-orange/30"></div>
-            <LayoutDashboard size={14} className="text-brand-orange" /> {t.dashboardOverview}
+            <div className="w-8 h-[1px] bg-[var(--accent-main)]/30"></div>
+            <LayoutDashboard size={14} className="text-[var(--accent-main)]" /> {t.dashboardOverview}
           </h2>
           {deferredPrompt && (
             <motion.button
@@ -2310,7 +2328,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView !== 'voiceExtractor' && (
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                    <FileText size={14} className="text-brand-purple" /> {
+                    <FileText size={14} className="text-[var(--accent-main)]" /> {
                       currentView === 'video' ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
@@ -2358,7 +2376,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <span className="text-lg">{suggestion.icon}</span>
                             <span className="flex-1 truncate">{suggestion.text}</span>
                             {suggestion.isTrending && (
-                              <span className="text-[9px] uppercase tracking-wider bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full font-bold">
+                              <span className="text-[9px] uppercase tracking-wider bg-[var(--accent-main)]/20 text-[var(--accent-main)] px-2 py-0.5 rounded-full font-bold">
                                 {uiLang === 'en' ? "Trending" : "ট্রেন্ডিং"}
                               </span>
                             )}
@@ -2371,7 +2389,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {(currentView === 'image' || currentView === 'video') && (
                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-500">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-brand-purple font-semibold">
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-[var(--accent-main)] font-semibold">
                           <Sparkles size={14} /> {uiLang === 'en' ? "Prompt Suggestions" : "প্রম্পট সাজেশন"}
                         </div>
                         {topics[currentView].trim() !== "" && (
@@ -2380,7 +2398,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               setTopics(prev => ({ ...prev, [currentView]: "" }));
                               toast.info(uiLang === 'en' ? "Prompt cleared" : "প্রম্পট মুছে ফেলা হয়েছে");
                             }}
-                            className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple transition-colors font-bold flex items-center gap-1"
+                            className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors font-bold flex items-center gap-1"
                           >
                             <Trash2 size={12} /> {uiLang === 'en' ? "Clear" : "মুছুন"}
                           </button>
@@ -2390,7 +2408,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="space-y-4">
                         {/* Scene Presets */}
                         <div className="space-y-2">
-                          <span className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold px-1 flex items-center gap-1">
+                          <span className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold px-1 flex items-center gap-1">
                             <Zap size={12} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -2413,7 +2431,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   }));
                                   toast.success(`${preset[uiLang]} ${uiLang === 'en' ? "applied!" : "যুক্ত হয়েছে!"}`);
                                 }}
-                                className="text-[10px] px-2.5 py-1.5 rounded-lg bg-brand-purple/10 border border-brand-purple/20 hover:border-brand-purple/50 transition-all flex items-center gap-1.5 text-brand-purple font-bold"
+                                className="text-[10px] px-2.5 py-1.5 rounded-lg bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 hover:border-[var(--accent-main)]/50 transition-all flex items-center gap-1.5 text-[var(--accent-main)] font-bold"
                               >
                                 <span>{preset.icon}</span>
                                 {preset[uiLang]}
@@ -2495,8 +2513,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                               className={cn(
                                                 "text-[10px] px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-1.5",
                                                 isSelected 
-                                                  ? "bg-brand-orange/20 border-brand-orange text-white shadow-[0_0_10px_rgba(242,125,38,0.2)]" 
-                                                  : "bg-white/5 border-white/5 text-slate-300 hover:border-brand-orange/30 hover:text-white"
+                                                  ? "bg-[var(--accent-main)]/20 border-[var(--accent-main)] text-white shadow-[0_0_10px_rgba(var(--accent-main-rgb),0.2)]" 
+                                                  : "bg-white/5 border-white/5 text-slate-300 hover:border-[var(--accent-main)]/30 hover:text-white"
                                               )}
                                             >
                                               <span>{el.icon}</span>
@@ -2520,7 +2538,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'voiceExtractor' && (
                 <div className="space-y-4 pt-4">
                   <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                    <Languages size={14} className="text-brand-orange" /> {t.targetLanguage}
+                    <Languages size={14} className="text-[var(--accent-main)]" /> {t.targetLanguage}
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     <motion.button
@@ -2529,7 +2547,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'en' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'en' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'en' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'en' && <Check size={16} />} {t.en}
@@ -2540,7 +2558,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'bn' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'bn' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'bn' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'bn' && <Check size={16} />} {t.bn}
@@ -2551,7 +2569,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'hi' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'hi' ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'hi' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'hi' && <Check size={16} />} {t.hi}
@@ -2563,7 +2581,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {currentView === 'promptGen' && (
                 <div className="space-y-4 pt-4">
                   <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                    <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
+                    <Sparkles size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {['Video', 'Story', 'Image', 'Voice Over'].map((cat) => (
@@ -2574,7 +2592,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                         className={cn(
                           "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                          options.promptCategory === cat ? "bg-brand-purple text-white shadow-md shadow-brand-purple/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                          options.promptCategory === cat ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                         )}
                       >
                         {options.promptCategory === cat && <Check size={16} />} 
@@ -2592,9 +2610,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Sparkles size={14} className="text-brand-orange" /> {t.trendingNow}
+                      <Sparkles size={14} className="text-[var(--accent-main)]" /> {t.trendingNow}
                     </label>
-                    {loadingTrends && <Loader2 size={14} className="animate-spin text-brand-orange" />}
+                    {loadingTrends && <Loader2 size={14} className="animate-spin text-[var(--accent-main)]" />}
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2612,12 +2630,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setTopics(prev => ({ ...prev, idea: trend.topic }));
                             toast.info(t.clickToUse);
                           }}
-                          className="p-3 rounded-xl bg-[var(--bg-card)]/20 border border-brand-border hover:border-brand-orange transition-all cursor-pointer group relative overflow-hidden"
+                          className="p-3 rounded-xl bg-[var(--bg-card)]/20 border border-brand-border hover:border-[var(--accent-main)] transition-all cursor-pointer group relative overflow-hidden"
                         >
-                          <div className="absolute top-0 right-0 p-1 bg-brand-orange/20 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Zap size={10} className="text-brand-orange" />
+                          <div className="absolute top-0 right-0 p-1 bg-[var(--accent-main)]/20 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Zap size={10} className="text-[var(--accent-main)]" />
                           </div>
-                          <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-orange transition-colors line-clamp-1">
+                          <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors line-clamp-1">
                             {trend.topic}
                           </h4>
                           <p className="text-[10px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-tight">
@@ -2714,17 +2732,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="title-generator-section">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
-                        <Zap size={20} className="text-brand-purple" />
+                        <Zap size={20} className="text-[var(--accent-main)]" />
                         <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
                           {uiLang === 'en' ? 'YouTube Title Generator' : 'ইউটিউব শিরোনাম জেনারেটর'}
                         </h2>
                       </div>
-                      <div className="text-[10px] font-semibold text-brand-purple uppercase tracking-widest">
+                      <div className="text-[10px] font-semibold text-[var(--accent-main)] uppercase tracking-widest">
                         {uiLang === 'en' ? 'High CTR' : 'হাই সিটিআর'}
                       </div>
                     </div>
 
-                    <div className="glass-card p-6 space-y-4 border-brand-purple/20 bg-brand-purple/5">
+                    <div className="glass-card p-6 space-y-4 border-[var(--accent-main)]/20 bg-[var(--accent-main)]/5">
                       <div className="space-y-2">
                         <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">
                           {uiLang === 'en' ? 'Video Topic' : 'ভিডিওর বিষয়'}
@@ -2734,7 +2752,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           value={options.titleTopic || ''} 
                           onChange={(e) => setOptions(prev => ({ ...prev, titleTopic: e.target.value }))}
                           placeholder={uiLang === 'en' ? 'Enter your video topic...' : 'ভিডিওর বিষয় লিখুন...'}
-                          className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-3 text-sm text-[var(--text-main)] outline-none focus:border-brand-purple/50 transition-colors"
+                          className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-3 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors"
                         />
                       </div>
                       <motion.button
@@ -2752,7 +2770,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setLoading(false);
                           }
                         }}
-                        className="w-full py-3 rounded-xl bg-brand-purple text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-brand-purple/20 hover:bg-brand-purple-light transition-all"
+                        className="w-full py-3 rounded-xl bg-[var(--accent-main)] text-black text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90 transition-all"
                       >
                         {loading ? (uiLang === 'en' ? 'Generating...' : 'জেনারেট হচ্ছে...') : (uiLang === 'en' ? 'Generate High CTR Titles' : 'হাই সিটিআর শিরোনাম জেনারেট করুন')}
                       </motion.button>
@@ -2804,33 +2822,33 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Palette size={14} className="text-brand-orange" /> Visual Style
+                            <Palette size={14} className="text-[var(--accent-main)]" /> Visual Style
                           </label>
-                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
                             {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch', 'Cyberpunk', 'Vintage', 'Minimalist', 'Surreal'].map(style => <option key={style} value={style}>{style}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Camera size={14} className="text-brand-orange" /> Camera Angle
+                            <Camera size={14} className="text-[var(--accent-main)]" /> Camera Angle
                           </label>
-                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
                             {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle', 'High Angle', 'Dutch Angle', 'Over the Shoulder', 'POV'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Sun size={14} className="text-brand-orange" /> Lighting
+                            <Sun size={14} className="text-[var(--accent-main)]" /> Lighting
                           </label>
-                          <select value={formOptions.lighting} onChange={(e) => setFormOptions(prev => ({...prev, lighting: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                          <select value={formOptions.lighting} onChange={(e) => setFormOptions(prev => ({...prev, lighting: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
                             {['Natural', 'Studio', 'Neon', 'Golden Hour', 'Moody', 'High Key', 'Low Key', 'Soft Diffused', 'Volumetric'].map(light => <option key={light} value={light}>{light}</option>)}
                           </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Zap size={14} className="text-brand-orange" /> Mood
+                            <Zap size={14} className="text-[var(--accent-main)]" /> Mood
                           </label>
-                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-brand-orange/50 transition-colors appearance-none cursor-pointer">
+                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
                             {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious', 'Romantic', 'Tense', 'Playful', 'Epic'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
                           </select>
                         </div>
@@ -2877,7 +2895,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-center glass-card shadow-sm"
                       >
                         <span className="text-2xl mb-1">{item.icon}</span>
-                        <span className="text-sm font-bold text-brand-purple tracking-tight">
+                        <span className="text-sm font-bold text-[var(--accent-main)] tracking-tight">
                           {item.time}
                         </span>
                         <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
@@ -2899,7 +2917,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-6">
                   <div className="space-y-3">
                     <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Languages size={14} className="text-brand-orange" /> {t.voiceLang}
+                      <Languages size={14} className="text-[var(--accent-main)]" /> {t.voiceLang}
                     </label>
                     <div className="flex gap-2">
                       {[
@@ -2914,7 +2932,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
                           className={cn(
                             "flex-1 py-2 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all",
-                            options.voiceLanguage === lang.id ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                            options.voiceLanguage === lang.id ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                           )}
                         >
                           {lang.flag} {lang.label}
@@ -2925,7 +2943,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <div className="space-y-3">
                     <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Volume2 size={14} className="text-brand-orange" /> {t.selectVoice}
+                      <Volume2 size={14} className="text-[var(--accent-main)]" /> {t.selectVoice}
                     </label>
                     
                     <div className="space-y-4">
@@ -2937,16 +2955,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             { id: 'Zephyr', label: 'Zephyr (Pro)', desc: 'Clear & Crisp' }
                           ].map((v) => (
                             <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: "rgba(242, 125, 38, 0.05)" }}
+                              whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
                               whileTap={{ scale: 0.98 }}
                               key={v.id}
                               onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                               className={cn(
                                 "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-brand-orange/30"
+                                options.voice === v.id ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-main)]/30"
                               )}
                             >
-                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-brand-orange" : "text-[var(--text-main)]")}>{v.label}</span>
+                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-[var(--accent-main)]" : "text-[var(--text-main)]")}>{v.label}</span>
                               <span className="text-[10px] opacity-60">{v.desc}</span>
                             </motion.button>
                           ))}
@@ -2962,16 +2980,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             { id: 'Fenrir', label: 'Fenrir', desc: 'Strong' }
                           ].map((v) => (
                             <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: "rgba(242, 125, 38, 0.05)" }}
+                              whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
                               whileTap={{ scale: 0.98 }}
                               key={v.id}
                               onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                               className={cn(
                                 "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-brand-orange/10 border-brand-orange shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-brand-orange/30"
+                                options.voice === v.id ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-main)]/30"
                               )}
                             >
-                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-brand-orange" : "text-[var(--text-main)]")}>{v.label}</span>
+                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-[var(--accent-main)]" : "text-[var(--text-main)]")}>{v.label}</span>
                               <span className="text-[10px] opacity-60">{v.desc}</span>
                             </motion.button>
                           ))}
@@ -2982,7 +3000,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <div className="space-y-3">
                     <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Sparkles size={14} className="text-brand-orange" /> {t.voiceTone}
+                      <Sparkles size={14} className="text-[var(--accent-main)]" /> {t.voiceTone}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {[
@@ -2999,7 +3017,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           onClick={() => setOptions(prev => ({ ...prev, voiceTone: tone.id }))}
                           className={cn(
                             "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                            options.voiceTone === tone.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                            options.voiceTone === tone.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                           )}
                         >
                           {tone.label}
@@ -3011,7 +3029,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                        <Globe size={14} className="text-brand-orange" /> {t.voiceAccent}
+                        <Globe size={14} className="text-[var(--accent-main)]" /> {t.voiceAccent}
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         {[
@@ -3027,7 +3045,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             onClick={() => setOptions(prev => ({ ...prev, voiceAccent: acc.id }))}
                             className={cn(
                               "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                              options.voiceAccent === acc.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                              options.voiceAccent === acc.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                             )}
                           >
                             {acc.label}
@@ -3038,7 +3056,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="space-y-3">
                       <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                        <User size={14} className="text-brand-orange" /> {t.voiceAge}
+                        <User size={14} className="text-[var(--accent-main)]" /> {t.voiceAge}
                       </label>
                       <div className="grid grid-cols-1 gap-2">
                         {[
@@ -3053,7 +3071,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             onClick={() => setOptions(prev => ({ ...prev, voiceAge: age.id }))}
                             className={cn(
                               "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                              options.voiceAge === age.id ? "bg-brand-orange/20 text-brand-orange border-brand-orange" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                              options.voiceAge === age.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                             )}
                           >
                             {age.label}
@@ -3082,8 +3100,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
-                      "border-2 border-dashed border-[var(--border-main)] rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:bg-brand-orange/5 hover:border-brand-orange/50",
-                      currentSelectedMedia && "border-brand-orange bg-brand-orange/5"
+                      "border-2 border-dashed border-[var(--border-main)] rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:bg-[var(--accent-main)]/5 hover:border-[var(--accent-main)]/50",
+                      currentSelectedMedia && "border-[var(--accent-main)] bg-[var(--accent-main)]/5"
                     )}
                   >
                     <input 
@@ -3094,7 +3112,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onChange={handleFileUpload}
                     />
                     {currentSelectedMedia ? (
-                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-brand-orange bg-black flex items-center justify-center shadow-lg">
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-[var(--accent-main)] bg-black flex items-center justify-center shadow-lg">
                         {mediaMimeType.startsWith('video/') ? (
                           <video src={currentSelectedMedia} className="w-full h-full object-contain" controls />
                         ) : mediaMimeType.startsWith('audio/') ? (
@@ -3114,7 +3132,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     ) : (
                       <>
-                        <div className="w-14 h-14 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange shadow-inner">
+                        <div className="w-14 h-14 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] shadow-inner">
                           {currentView === 'video' ? <Video size={24} /> : 
                            currentView === 'voiceExtractor' ? <AudioLines size={24} /> : <Upload size={24} />}
                         </div>
@@ -3137,7 +3155,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             <section className="space-y-6 mb-10">
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                  <LayoutTemplate size={18} className="text-brand-purple" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
+                  <LayoutTemplate size={18} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -3170,9 +3188,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <button
                     key={template.id}
                     onClick={() => setOptions(prev => ({ ...prev, ...template.preset }))}
-                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/50 hover:bg-brand-purple/5 transition-all text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
+                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/50 hover:bg-[var(--accent-main)]/5 transition-all text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
                   >
-                    <template.icon size={18} className="text-brand-purple" />
+                    <template.icon size={18} className="text-[var(--accent-main)]" />
                     {template.label}
                   </button>
                 ))}
@@ -3185,23 +3203,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             <section className="space-y-8">
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                  <Sparkles size={18} className="text-brand-purple animate-pulse" /> {t.whatToCreate}
+                  <Sparkles size={18} className="text-[var(--accent-main)] animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold bg-brand-purple/10 px-3 py-1 rounded-full border border-brand-purple/20 shadow-sm">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold bg-[var(--accent-main)]/10 px-3 py-1 rounded-full border border-[var(--accent-main)]/20 shadow-sm">
                   AI Powered
                 </span>
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[
-                  { id: 'generateImagePrompt', label: t.imagePromptLabel, desc: t.imagePromptDesc, icon: ImageIcon, color: "from-blue-500/20 to-cyan-500/20" },
-                  { id: 'generateVideoPrompt', label: t.videoPromptLabel, desc: t.videoPromptDesc, icon: Video, color: "from-purple-500/20 to-pink-500/20" },
-                  { id: 'generateThumbnail', label: t.thumbnailLabel, desc: t.thumbnailDesc, icon: Palette, color: "from-orange-500/20 to-red-500/20" },
-                  { id: 'generateDescription', label: t.descLabel, desc: t.descriptionDesc, icon: FileText, color: "from-green-500/20 to-emerald-500/20" },
-                  { id: 'generateTags', label: t.tagsLabel, desc: t.tagsDesc, icon: Tag, color: "from-yellow-500/20 to-orange-500/20" },
-                  { id: 'generateScript', label: t.scriptLabel, desc: t.scriptDesc, icon: ScrollText, color: "from-indigo-500/20 to-blue-500/20" },
-                  { id: 'generateSeoChecklist', label: t.seoChecklistLabel, desc: t.seoChecklistDesc, icon: CheckCircle2, color: "from-teal-500/20 to-cyan-500/20" },
-                  { id: 'generateKeywords', label: t.keywordsLabel, desc: t.keywordsDesc, icon: Search, color: "from-rose-500/20 to-pink-500/20" },
+                  { id: 'generateImagePrompt', label: t.imagePromptLabel, desc: t.imagePromptDesc, icon: ImageIcon, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateVideoPrompt', label: t.videoPromptLabel, desc: t.videoPromptDesc, icon: Video, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateThumbnail', label: t.thumbnailLabel, desc: t.thumbnailDesc, icon: Palette, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateDescription', label: t.descLabel, desc: t.descriptionDesc, icon: FileText, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateTags', label: t.tagsLabel, desc: t.tagsDesc, icon: Tag, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateScript', label: t.scriptLabel, desc: t.scriptDesc, icon: ScrollText, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateSeoChecklist', label: t.seoChecklistLabel, desc: t.seoChecklistDesc, icon: CheckCircle2, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateKeywords', label: t.keywordsLabel, desc: t.keywordsDesc, icon: Search, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
                 ].map((opt) => (
                   <motion.div 
                     whileHover={{ scale: 1.02, y: -5 }}
@@ -3211,20 +3229,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className={cn(
                       "relative group cursor-pointer rounded-2xl p-4 transition-all duration-300 border overflow-hidden flex flex-col gap-4",
                       options[opt.id as keyof typeof options] 
-                        ? "bg-brand-purple/10 border-brand-purple shadow-lg shadow-brand-purple/5" 
-                        : "bg-[var(--bg-card)]/40 border-[var(--border-main)] hover:border-brand-purple/30"
+                        ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-lg shadow-[var(--accent-main)]/5" 
+                        : "bg-[var(--bg-card)]/40 border-[var(--border-main)] hover:border-[var(--accent-main)]/30"
                     )}
                   >
                     <div className={cn(
                       "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm",
-                      options[opt.id as keyof typeof options] ? "bg-brand-purple text-white" : "bg-[var(--bg-card)]/60 text-[var(--text-muted)] group-hover:text-brand-purple"
+                      options[opt.id as keyof typeof options] ? "bg-[var(--accent-main)] text-black" : "bg-[var(--bg-card)]/60 text-[var(--text-muted)] group-hover:text-[var(--accent-main)]"
                     )}>
                       <opt.icon size={24} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={cn(
                         "font-bold text-xs transition-colors uppercase tracking-widest",
-                        options[opt.id as keyof typeof options] ? "text-brand-purple" : "text-[var(--text-main)]"
+                        options[opt.id as keyof typeof options] ? "text-[var(--accent-main)]" : "text-[var(--text-main)]"
                       )}>
                         {opt.label}
                       </h3>
@@ -3233,7 +3251,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </p>
                     </div>
                     {options[opt.id as keyof typeof options] && (
-                      <div className="absolute top-3 right-3 w-5 h-5 shrink-0 rounded-full bg-brand-purple flex items-center justify-center shadow-lg">
+                      <div className="absolute top-3 right-3 w-5 h-5 shrink-0 rounded-full bg-[var(--accent-main)] flex items-center justify-center shadow-lg">
                         <Check size={12} className="text-white" />
                       </div>
                     )}
@@ -3258,7 +3276,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: lang.id as any }))}
                       className={cn(
                         "flex-1 py-2 rounded-xl border border-brand-border text-sm transition-all",
-                        options.language === lang.id ? "bg-brand-orange text-white border-brand-orange shadow-[0_0_10px_rgba(242,125,38,0.3)]" : "bg-black/20 text-slate-400"
+                        options.language === lang.id ? "bg-[var(--accent-main)] text-black border-[var(--accent-main)] shadow-[0_0_10px_rgba(var(--accent-main-rgb),0.3)]" : "bg-black/20 text-slate-400"
                       )}
                     >
                       {lang.id === 'bn' && '🇧🇩 '}
@@ -3276,9 +3294,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Clock size={14} className="text-brand-orange" /> {t.videoDuration}
+                            <Clock size={14} className="text-[var(--accent-main)]" /> {t.videoDuration}
                           </label>
-                          <span className="text-brand-orange font-semibold text-sm">
+                          <span className="text-[var(--accent-main)] font-semibold text-sm">
                             {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
                           </span>
                         </div>
@@ -3298,7 +3316,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               scriptCharacterCount: chars
                             }));
                           }}
-                          className="w-full h-1.5 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-orange hover:accent-brand-orange/80 transition-all"
+                          className="w-full h-1.5 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-[var(--accent-main)] hover:accent-[var(--accent-main)]/80 transition-all"
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold">
                           <span>8s</span>
@@ -3309,9 +3327,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Type size={14} className="text-brand-purple" /> {t.scriptCharacters}
+                            <Type size={14} className="text-[var(--accent-main)]" /> {t.scriptCharacters}
                           </label>
-                          <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                          <span className="text-[var(--accent-main)] font-semibold text-sm bg-[var(--accent-main)]/10 px-3 py-1 rounded-lg">
                             {options.scriptCharacterCount} {t.charLimit}
                           </span>
                         </div>
@@ -3322,7 +3340,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           step="50"
                           value={options.scriptCharacterCount}
                           onChange={(e) => setOptions(prev => ({ ...prev, scriptCharacterCount: parseInt(e.target.value) }))}
-                          className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
+                          className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-[var(--accent-main)] hover:accent-[var(--accent-main)]/80 transition-all shadow-inner"
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                           <span>100</span>
@@ -3336,9 +3354,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                          <Clock size={14} className="text-brand-purple" /> {t.videoDuration}
+                          <Clock size={14} className="text-[var(--accent-main)]" /> {t.videoDuration}
                         </label>
-                        <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                        <span className="text-[var(--accent-main)] font-semibold text-sm bg-[var(--accent-main)]/10 px-3 py-1 rounded-lg">
                           {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
                         </span>
                       </div>
@@ -3358,7 +3376,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             scriptWordCount: words
                           }));
                         }}
-                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
+                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-[var(--accent-main)] hover:accent-[var(--accent-main)]/80 transition-all shadow-inner"
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>8s</span>
@@ -3371,9 +3389,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                          <Type size={14} className="text-brand-purple" /> {t.scriptWords}
+                          <Type size={14} className="text-[var(--accent-main)]" /> {t.scriptWords}
                         </label>
-                        <span className="text-brand-purple font-semibold text-sm bg-brand-purple/10 px-3 py-1 rounded-lg">
+                        <span className="text-[var(--accent-main)] font-semibold text-sm bg-[var(--accent-main)]/10 px-3 py-1 rounded-lg">
                           {options.scriptWordCount} {t.words}
                         </span>
                       </div>
@@ -3393,7 +3411,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             videoDuration: duration
                           }));
                         }}
-                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-brand-purple hover:accent-brand-purple/80 transition-all shadow-inner"
+                        className="w-full h-2 bg-[var(--bg-card)]/60 rounded-lg appearance-none cursor-pointer accent-[var(--accent-main)] hover:accent-[var(--accent-main)]/80 transition-all shadow-inner"
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>100w</span>
@@ -3409,7 +3427,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {currentView === 'image' && (
             <section className="glass-card p-8 space-y-8">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                <ImageIcon size={18} className="text-brand-purple" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
+                <ImageIcon size={18} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {['1:1', '3:4', '4:3', '9:16', '16:9', '2:3', '3:2', '21:9'].map((ratio) => (
@@ -3421,8 +3439,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className={cn(
                       "py-3 rounded-xl border text-xs font-semibold transition-all shadow-sm",
                       options.aspectRatio === ratio 
-                        ? "bg-brand-purple text-white border-brand-purple shadow-md shadow-brand-purple/20" 
-                        : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] border-[var(--border-main)] hover:border-brand-purple/30"
+                        ? "bg-[var(--accent-main)] text-black border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" 
+                        : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--accent-main)]/30"
                     )}
                   >
                     {ratio}
@@ -3439,16 +3457,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             disabled={loading || (!(currentView === 'home' ? (topics.home || topics.promptGen) : currentTopic) && !currentSelectedMedia)}
             className="w-full relative overflow-hidden rounded-2xl p-[2px] group shadow-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[shine_3s_linear_infinite]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-main)] via-[var(--accent-main)]/80 to-[var(--accent-main)] opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[shine_3s_linear_infinite]" />
             <div className="relative bg-[var(--bg-main)] rounded-2xl px-8 py-5 flex items-center justify-center gap-3 transition-colors duration-500 group-hover:bg-[var(--bg-main)]/80">
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin text-brand-purple" size={24} /> 
-                  <span className="text-lg font-bold tracking-wider text-brand-purple uppercase">{t.processing}</span>
+                  <Loader2 className="animate-spin text-[var(--accent-main)]" size={24} /> 
+                  <span className="text-lg font-bold tracking-wider text-[var(--accent-main)] uppercase">{t.processing}</span>
                 </>
               ) : (
                 <>
-                  <Zap size={24} className="text-brand-purple group-hover:rotate-12 transition-transform" /> 
+                  <Zap size={24} className="text-[var(--accent-main)] group-hover:rotate-12 transition-transform" /> 
                   <span className="text-lg font-bold tracking-wider text-[var(--text-main)] uppercase">
                     {
                       currentView === 'video' ? t.genPrompt : 
@@ -3475,12 +3493,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               animate={{ opacity: 1, y: 0 }}
               className="glass-card p-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col relative overflow-hidden group"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)] opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="flex items-center justify-between mb-8">
                 <div className="space-y-1">
                   <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2 text-[var(--text-main)]">
-                    <Sparkles size={20} className="text-brand-purple" /> 
+                    <Sparkles size={20} className="text-[var(--accent-main)]" /> 
                     {t.outputPreview}
                   </h2>
                   <p className="text-xs font-medium text-[var(--text-muted)] ml-7">
@@ -3514,7 +3532,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {!currentResult && !loading && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-6">
-                  <div className="w-24 h-24 rounded-3xl bg-brand-orange/5 flex items-center justify-center text-brand-orange/20 animate-float">
+                  <div className="w-24 h-24 rounded-3xl bg-[var(--accent-main)]/5 flex items-center justify-center text-[var(--accent-main)]/20 animate-float">
                     <Sparkles size={48} />
                   </div>
                   <div className="space-y-2">
@@ -3525,10 +3543,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {/* Quick Suggestions Bento Grid */}
                   <div className="grid grid-cols-2 gap-4 w-full pt-8">
                     {[
-                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-brand-purple", bg: "bg-brand-purple/10", border: "border-brand-purple/20" },
-                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-brand-blue-glow", bg: "bg-brand-blue-glow/10", border: "border-brand-blue-glow/20" },
-                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-brand-orange", bg: "bg-brand-orange/10", border: "border-brand-orange/20" }
+                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
+                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
+                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
+                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" }
                     ].map((item, i) => (
                       <button 
                         key={i}
@@ -3554,13 +3572,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               {loading && (
                   <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-[var(--bg-card)]/30 rounded-3xl border border-[var(--border-main)] backdrop-blur-sm relative overflow-hidden">
                     {/* Background glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand-purple/10 rounded-full blur-[80px]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[var(--accent-main)]/10 rounded-full blur-[80px]" />
                     
                     <div className="relative z-10">
                       <motion.div 
                         animate={{ rotate: 360 }}
                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="w-32 h-32 rounded-full border border-[var(--border-main)] border-t-brand-purple/50 border-r-brand-purple/30"
+                        className="w-32 h-32 rounded-full border border-[var(--border-main)] border-t-[var(--accent-main)]/50 border-r-[var(--accent-main)]/30"
                       />
                       <motion.div 
                         animate={{ rotate: -360 }}
@@ -3572,7 +3590,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <motion.div
                             animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-xl bg-gradient-to-br from-brand-purple/20 to-transparent flex items-center justify-center text-brand-purple border border-brand-purple/20 shadow-[0_0_30px_rgba(139,92,246,0.2)] backdrop-blur-md"
+                            className="w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--accent-main)]/20 to-transparent flex items-center justify-center text-[var(--accent-main)] border border-[var(--accent-main)]/20 shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)] backdrop-blur-md"
                           >
                             <Sparkles size={32} />
                           </motion.div>
@@ -3582,15 +3600,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="w-full max-w-sm space-y-6 z-10">
                       <div className="flex justify-between items-end">
-                        <div className="text-xs uppercase tracking-wider font-semibold text-brand-purple h-4">
+                        <div className="text-xs uppercase tracking-wider font-semibold text-[var(--accent-main)] h-4">
                           <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="typewriter-text" />
                         </div>
                         <span className="text-xs font-mono text-[var(--text-muted)]">{Math.round(loadingProgress)}%</span>
                       </div>
                       <div className="h-1.5 w-full bg-[var(--bg-main)] rounded-full overflow-hidden border border-[var(--border-main)] relative">
-                        <div className="absolute inset-0 bg-brand-purple/10" />
+                        <div className="absolute inset-0 bg-[var(--accent-main)]/10" />
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple relative"
+                          className="h-full bg-gradient-to-r from-[var(--accent-main)] via-[var(--accent-main)]/80 to-[var(--accent-main)] relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
                           transition={{ type: "spring", stiffness: 40, damping: 15 }}
@@ -3605,7 +3623,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             className={cn(
                               "w-1.5 h-1.5 rounded-full transition-all duration-700",
                               i <= loadingStep 
-                                ? "bg-brand-purple shadow-[0_0_10px_rgba(139,92,246,0.5)] scale-125" 
+                                ? "bg-[var(--accent-main)] shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)] scale-125" 
                                 : "bg-[var(--border-main)]"
                             )}
                           />
@@ -3633,7 +3651,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           onClick={downloadPdf}
-                          className="py-3.5 rounded-xl bg-linear-to-r from-brand-purple to-indigo-600 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                          className="py-3.5 rounded-xl bg-linear-to-r from-[var(--accent-main)] to-[var(--accent-main)]/80 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                         >
                           <Download size={18} />
                           {uiLang === 'en' ? "PDF" : "পিডিএফ"}
@@ -3657,7 +3675,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <a 
                               href={currentResult.imageUrl} 
                               download="generated-image.png"
-                              className="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center text-white hover:scale-110 transition-transform"
+                              className="w-10 h-10 rounded-full bg-[var(--accent-main)] flex items-center justify-center text-white hover:scale-110 transition-transform"
                             >
                               <Download size={20} />
                             </a>
@@ -3668,7 +3686,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : currentResult.audioUrl ? (
                       <div className="space-y-6 py-4">
                         <div className="flex flex-col items-center gap-6">
-                          <div className="w-20 h-20 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange animate-pulse">
+                          <div className="w-20 h-20 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] animate-pulse">
                             <Volume2 size={40} />
                           </div>
                           <audio controls src={currentResult.audioUrl} className="w-full" />
@@ -3676,7 +3694,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <a 
                             href={currentResult.audioUrl} 
                             download="voice-over.wav"
-                            className="flex items-center gap-2 px-6 py-3 bg-brand-orange text-white rounded-xl font-semibold hover:shadow-[0_0_20px_rgba(242,125,38,0.4)] transition-all"
+                            className="flex items-center gap-2 px-6 py-3 bg-[var(--accent-main)] text-white rounded-xl font-semibold hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)] transition-all"
                           >
                             <Download size={18} /> {t.downloadAudio}
                           </a>
@@ -3687,20 +3705,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {currentResult.titles.map((t: any, idx: number) => (
                           <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group glass-card shadow-sm">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">Variation {idx + 1}</h3>
+                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">Variation {idx + 1}</h3>
                             </div>
                             <div className="space-y-3">
-                              <div className="p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/20 space-y-1">
-                                <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold">SEO Title</label>
+                              <div className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">SEO Title</label>
                                 <div className="text-sm font-medium text-[var(--text-main)]">{t.title}</div>
-                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-xs text-brand-purple hover:text-brand-purple-light flex items-center gap-1">
+                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
                                   {copied === `title-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
-                              <div className="p-4 rounded-xl bg-brand-orange/5 border border-brand-orange/20 space-y-1">
-                                <label className="text-[10px] uppercase tracking-wider text-brand-orange font-semibold">High CTR Title</label>
+                              <div className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-1">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">High CTR Title</label>
                                 <div className="text-sm font-bold text-[var(--text-main)]">{t.highCtrTitle}</div>
-                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-xs text-brand-orange hover:text-brand-orange-light flex items-center gap-1">
+                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
                                   {copied === `highCtr-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
@@ -3713,10 +3731,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {currentResult.prompts.map((prompt: string, idx: number) => (
                           <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">Option {idx + 1}</h3>
+                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">Option {idx + 1}</h3>
                               <button 
                                 onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                               >
                                 {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
@@ -3732,10 +3750,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {currentResult.ideas.map((idea: any, idx: number) => (
                           <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-brand-purple font-semibold text-xs uppercase tracking-wider">{idx + 1}. {idea.title}</h3>
+                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">{idx + 1}. {idea.title}</h3>
                               <button 
                                 onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                               >
                                 {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
@@ -3748,8 +3766,40 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     ) : (
                       <div className="space-y-12">
+                        {/* Featured Fields */}
+                        {(currentResult.videoTitle || currentResult.imagePrompt || currentResult.videoPrompt) && (
+                          <div className="space-y-6">
+                            {currentResult.videoTitle && (
+                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Video Title</label>
+                                <div className="text-lg font-bold text-[var(--text-main)]">{currentResult.videoTitle}</div>
+                                <button onClick={() => copyToClipboard(currentResult.videoTitle, 'videoTitle')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                                  {copied === 'videoTitle' ? <Check size={14} /> : <Copy size={14} />} Copy
+                                </button>
+                              </div>
+                            )}
+                            {currentResult.imagePrompt && (
+                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Image Prompt</label>
+                                <div className="text-sm text-[var(--text-main)] leading-relaxed">{currentResult.imagePrompt}</div>
+                                <button onClick={() => copyToClipboard(currentResult.imagePrompt, 'imagePrompt')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                                  {copied === 'imagePrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
+                                </button>
+                              </div>
+                            )}
+                            {currentResult.videoPrompt && (
+                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Video Prompt</label>
+                                <div className="text-sm text-[var(--text-main)] leading-relaxed">{currentResult.videoPrompt}</div>
+                                <button onClick={() => copyToClipboard(currentResult.videoPrompt, 'videoPrompt')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                                  {copied === 'videoPrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         {Object.entries(currentResult).map(([key, value]) => {
-                          if (!value) return null;
+                          if (!value || ['videoTitle', 'imagePrompt', 'videoPrompt'].includes(key)) return null;
                           
                           // Handle nested subtitles object
                           if (key === 'subtitles' && typeof value === 'object' && value !== null) {
@@ -3766,8 +3816,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               return (
                                 <div key={`subtitle-${langKey}`} className="space-y-3 group">
                                   <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
-                                      <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                    <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
+                                      <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
                                         <Languages size={12} />
                                       </div>
                                       {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
@@ -3783,20 +3833,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           a.click();
                                           URL.revokeObjectURL(url);
                                         }}
-                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
                                         title="Download .srt"
                                       >
                                         <Download size={18} />
                                       </button>
                                       <button 
                                         onClick={() => copyToClipboard(String(langValue), `subtitle-${langKey}`)}
-                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
                                       >
                                         {copied === `subtitle-${langKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                       </button>
                                     </div>
                                   </div>
-                                  <div className="p-8 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-sm group-hover:border-brand-purple/20 transition-all duration-500">
+                                  <div className="p-8 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-sm group-hover:border-[var(--accent-main)]/20 transition-all duration-500">
                                     <TypewriterText text={String(langValue)} className="typewriter-text" />
                                   </div>
                                 </div>
@@ -3809,7 +3859,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             return (
                               <div key="metadata-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
                                 <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
-                                  <FileText size={16} className="text-brand-orange" />
+                                  <FileText size={16} className="text-[var(--accent-main)]" />
                                   {uiLang === 'en' ? "Video Metadata" : "ভিডিও মেটাডেটা"}
                                 </h3>
                                 {Object.entries(value).map(([mKey, mValue]) => {
@@ -3828,21 +3878,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   if (mKey === 'titles' && Array.isArray(mValue)) {
                                     return (
                                       <div key={`${key}-${mKey}`} className="space-y-4">
-                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2 px-2">
+                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2 px-2">
                                           <mConfig.icon size={12} /> {mConfig.label}
                                         </label>
                                         <div className="grid grid-cols-1 gap-3">
                                           {mValue.map((t: any, idx: number) => (
-                                            <div key={idx} className="p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/20 space-y-2">
+                                            <div key={idx} className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
                                               <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-bold text-brand-purple/60 uppercase">Variation {idx + 1}</span>
-                                                <button onClick={() => copyToClipboard(`${t.title}\n${t.highCtrTitle}`, `titles-${idx}`)} className="text-[var(--text-muted)] hover:text-brand-purple transition-colors">
+                                                <span className="text-[10px] font-bold text-[var(--accent-main)]/60 uppercase">Variation {idx + 1}</span>
+                                                <button onClick={() => copyToClipboard(`${t.title}\n${t.highCtrTitle}`, `titles-${idx}`)} className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors">
                                                   {copied === `titles-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                                                 </button>
                                               </div>
                                               <div className="space-y-1">
-                                                <div className="text-sm font-medium text-[var(--text-main)]"><span className="text-brand-purple/40 mr-1">SEO:</span> {t.title}</div>
-                                                <div className="text-sm font-bold text-[var(--text-main)]"><span className="text-brand-orange/40 mr-1">CTR:</span> {t.highCtrTitle}</div>
+                                                <div className="text-sm font-medium text-[var(--text-main)]"><span className="text-[var(--accent-main)]/40 mr-1">SEO:</span> {t.title}</div>
+                                                <div className="text-sm font-bold text-[var(--text-main)]"><span className="text-[var(--accent-main)]/40 mr-1">CTR:</span> {t.highCtrTitle}</div>
                                               </div>
                                             </div>
                                           ))}
@@ -3856,8 +3906,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   // Make title more prominent
                                   if (mKey === 'title' || mKey === 'highCtrTitle') {
                                     return (
-                                      <div key={`${key}-${mKey}`} className="p-4 rounded-2xl bg-brand-purple/5 border border-brand-purple/20 space-y-2">
-                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
+                                      <div key={`${key}-${mKey}`} className="p-4 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
+                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
                                           <mConfig.icon size={12} /> {mConfig.label}
                                         </label>
                                         <div className="text-lg font-bold text-[var(--text-main)]">
@@ -3865,7 +3915,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         </div>
                                         <button 
                                           onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                          className="text-xs text-brand-purple hover:text-brand-purple-light flex items-center gap-1"
+                                          className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1"
                                         >
                                           {copied === `${key}-${mKey}` ? <Check size={14} /> : <Copy size={14} />}
                                           {uiLang === 'en' ? "Copy Title" : "শিরোনাম কপি করুন"}
@@ -3877,15 +3927,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   return (
                                     <div key={`${key}-${mKey}`} className="space-y-2 group">
                                       <div className="flex items-center justify-between px-2">
-                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
-                                          <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
+                                          <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
                                             <mConfig.icon size={12} />
                                           </div>
                                           {mConfig.label}
                                         </label>
                                         <button 
                                           onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                          className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
                                         >
                                           {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                         </button>
@@ -3905,7 +3955,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             return (
                               <div key="social-media-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
                                 <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
-                                  <Share2 size={16} className="text-brand-purple" />
+                                  <Share2 size={16} className="text-[var(--accent-main)]" />
                                   {uiLang === 'en' ? "Social Media Captions" : "সোশ্যাল মিডিয়া ক্যাপশন"}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3916,7 +3966,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       instagram: { label: "Instagram", icon: Instagram, color: "text-pink-600" },
                                       tiktok: { label: "TikTok", icon: Video, color: "text-black" },
                                     };
-                                    const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-brand-purple" };
+                                    const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-[var(--accent-main)]" };
                                     
                                     return (
                                       <div key={`social-${sKey}`} className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
@@ -3927,7 +3977,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           </div>
                                           <button 
                                             onClick={() => copyToClipboard(String(sValue), `social-${sKey}`)}
-                                            className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                            className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                                           >
                                             {copied === `social-${sKey}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                           </button>
@@ -3970,26 +4020,26 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             return (
                               <div key="scene-breakdown" className="space-y-6 mt-4">
                                 <div className="flex items-center gap-3 pb-2 border-b border-[var(--border-main)]">
-                                  <Film className="text-brand-orange" size={20} />
+                                  <Film className="text-[var(--accent-main)]" size={20} />
                                   <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                                     {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
                                   </h3>
                                 </div>
                                 <div className="space-y-4">
                                   {value.map((scene: any, idx: number) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-brand-purple/30 transition-all group glass-card shadow-sm">
+                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-[var(--accent-main)]/30 transition-all group glass-card shadow-sm">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                          <div className="w-10 h-10 rounded-xl bg-brand-purple/20 flex items-center justify-center text-brand-purple font-semibold text-sm shadow-inner">
+                                          <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/20 flex items-center justify-center text-[var(--accent-main)] font-semibold text-sm shadow-inner">
                                             {scene.scene || idx + 1}
                                           </div>
                                           <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                                            <Clock size={14} className="text-brand-purple" /> {scene.time || "0:00"}
+                                            <Clock size={14} className="text-[var(--accent-main)]" /> {scene.time || "0:00"}
                                           </div>
                                         </div>
                                         <button 
                                           onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
-                                          className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                          className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
                                         >
                                           {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                         </button>
@@ -3999,7 +4049,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         <div className="space-y-3">
                                           <div className="flex items-center justify-between">
                                             <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                                              <MessageSquare size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
+                                              <MessageSquare size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
                                             </label>
                                             <div className="flex items-center gap-2">
                                               {sceneAudioUrls[`scene-${idx}`] ? (
@@ -4013,7 +4063,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                                   onClick={() => handleSceneVoiceOver(idx, scene.script)}
                                                   disabled={loadingSceneAudio === `scene-${idx}`}
                                                   className={cn(
-                                                    "text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/20 transition-all flex items-center gap-2",
+                                                    "text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-[var(--accent-main)]/10 text-[var(--accent-main)] border border-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/20 transition-all flex items-center gap-2",
                                                     loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
                                                   )}
                                                 >
@@ -4033,9 +4083,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         </div>
                                         <div className="space-y-3">
                                           <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                                            <Eye size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
+                                            <Eye size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
                                           </label>
-                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-brand-purple/5 p-4 rounded-xl border border-brand-purple/10">
+                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-[var(--accent-main)]/5 p-4 rounded-xl border border-[var(--accent-main)]/10">
                                             {scene.visual}
                                           </p>
                                         </div>
@@ -4072,8 +4122,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           return (
                             <div key={key} className="space-y-3 group">
                               <div className="flex items-center justify-between px-2">
-                                <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2">
-                                  <div className="w-6 h-6 rounded-lg bg-brand-purple/10 flex items-center justify-center">
+                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
                                     <config.icon size={12} />
                                   </div>
                                   {config.label}
@@ -4104,7 +4154,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       </button>
                                       <button 
                                         onClick={() => shareScript('native', String(value))}
-                                        className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
                                         title="Share"
                                       >
                                         <Share2 size={18} />
@@ -4127,13 +4177,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         copyToClipboard(String(value), key);
                                       }
                                     }}
-                                    className="text-[var(--text-muted)] hover:text-brand-purple transition-all hover:scale-110"
+                                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
                                   >
                                     {copied === key ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                   </button>
                                 </div>
                               </div>
-                              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-brand-purple/20 transition-all duration-500">
+                              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-[var(--accent-main)]/20 transition-all duration-500">
                                 {key === 'keywords' && Array.isArray(value) ? (
                                   <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
@@ -4146,8 +4196,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       </thead>
                                       <tbody>
                                         {value.map((kw: any, i: number) => (
-                                          <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-brand-purple/5 transition-colors">
-                                            <td className="py-3 px-4 font-bold text-brand-purple">{kw.keyword}</td>
+                                          <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-[var(--accent-main)]/5 transition-colors">
+                                            <td className="py-3 px-4 font-bold text-[var(--accent-main)]">{kw.keyword}</td>
                                             <td className="py-3 px-4">
                                               <span className={cn(
                                                 "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter",
@@ -4188,7 +4238,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 {relatedIdeas.length > 0 && (
                     <div className="mt-10 p-8 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card shadow-2xl">
                       <h3 className="text-xl font-bold tracking-tighter flex items-center gap-3 mb-6 text-[var(--text-main)]">
-                        <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                           <Sparkles size={20} />
                         </div>
                         {uiLang === 'en' ? "Related Video Ideas" : "সম্পর্কিত ভিডিও আইডিয়া"}
@@ -4203,9 +4253,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
                               handleGenerate();
                             }}
-                            className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/30 transition-all text-left glass-card group"
+                            className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/30 transition-all text-left glass-card group"
                           >
-                            <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-purple transition-colors">{idea.title}</h4>
+                            <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{idea.title}</h4>
                             <p className="text-xs text-[var(--text-muted)] mt-2 leading-relaxed">{idea.description}</p>
                           </motion.button>
                         ))}
@@ -4241,18 +4291,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className="relative w-full max-w-lg glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
                   
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                      <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                         <Globe size={24} />
                       </div>
                       <span>{t.settings}</span>
                     </h2>
                     <button 
                       onClick={() => setShowSettings(false)}
-                      className="p-2 text-[var(--text-muted)] hover:text-brand-purple transition-colors rounded-full hover:bg-[var(--bg-main)]"
+                      className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors rounded-full hover:bg-[var(--bg-main)]"
                     >
                       <X size={24} />
                     </button>
@@ -4262,7 +4312,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     {/* Theme Selection */}
                     <div className="space-y-4">
                       <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
-                        <Palette size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
+                        <Palette size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
                       </label>
                       <div className="grid grid-cols-3 gap-4 p-2 bg-[var(--bg-card)]/40 rounded-[1.5rem] border border-[var(--border-main)] shadow-inner">
                         {[
@@ -4277,13 +4327,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             onClick={() => setTheme(t.id as any)}
                             className={cn(
                               "relative py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
-                              theme === t.id ? "text-brand-purple" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                              theme === t.id ? "text-[var(--accent-main)]" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
                             )}
                           >
                             {theme === t.id && (
                               <motion.div
                                 layoutId="activeTheme"
-                                className="absolute inset-0 bg-brand-purple/10 border border-brand-purple/20 rounded-2xl -z-10 shadow-lg shadow-brand-purple/10"
+                                className="absolute inset-0 bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 rounded-2xl -z-10 shadow-lg shadow-[var(--accent-main)]/10"
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                               />
                             )}
@@ -4301,17 +4351,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {/* API Keys List */}
                       <div className="space-y-4">
                         <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
-                          <Zap size={14} className="text-brand-purple" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
+                          <Zap size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
                         </label>
                         
                         <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                           {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma', 'openrouter'] as AIProvider[]).map((p) => (
-                            <div key={p} className="p-5 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group hover:border-brand-purple/30 transition-all glass-card">
+                            <div key={p} className="p-5 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group hover:border-[var(--accent-main)]/30 transition-all glass-card">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                   <div className={cn(
                                     "w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-inner",
-                                    aiProvider === p ? "bg-brand-purple text-white" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)]"
+                                    aiProvider === p ? "bg-[var(--accent-main)] text-white" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)]"
                                   )}>
                                     {p.charAt(0)}
                                   </div>
@@ -4340,7 +4390,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   <button
                                     onClick={() => testConnection(p)}
                                     disabled={testingConnection[p]}
-                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-brand-purple hover:border-brand-purple/30 transition-all disabled:opacity-50"
+                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-main)] hover:border-[var(--accent-main)]/30 transition-all disabled:opacity-50"
                                   >
                                     {testingConnection[p] ? <RefreshCw size={12} className="animate-spin" /> : "Test"}
                                   </button>
@@ -4348,7 +4398,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     onClick={() => setAiProvider(p)}
                                     className={cn(
                                       "px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all",
-                                      aiProvider === p ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                                      aiProvider === p ? "bg-[var(--accent-main)] text-white shadow-lg shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)] hover:text-[var(--text-main)]"
                                     )}
                                   >
                                     {aiProvider === p ? "Active" : "Select"}
@@ -4360,7 +4410,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 <input 
                                   type="password" 
                                   placeholder={`${p.toUpperCase()} API Key...`}
-                                  className="w-full bg-[var(--bg-card)]/30 border border-[var(--border-main)] rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:border-brand-purple/50 transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50"
+                                  className="w-full bg-[var(--bg-card)]/30 border border-[var(--border-main)] rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:border-[var(--accent-main)]/50 transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50"
                                   value={
                                     p === 'gemini' ? customGeminiKey : 
                                     p === 'openai' ? customOpenaiKey : 
@@ -4402,7 +4452,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="flex flex-col gap-4 pt-6">
                       <button 
                         onClick={saveAIConfig}
-                        className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-brand-purple/20 hover:shadow-brand-purple/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-[var(--accent-main)] text-black font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-glow)] hover:shadow-[var(--accent-main)]/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                       >
                         <Save size={20} />
                         {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
@@ -4435,7 +4485,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                         <button 
                           onClick={downloadHistory}
-                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-brand-purple/10 hover:text-brand-purple hover:border-brand-purple/30 transition-all flex items-center justify-center gap-3"
+                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--accent-main)]/10 hover:text-[var(--accent-main)] hover:border-[var(--accent-main)]/30 transition-all flex items-center justify-center gap-3"
                         >
                           <Download size={16} /> {uiLang === 'en' ? "Export Data" : "ডেটা এক্সপোর্ট"}
                         </button>
@@ -4466,7 +4516,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
       <footer className="mt-12 text-center text-slate-600 text-xs pb-8 space-y-4">
         <div className="flex items-center justify-center gap-6">
           <div className="flex items-center gap-2 text-green-500/60 font-mono">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-main)] animate-pulse" />
             SYSTEM LIVE
           </div>
           <a 
@@ -4504,11 +4554,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(242, 125, 38, 0.2);
+          background: var(--accent-main);
+          opacity: 0.2;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(242, 125, 38, 0.4);
+          background: var(--accent-main);
+          opacity: 0.4;
         }
       `}} />
           </motion.div>
@@ -4532,12 +4584,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="relative w-full max-w-3xl glass-card p-6 sm:p-8 h-[85vh] flex flex-col overflow-hidden shadow-2xl"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
               
               <div className="flex flex-col gap-6 w-full mb-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                    <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                       <History size={20} />
                     </div>
                     <span>{uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}</span>
@@ -4545,7 +4597,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={downloadHistory} 
-                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-brand-purple hover:bg-[var(--bg-main)] transition-colors"
+                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--accent-main)] hover:bg-[var(--bg-main)] transition-colors"
                       title="Download History"
                     >
                       <Download size={20} />
@@ -4570,7 +4622,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <select 
                     value={historyFilter} 
                     onChange={(e) => setHistoryFilter(e.target.value)}
-                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
+                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-[var(--accent-main)]/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
                   >
                     <option value="all">All Categories</option>
                     <option value="idea">Idea Gen</option>
@@ -4592,7 +4644,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       placeholder="Search keywords..."
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-bold text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-brand-purple/50 transition-all placeholder:text-[var(--text-muted)]/50"
+                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-bold text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-[var(--accent-main)]/50 transition-all placeholder:text-[var(--text-muted)]/50"
                     />
                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40" />
                   </div>
@@ -4643,11 +4695,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           setResults(prev => ({ ...prev, [targetView]: item.result }));
                           setShowHistory(false);
                         }}
-                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-brand-purple/30 transition-all cursor-pointer group glass-card shadow-lg"
+                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/30 transition-all cursor-pointer group glass-card shadow-lg"
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                            <div className="w-8 h-8 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                               {item.type === 'idea' && <Lightbulb size={16} />}
                               {item.type === 'image' && <ImageIcon size={16} />}
                               {item.type === 'voice' && <Mic size={16} />}
@@ -4657,7 +4709,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {item.type === 'image-to-prompt' && <Search size={16} />}
                               {item.type === 'youtube' && <Video size={16} />}
                             </div>
-                            <span className="text-[10px] uppercase tracking-widest text-brand-purple font-bold">
+                            <span className="text-[10px] uppercase tracking-widest text-[var(--accent-main)] font-bold">
                               {
                                 item.type === 'youtube' ? (uiLang === 'en' ? 'YouTube AI' : 'ইউটিউব এআই') : 
                                 item.type === 'idea' ? t.ideaGenHistory : 
@@ -4675,7 +4727,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {format(item.timestamp, 'MMM d, HH:mm')}
                           </span>
                         </div>
-                        <p className="text-sm font-bold line-clamp-2 group-hover:text-brand-purple transition-colors text-[var(--text-main)] leading-relaxed">
+                        <p className="text-sm font-bold line-clamp-2 group-hover:text-[var(--accent-main)] transition-colors text-[var(--text-main)] leading-relaxed">
                           {item.topic}
                         </p>
                       </motion.div>
@@ -4705,18 +4757,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="relative w-full max-w-md glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-brand-purple" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
               
               <div className="flex items-center justify-between">
                 <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                  <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
                     <MessageCircle size={24} />
                   </div>
                   <span>{t.contact}</span>
                 </h2>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="p-2 text-[var(--text-muted)] hover:text-brand-purple transition-colors rounded-full hover:bg-[var(--bg-main)]"
+                  className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors rounded-full hover:bg-[var(--bg-main)]"
                 >
                   <X size={24} />
                 </button>
@@ -4727,8 +4779,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {uiLang === 'en' ? "Have questions or feedback? We'd love to hear from you. Our team is here to help you grow your channel." : "আপনার কি কোনো প্রশ্ন বা মতামত আছে? আমরা আপনার কথা শুনতে পছন্দ করব। আমাদের টিম আপনার চ্যানেল বড় করতে সাহায্য করার জন্য এখানে আছে।"}
                 </p>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-brand-purple/30 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-brand-purple/10 flex items-center justify-center text-brand-purple group-hover:scale-110 transition-transform">
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-[var(--accent-main)]/30 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:scale-110 transition-transform">
                       <Globe size={20} />
                     </div>
                     <div className="flex flex-col">
@@ -4736,8 +4788,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <span className="text-sm text-[var(--text-main)] font-bold">{APP_CONFIG.supportEmail}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-brand-orange/30 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center text-brand-orange group-hover:scale-110 transition-transform">
+                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-[var(--accent-main)]/30 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:scale-110 transition-transform">
                       <Facebook size={20} />
                     </div>
                     <div className="flex flex-col">
@@ -4748,7 +4800,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-brand-purple to-indigo-600 text-white font-bold text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(168,85,247,0.3)] hover:shadow-[0_25px_50px_rgba(168,85,247,0.5)] hover:-translate-y-1 transition-all active:scale-95"
+                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-[var(--accent-main)] to-[var(--accent-main)]/80 text-white font-bold text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(var(--accent-main-rgb),0.3)] hover:shadow-[0_25px_50px_rgba(var(--accent-main-rgb),0.5)] hover:-translate-y-1 transition-all active:scale-95"
                 >
                   {uiLang === 'en' ? "Close" : "বন্ধ করুন"}
                 </button>

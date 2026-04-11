@@ -315,12 +315,20 @@ const callAI = async (prompt: string, responseMimeType: string = "text/plain", r
   for (let i = 0; i <= retries; i++) {
     try {
       return await executeCall();
-    } catch (error) {
+    } catch (error: any) {
       console.warn(`AI call failed (attempt ${i + 1}/${retries + 1}):`, error);
       lastError = error;
+      
       if (i < retries) {
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        // If it's a rate limit error (429), use a longer delay
+        const isRateLimit = error?.status === 429 || 
+                           error?.message?.includes('429') || 
+                           error?.message?.includes('RESOURCE_EXHAUSTED') ||
+                           error?.message?.includes('quota');
+        
+        const baseDelay = isRateLimit ? 5000 : 1000;
+        const delay = Math.pow(2, i) * baseDelay;
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
@@ -379,8 +387,9 @@ export const generateContent = async (options: GenerationOptions) => {
               
               Special Instruction for Content Type: If the Content Type is 'shorts', focus on high-energy, fast-paced vertical content. If it's 'thumbnail', provide detailed visual descriptions for a high-CTR thumbnail. If it's 'titleIdea', provide 5 catchy, viral-style titles. If it's 'description', provide an SEO-optimized video description. If it's 'fullScript', provide a comprehensive video script with scene details.
               
-              Return the result as a strictly valid JSON object with keys: imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
+              Return the result as a strictly valid JSON object with keys: videoTitle, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
               
+              - videoTitle: A catchy, SEO-optimized title for the video.
               - sceneBreakdown: An array of objects, each representing a scene. Each object MUST have:
                 - 'scene': The scene number (1, 2, 3...).
                 - 'time': The timestamp range (e.g., "0:00 - 0:10").
@@ -637,6 +646,23 @@ export const generateVideoIdeas = async (niche: string, language: "bn" | "en" | 
 };
 
 export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = "bn", retries: number = 3) => {
+  // Check cache first
+  if (typeof window !== 'undefined') {
+    const cachedData = localStorage.getItem(`trending_topics_${language}`);
+    if (cachedData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedData);
+        const oneHour = 60 * 60 * 1000;
+        if (Date.now() - timestamp < oneHour) {
+          console.log("Returning cached trending topics");
+          return data;
+        }
+      } catch (e) {
+        console.warn("Failed to parse cached trending topics", e);
+      }
+    }
+  }
+
   if (isOffline) {
     return {
       trending: [
@@ -664,7 +690,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
       let text;
       if (provider === 'gemini') {
         const response = await ai.models.generateContent({
-          model: "gemini-3.1-flash-lite-preview",
+          model: "gemini-1.5-flash-lite", // Using a more stable and higher quota model
           contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             tools: [{ googleSearch: {} }],
@@ -676,7 +702,17 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
         text = await callAI(prompt, "application/json");
       }
 
-      return extractJson(text);
+      const result = extractJson(text);
+      
+      // Cache the successful result
+      if (typeof window !== 'undefined' && result && result.trending && result.trending.length > 0) {
+        localStorage.setItem(`trending_topics_${language}`, JSON.stringify({
+          data: result,
+          timestamp: Date.now()
+        }));
+      }
+      
+      return result;
     } catch (error: any) {
       console.warn(`Trending Topics call failed (attempt ${i + 1}/${retries + 1}):`, error);
       
@@ -690,9 +726,9 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
       }
       
       if (i === retries) {
-        console.error("Trending Topics Error after retries:", error);
+        console.warn("Trending Topics API failed after retries, using fallback data.");
         // Fallback to static trending topics if API fails
-        return {
+        const fallback = {
           trending: [
             { topic: "AI in 2026", reason: "Rapid advancements in multimodal models." },
             { topic: "Sustainable Living", reason: "Global focus on environment." },
@@ -702,6 +738,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
             { topic: "Cybersecurity", reason: "Growing importance of data protection." }
           ]
         };
+        return fallback;
       }
     }
   }
