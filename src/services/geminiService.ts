@@ -551,12 +551,18 @@ export const generateVoiceExtractor = async (
               4. A 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3).
               5. 'Subtitles' in standard SRT format translated into English, Bengali, Hindi, Spanish, and French.
               6. 'Metadata' including:
-                 - 'title': A standard descriptive title.
-                 - 'highCtrTitle': A viral, high CTR title to grab attention.
+                 - 'titles': An array of 5 unique, SEO-optimized title variations (each with 'title' and 'highCtrTitle').
                  - 'thumbnailTitle': Short, punchy text to put ON the thumbnail (thermal title).
+                 - 'thumbnailConcept': A creative concept idea for the thumbnail design.
                  - 'description': A long, SEO-optimized YouTube description.
                  - 'tags': A comma-separated list of SEO tags.
-                 - 'hashtags': A list of 3-5 trending hashtags.
+                 - 'hashtags': A list of 5-10 trending hashtags.
+              7. 'SocialMedia' captions:
+                 - 'facebook': An engaging caption for Facebook.
+                 - 'linkedin': A professional caption for LinkedIn.
+                 - 'instagram': A catchy caption with emojis for Instagram.
+                 - 'tiktok': A short, high-energy caption for TikTok.
+              8. 'RepurposeAddons': Creative ideas for repurposing this content (e.g., blog post, newsletter, podcast).
               
               Return the result as a strictly valid JSON object with the following keys:
               - 'translatedText': The highly accurate translation in ${languageName}.
@@ -565,7 +571,9 @@ export const generateVoiceExtractor = async (
               - 'imagePrompt': The image generation prompt in English.
               - 'videoPrompt': The video generation prompt in English.
               - 'subtitles': An object containing the SRT formatted subtitles. Keys must be 'en', 'bn', 'hi', 'es', 'fr' and values must be the SRT strings.
-              - 'metadata': An object containing title, highCtrTitle, thumbnailTitle, description, tags, hashtags.
+              - 'metadata': An object containing titles (array), thumbnailTitle, thumbnailConcept, description, tags, hashtags.
+              - 'socialMedia': An object containing facebook, linkedin, instagram, tiktok.
+              - 'repurposeAddons': An array of strings.
               - 'sceneBreakdown': An array of objects, each with 'scene', 'time', 'script', and 'visual' keys, providing a 1:1 mapping between script and visual prompts.
               
               CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
@@ -734,12 +742,18 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                    - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' that matches the video's content.
               5. 'Metadata' including:
-                 - 'title': A standard descriptive title.
-                 - 'highCtrTitle': A viral, high CTR title to grab attention.
+                 - 'titles': An array of 5 unique, SEO-optimized title variations (each with 'title' and 'highCtrTitle').
                  - 'thumbnailTitle': Short, punchy text to put ON the thumbnail (thermal title).
+                 - 'thumbnailConcept': A creative concept idea for the thumbnail design.
                  - 'description': A long, SEO-optimized YouTube description.
                  - 'tags': A comma-separated list of SEO tags.
-                 - 'hashtags': A list of 3-5 trending hashtags.
+                 - 'hashtags': A list of 5-10 trending hashtags.
+              6. 'SocialMedia' captions:
+                 - 'facebook': An engaging caption for Facebook.
+                 - 'linkedin': A professional caption for LinkedIn.
+                 - 'instagram': A catchy caption with emojis for Instagram.
+                 - 'tiktok': A short, high-energy caption for TikTok.
+              7. 'RepurposeAddons': Creative ideas for repurposing this content (e.g., blog post, newsletter, podcast).
               
               ${videoDuration ? `Target video duration: ${videoDuration} seconds.` : ""}
               ${scriptWordCount ? `Target script length: approximately ${scriptWordCount} words.` : ""}
@@ -749,7 +763,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               
               CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
               
-              Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with title, highCtrTitle, thumbnailTitle, description, tags, hashtags). 
+              Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with titles, thumbnailTitle, thumbnailConcept, description, tags, hashtags), socialMedia (object with facebook, linkedin, instagram, tiktok), repurposeAddons (array). 
               
               - 'sceneBreakdown': An array of objects, each with 'scene', 'time', 'script', and 'visual' keys, providing a 1:1 mapping between script and visual prompts.
               

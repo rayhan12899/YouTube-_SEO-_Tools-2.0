@@ -69,6 +69,8 @@ import {
   Info,
   CreditCard,
   Instagram,
+  Linkedin,
+  Repeat,
   Save,
   ArrowDownWideNarrow,
   ArrowUpWideNarrow,
@@ -3825,13 +3827,42 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 {Object.entries(value).map(([mKey, mValue]) => {
                                   const mLabelMap: any = {
                                     title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
+                                    titles: { label: uiLang === 'en' ? "Multiple Title Variations" : "একাধিক শিরোনাম বৈচিত্র্য", icon: LayoutTemplate },
                                     highCtrTitle: { label: t.highCtrTitle, icon: Zap },
                                     thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
+                                    thumbnailConcept: { label: uiLang === 'en' ? "Thumbnail Concept" : "থাম্বনেইল কনসেপ্ট", icon: Palette },
                                     description: { label: t.seoDescription, icon: FileText },
                                     tags: { label: t.tagsLabel, icon: Tag },
                                     hashtags: { label: t.hashtags, icon: Hash },
                                   };
                                   const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
+                                  
+                                  if (mKey === 'titles' && Array.isArray(mValue)) {
+                                    return (
+                                      <div key={`${key}-${mKey}`} className="space-y-4">
+                                        <label className="text-[10px] uppercase tracking-wider text-brand-purple font-semibold flex items-center gap-2 px-2">
+                                          <mConfig.icon size={12} /> {mConfig.label}
+                                        </label>
+                                        <div className="grid grid-cols-1 gap-3">
+                                          {mValue.map((t: any, idx: number) => (
+                                            <div key={idx} className="p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/20 space-y-2">
+                                              <div className="flex justify-between items-center">
+                                                <span className="text-[10px] font-bold text-brand-purple/60 uppercase">Variation {idx + 1}</span>
+                                                <button onClick={() => copyToClipboard(`${t.title}\n${t.highCtrTitle}`, `titles-${idx}`)} className="text-[var(--text-muted)] hover:text-brand-purple transition-colors">
+                                                  {copied === `titles-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                                </button>
+                                              </div>
+                                              <div className="space-y-1">
+                                                <div className="text-sm font-medium text-[var(--text-main)]"><span className="text-brand-purple/40 mr-1">SEO:</span> {t.title}</div>
+                                                <div className="text-sm font-bold text-[var(--text-main)]"><span className="text-brand-orange/40 mr-1">CTR:</span> {t.highCtrTitle}</div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
                                   const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
                                   
                                   // Make title more prominent
@@ -3877,6 +3908,71 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     </div>
                                   );
                                 })}
+                              </div>
+                            );
+                          }
+
+                          // Handle socialMedia object
+                          if (key === 'socialMedia' && typeof value === 'object' && value !== null) {
+                            return (
+                              <div key="social-media-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
+                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                                  <Share2 size={16} className="text-brand-purple" />
+                                  {uiLang === 'en' ? "Social Media Captions" : "সোশ্যাল মিডিয়া ক্যাপশন"}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {Object.entries(value).map(([sKey, sValue]) => {
+                                    const sLabelMap: any = {
+                                      facebook: { label: "Facebook", icon: Facebook, color: "text-blue-600" },
+                                      linkedin: { label: "LinkedIn", icon: Linkedin, color: "text-blue-700" },
+                                      instagram: { label: "Instagram", icon: Instagram, color: "text-pink-600" },
+                                      tiktok: { label: "TikTok", icon: Video, color: "text-black" },
+                                    };
+                                    const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-brand-purple" };
+                                    
+                                    return (
+                                      <div key={`social-${sKey}`} className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-2">
+                                            <sConfig.icon size={16} className={sConfig.color} />
+                                            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{sConfig.label}</span>
+                                          </div>
+                                          <button 
+                                            onClick={() => copyToClipboard(String(sValue), `social-${sKey}`)}
+                                            className="text-[var(--text-muted)] hover:text-brand-purple transition-colors"
+                                          >
+                                            {copied === `social-${sKey}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                          </button>
+                                        </div>
+                                        <p className="text-sm text-[var(--text-main)] leading-relaxed line-clamp-6">
+                                          {String(sValue)}
+                                        </p>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Handle repurposeAddons array
+                          if (key === 'repurposeAddons' && Array.isArray(value)) {
+                            return (
+                              <div key="repurpose-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
+                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                                  <Repeat size={16} className="text-emerald-500" />
+                                  {uiLang === 'en' ? "Content Repurposing Ideas" : "কন্টেন্ট রিপারপাসিং আইডিয়া"}
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {value.map((addon: string, idx: number) => (
+                                    <div key={idx} className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                        <Lightbulb size={16} />
+                                      </div>
+                                      <span className="text-sm font-medium text-[var(--text-main)]">{addon}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             );
                           }
