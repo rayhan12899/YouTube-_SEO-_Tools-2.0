@@ -2639,31 +2639,30 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </h2>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    {(showAllTopics ? POPULAR_TOPICS : POPULAR_TOPICS.slice(0, 6)).map((topic, idx) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {(showAllTopics ? POPULAR_TOPICS : POPULAR_TOPICS.slice(0, 8)).map((topic, idx) => (
                       <div key={idx} className="space-y-2">
                         <motion.button
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: idx * 0.02 }}
-                          whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-                          whileTap={{ scale: 0.98 }}
+                          whileHover={{ y: -2 }}
                           onClick={() => {
                             setSelectedCategory(selectedCategory === idx ? null : idx);
                             setTopics(prev => ({ ...prev, home: uiLang === 'bn' ? topic.bn : topic.en }));
                             toast.info(t.clickToUse);
                           }}
                           className={cn(
-                            "w-full flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border transition-all group",
+                            "w-full p-4 rounded-xl border transition-all duration-300 text-left group",
                             selectedCategory === idx 
-                              ? "bg-brand-orange/10 border-brand-orange/50 shadow-[0_0_20px_rgba(242,125,38,0.1)]" 
-                              : "bg-[var(--bg-card)] border-[var(--border-main)]/5 hover:border-brand-orange/30"
+                              ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)]/50 shadow-lg shadow-[var(--accent-glow)]" 
+                              : "bg-[var(--bg-card)] border-[var(--border-main)] hover:border-[var(--accent-main)]/30 hover:bg-[var(--bg-card)]/80"
                           )}
                         >
-                          <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
-                            {topic.icon}
-                          </span>
-                          <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">
+                          <span className={cn(
+                            "text-xs font-medium transition-colors",
+                            selectedCategory === idx ? "text-[var(--text-main)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-main)]"
+                          )}>
                             {uiLang === 'bn' ? topic.bn : topic.en}
                           </span>
                         </motion.button>
@@ -2679,13 +2678,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {topic.subs.map((sub, sIdx) => (
                                 <motion.button
                                   key={sIdx}
-                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(242, 125, 38, 0.2)" }}
+                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.2)" }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
                                     toast.success(`${sub} ${t.clickToUse}`);
                                   }}
-                                  className="py-2 px-3 rounded-lg bg-brand-orange/5 border border-brand-orange/20 text-[10px] font-bold text-brand-orange text-center"
+                                  className="py-2 px-3 rounded-lg bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 text-[10px] font-bold text-[var(--accent-main)] text-center"
                                 >
                                   {sub}
                                 </motion.button>
@@ -2764,20 +2763,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="prompt-generator-section">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
-                        <Sparkles size={20} className="text-brand-orange" />
+                        <Sparkles size={20} className="text-[var(--accent-main)]" />
                         <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
                           {t.promptGen}
                         </h2>
                       </div>
-                      <div className="text-[10px] font-semibold text-brand-orange uppercase tracking-widest">
+                      <div className="text-[10px] font-semibold text-[var(--accent-main)] uppercase tracking-widest">
                         {uiLang === 'en' ? 'AI Powered' : 'এআই চালিত'}
                       </div>
                     </div>
 
-                    <div className="glass-card p-6 space-y-6 border-brand-orange/20 bg-brand-orange/5">
+                    <div className="glass-card p-6 space-y-6 border-[var(--accent-main)]/20 bg-[var(--accent-main)]/5">
                       <div className="space-y-4">
                         <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                          <Sparkles size={14} className="text-brand-orange" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
+                          <Sparkles size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {['Video', 'Story', 'Image', 'Voice Over'].map((cat) => (
@@ -2788,7 +2787,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                               className={cn(
                                 "py-2.5 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all flex items-center justify-center gap-2",
-                                options.promptCategory === cat ? "bg-brand-orange text-white shadow-md shadow-brand-orange/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                                options.promptCategory === cat ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-glow)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                               )}
                             >
                               {options.promptCategory === cat && <Check size={14} />} 
