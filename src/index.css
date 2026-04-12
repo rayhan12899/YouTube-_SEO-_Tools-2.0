@@ -77,7 +77,7 @@
 
 @layer base {
   body {
-    @apply min-h-screen font-sans overflow-x-hidden selection:bg-hw-accent/30 selection:text-hw-accent bg-black text-white;
+    @apply min-h-screen font-sans overflow-x-hidden selection:bg-[var(--color-hw-accent)]/30 selection:text-[var(--color-hw-accent)] bg-black text-white;
     transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
