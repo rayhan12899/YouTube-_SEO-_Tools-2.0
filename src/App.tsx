@@ -991,7 +991,7 @@ export default function App() {
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             playNotificationSound();
           } else {
-            const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
+            const res = await analyzeImage(currentSelectedMedia, mediaMimeType, options.language);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1082,7 +1082,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             playNotificationSound();
           } else {
-            const res = await analyzeImage(currentSelectedMedia, mediaMimeType);
+            const res = await analyzeImage(currentSelectedMedia, mediaMimeType, options.language);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1164,7 +1164,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
               toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             } else {
-              res = await analyzeImage(base64, file.type);
+              res = await analyzeImage(base64, file.type, options.language);
               toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             }
             setResults(prev => ({ ...prev, [currentView]: res }));

@@ -159,12 +159,26 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
 };
 
 // Function to analyze image
-export const analyzeImage = async (imageData: string, mimeType: string): Promise<string> => {
+export const analyzeImage = async (imageData: string, mimeType: string, language: "bn" | "en" | "both" | "hi" = "bn"): Promise<any> => {
+  if (isOffline) {
+    return {
+      description: "This is a mock description of the uploaded image.",
+      keyElements: "Mock element 1, Mock element 2",
+      potentialUses: "Mock use 1, Mock use 2",
+      prompts: [
+        "A mock prompt to recreate this image.",
+        "Another mock prompt for AI generation.",
+        "A third creative mock prompt."
+      ]
+    };
+  }
+
   try {
     const base64Data = imageData.includes(',') ? imageData.split(',')[1] : imageData;
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
+        responseMimeType: "application/json",
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -180,11 +194,19 @@ export const analyzeImage = async (imageData: string, mimeType: string): Promise
               mimeType: mimeType,
             },
           },
-          { text: "Analyze this image and describe it in detail." },
+          { text: `Analyze this image in detail. Provide a comprehensive description, identify key elements, suggest potential uses for this image, and generate 3 creative prompts that could be used to recreate a similar image using an AI image generator.
+          
+          Language: ${language === 'bn' ? 'Bengali' : language === 'en' ? 'English' : 'both Bengali and English'}
+          
+          Return the result as a strictly valid JSON object with the following keys:
+          - description: A detailed description of the image.
+          - keyElements: A string listing the key elements found in the image.
+          - potentialUses: A string suggesting potential uses for the image.
+          - prompts: An array of 3 strings, each being a creative prompt to recreate the image.` },
         ],
       },
     });
-    return response.text || "";
+    return extractJson(response.text || "");
   } catch (error) {
     console.error("Error analyzing image:", error);
     throw error;
