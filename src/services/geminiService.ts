@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI, Modality, ThinkingLevel, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import OpenAI from "openai";
 
 export type AIProvider = 'gemini' | 'openai' | 'groq' | 'deepseek' | 'perplexity' | 'gemma' | 'openrouter';
@@ -123,6 +123,14 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
+      config: {
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
+      },
       contents: {
         parts: [
           {
@@ -147,6 +155,14 @@ export const analyzeImage = async (imageData: string, mimeType: string): Promise
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
+      config: {
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
+      },
       contents: {
         parts: [
           {
@@ -250,7 +266,7 @@ const extractJson = (text: string) => {
 };
 
 // Generic function to call AI based on selected provider with retry logic
-const callAI = async (prompt: string, responseMimeType: string = "text/plain", retries: number = 2) => {
+export const callAI = async (prompt: string, responseMimeType: string = "text/plain", retries: number = 2, responseSchema?: any) => {
   const provider = getProvider();
   
   const executeCall = async () => {
@@ -259,9 +275,16 @@ const callAI = async (prompt: string, responseMimeType: string = "text/plain", r
         model: "gemini-3-flash-preview",
         config: { 
           responseMimeType,
+          responseSchema,
           temperature: 0.7,
           topP: 0.95,
-          topK: 40
+          topK: 40,
+          safetySettings: [
+            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          ],
         },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       });
@@ -541,6 +564,15 @@ export const generateVoiceExtractor = async (
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
+      config: {
+        responseMimeType: "application/json",
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
+      },
       contents: [
         {
           role: "user",
@@ -592,9 +624,6 @@ export const generateVoiceExtractor = async (
           ],
         },
       ],
-      config: {
-        responseMimeType: "application/json"
-      },
     });
 
     return extractJson(response.text);
@@ -690,11 +719,17 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
       let text;
       if (provider === 'gemini') {
         const response = await ai.models.generateContent({
-          model: "gemini-1.5-flash-lite", // Using a more stable and higher quota model
+          model: "gemini-3-flash-preview",
           contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             tools: [{ googleSearch: {} }],
             responseMimeType: "application/json",
+            safetySettings: [
+              { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            ],
           },
         });
         text = response.text;
@@ -773,7 +808,13 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
     const model = ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
       },
       contents: [
         {
@@ -862,7 +903,13 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
     const model = ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ]
       },
       contents: [
         {

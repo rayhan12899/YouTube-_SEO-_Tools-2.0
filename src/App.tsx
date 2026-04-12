@@ -72,9 +72,15 @@ import {
   Linkedin,
   Repeat,
   Save,
-  ArrowDownWideNarrow,
-  ArrowUpWideNarrow,
-  Lock
+  ArrowDownWideNarrow, 
+  ArrowUpWideNarrow, 
+  Lock,
+  BarChart3,
+  TrendingUp,
+  Activity,
+  MessageSquare as ChatIcon,
+  Send as SendIcon,
+  Users as UsersIcon
 } from 'lucide-react';
 import { APP_CONFIG } from './config';
 import { motion, AnimatePresence } from 'motion/react';
@@ -82,6 +88,21 @@ import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import { cn } from './lib/utils';
 import { translations } from './translations';
+import { io, Socket } from 'socket.io-client';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip, 
+  ResponsiveContainer,
+  AreaChart,
+  Area
+} from 'recharts';
+
+// Initialize Socket.io
+const socket: Socket = io();
 import { 
   POPULAR_TOPICS,
   BEST_POSTING_TIMES, 
@@ -106,7 +127,8 @@ import {
   GenerationOptions,
   AIProvider,
   updateAIConfig,
-  resetAIConfig
+  resetAIConfig,
+  callAI
 } from './services/geminiService';
 
 const TypewriterText = ({ text, className }: { text: string, className?: string }) => {
@@ -137,9 +159,193 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics';
 
 // Constants moved to constants.ts
+
+const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
+  const data = [
+    { name: 'Mon', views: 4000, viral: 2400 },
+    { name: 'Tue', views: 3000, viral: 1398 },
+    { name: 'Wed', views: 2000, viral: 9800 },
+    { name: 'Thu', views: 2780, viral: 3908 },
+    { name: 'Fri', views: 1890, viral: 4800 },
+    { name: 'Sat', views: 2390, viral: 3800 },
+    { name: 'Sun', views: 3490, viral: 4300 },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="hw-panel p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="hw-label">Total Reach</span>
+            <Activity className="w-4 h-4 text-hw-accent" />
+          </div>
+          <div className="hw-display text-2xl">1.2M</div>
+          <div className="text-[10px] text-green-500 mt-2">+12.5% from last week</div>
+        </div>
+        <div className="hw-panel p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="hw-label">Viral Potential</span>
+            <TrendingUp className="w-4 h-4 text-hw-accent" />
+          </div>
+          <div className="hw-display text-2xl">84%</div>
+          <div className="text-[10px] text-hw-muted mt-2">Based on current trends</div>
+        </div>
+        <div className="hw-panel p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="hw-label">Active Creators</span>
+            <UsersIcon className="w-4 h-4 text-hw-accent" />
+          </div>
+          <div className="hw-display text-2xl">24</div>
+          <div className="text-[10px] text-hw-muted mt-2">Connected to your studio</div>
+        </div>
+      </div>
+
+      <div className="hw-panel p-6">
+        <h3 className="hw-label mb-6">Content Performance Trends</h3>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data}>
+              <defs>
+                <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis dataKey="name" stroke="#8e9299" fontSize={12} />
+              <YAxis stroke="#8e9299" fontSize={12} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#151619', border: '1px solid rgba(255,255,255,0.1)' }}
+                itemStyle={{ color: '#d4af37' }}
+              />
+              <Area type="monotone" dataKey="views" stroke="#d4af37" fillOpacity={1} fill="url(#colorViews)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CollaborationChat = ({ 
+  messages, 
+  onSendMessage, 
+  roomId, 
+  onJoinRoom, 
+  isJoined,
+  isOpen,
+  onToggle
+}: { 
+  messages: any[], 
+  onSendMessage: (text: string) => void, 
+  roomId: string, 
+  onJoinRoom: (id: string) => void,
+  isJoined: boolean,
+  isOpen: boolean,
+  onToggle: () => void
+}) => {
+  const [inputText, setInputText] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  return (
+    <div className={cn(
+      "fixed bottom-4 right-4 z-50 transition-all duration-300",
+      isOpen ? "w-80 h-[450px]" : "w-12 h-12"
+    )}>
+      {!isOpen ? (
+        <button 
+          onClick={onToggle}
+          className="w-full h-full rounded-full bg-hw-accent flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+        >
+          <ChatIcon className="w-6 h-6 text-black" />
+        </button>
+      ) : (
+        <div className="hw-panel w-full h-full flex flex-col">
+          <div className="p-3 border-b border-hw-border flex items-center justify-between bg-black/20">
+            <div className="flex items-center gap-2">
+              <UsersIcon className="w-4 h-4 text-hw-accent" />
+              <span className="hw-label">Studio Collaboration</span>
+            </div>
+            <button onClick={onToggle} className="text-hw-muted hover:text-white">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {!isJoined ? (
+            <div className="flex-1 p-4 flex flex-col items-center justify-center space-y-4">
+              <p className="text-xs text-hw-muted text-center">Enter a Room ID to start collaborating with other creators in real-time.</p>
+              <input 
+                type="text" 
+                placeholder="Room ID (e.g. viral-video-1)" 
+                className="hw-display w-full text-center"
+                value={roomId}
+                onChange={(e) => onJoinRoom(e.target.value)}
+              />
+              <button 
+                onClick={() => onJoinRoom(roomId)}
+                className="w-full py-2 bg-hw-accent text-black font-bold rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Join Studio
+              </button>
+            </div>
+          ) : (
+            <>
+              <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-3 scrollbar-hide">
+                {messages.map((msg, i) => (
+                  <div key={i} className={cn(
+                    "flex flex-col max-w-[80%]",
+                    msg.user === 'You' ? "ml-auto items-end" : "items-start"
+                  )}>
+                    <span className="text-[10px] text-hw-muted mb-1">{msg.user} • {msg.time}</span>
+                    <div className={cn(
+                      "p-2 rounded-lg text-sm",
+                      msg.user === 'You' ? "bg-hw-accent text-black" : "bg-white/5 text-white"
+                    )}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 border-t border-hw-border flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Type a message..." 
+                  className="flex-1 bg-transparent border-none outline-none text-sm"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onSendMessage(inputText);
+                      setInputText('');
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    onSendMessage(inputText);
+                    setInputText('');
+                  }}
+                  className="text-hw-accent hover:scale-110 transition-transform"
+                >
+                  <SendIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -148,6 +354,43 @@ export default function App() {
     const saved = localStorage.getItem('uiLang');
     return (saved === 'en' || saved === 'bn') ? saved : 'en';
   });
+
+  // Collaboration State
+  const [roomId, setRoomId] = useState<string>('');
+  const [messages, setMessages] = useState<{user: string, text: string, time: string}[]>([]);
+  const [isJoined, setIsJoined] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    socket.on('receive-message', (data) => {
+      setMessages(prev => [...prev, { user: data.user, text: data.message, time: new Date().toLocaleTimeString() }]);
+    });
+
+    socket.on('new-generation', (data) => {
+      toast.info(`New ${data.type} shared by a collaborator!`);
+      setResults(prev => ({ ...prev, [data.type]: data.result }));
+    });
+
+    return () => {
+      socket.off('receive-message');
+      socket.off('new-generation');
+    };
+  }, []);
+
+  const joinRoom = () => {
+    if (roomId) {
+      socket.emit('join-room', roomId);
+      setIsJoined(true);
+      toast.success(`Joined room: ${roomId}`);
+    }
+  };
+
+  const sendMessage = (text: string) => {
+    if (text && isJoined) {
+      socket.emit('send-message', { roomId, message: text, user: 'Creator' });
+      setMessages(prev => [...prev, { user: 'You', text, time: new Date().toLocaleTimeString() }]);
+    }
+  };
 
   const t = translations[uiLang];
 
@@ -167,7 +410,8 @@ export default function App() {
     promptGen: '',
     analyze: '',
     transcribe: '',
-    shorts: ''
+    shorts: '',
+    analytics: ''
   });
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -202,7 +446,8 @@ export default function App() {
     promptGen: null,
     analyze: null,
     transcribe: null,
-    shorts: null
+    shorts: null,
+    analytics: null
   });
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -267,9 +512,18 @@ export default function App() {
       const OpenAI = (await import('openai')).default;
 
       if (provider === 'gemini') {
+        const { GoogleGenAI, HarmCategory, HarmBlockThreshold } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey: key });
         const response = await ai.models.generateContent({
           model: "gemini-3-flash-preview",
+          config: {
+            safetySettings: [
+              { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+              { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            ]
+          },
           contents: "hi",
         });
         if (response.text) {
@@ -445,7 +699,8 @@ export default function App() {
     promptGen: null,
     transcribe: null,
     analyze: null,
-    shorts: null
+    shorts: null,
+    analytics: null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -768,30 +1023,21 @@ export default function App() {
 ${history.filter(h => h.type === 'promptGen').map(h => h.result?.prompts || []).flat().slice(-30).map((p: string, i: number) => `${i+1}. ${p}`).join('\n') || 'কোনো পূর্ববর্তী প্রম্পট নেই।'}
         
 Return the result as a JSON object with a key 'prompts' which is an array of strings.`;
-        const { GoogleGenAI, Type } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+        const { Type } = await import('@google/genai');
         
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: prompt,
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                prompts: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.STRING
-                  }
-                }
+        const responseText = await callAI(prompt, 'application/json', 3, {
+          type: Type.OBJECT,
+          properties: {
+            prompts: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING
               }
-            },
-            temperature: 0.95,
+            }
           }
         });
         
-        const parsed = JSON.parse(response.text || '{"prompts": []}');
+        const parsed = JSON.parse(responseText || '{"prompts": []}');
         setResults(prev => ({ ...prev, [activeView]: parsed }));
         saveToHistory(activeTopic, parsed, 'promptGen');
         toast.success(t.promptGen + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1235,7 +1481,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       promptGen: '',
       analyze: '',
       transcribe: '',
-      shorts: ''
+      shorts: '',
+      analytics: ''
     });
     setResults({
       landing: null,
@@ -1249,7 +1496,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       promptGen: null,
       analyze: null,
       transcribe: null,
-      shorts: null
+      shorts: null,
+      analytics: null
     });
     setSelectedMedia({
       landing: null,
@@ -1263,7 +1511,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       promptGen: null,
       analyze: null,
       transcribe: null,
-      shorts: null
+      shorts: null,
+      analytics: null
     });
     setMediaMimeType('');
     toast.success(uiLang === 'en' ? "Data Refreshed!" : "সব তথ্য রিফ্রেশ করা হয়েছে!");
@@ -1483,7 +1732,13 @@ async function callGemini(prompt) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        ]
       })
     });
     
@@ -2130,96 +2385,106 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <header className="sticky top-0 z-50 w-full bg-[var(--bg-main)]/90 backdrop-blur-xl border-b border-[var(--border-main)] flex items-center justify-center pointer-events-none py-3">
-              <div className="w-[95%] max-w-6xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto">
-              {/* Logo & Settings Pill */}
-              <div className="glass-card px-5 py-2.5 flex items-center gap-5 pointer-events-auto shadow-sm border-[var(--border-main)]">
+            <header className="sticky top-6 z-50 w-full flex items-center justify-center pointer-events-none px-4 mb-12">
+              <div className="w-full max-w-6xl flex items-center justify-between bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.05)_inset] rounded-full p-2 pl-5 pointer-events-auto transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(212,175,55,0.2)_inset]">
+                
+                {/* Logo */}
                 <div 
                   className="flex items-center gap-3 cursor-pointer group"
                   onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <Youtube className="text-[var(--accent-main)]" size={18} />
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-hw-accent via-yellow-500 to-orange-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                    <Youtube className="text-black" size={18} />
                   </div>
-                  <div className="hidden sm:flex flex-col">
-                    <span className="text-sm font-bold tracking-tight uppercase group-hover:text-[var(--accent-main)] transition-colors leading-none">Studio</span>
-                    <div className="flex items-center gap-1 mt-1">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", isApiConnected ? "bg-[var(--accent-main)] animate-pulse" : "bg-[var(--text-muted)]")} />
-                      <span className="text-[8px] uppercase tracking-widest text-[var(--text-muted)]">{isApiConnected ? 'Online' : 'Offline'}</span>
-                    </div>
-                  </div>
+                  <span className="hidden md:block text-sm font-black tracking-widest uppercase text-white group-hover:text-hw-accent transition-colors leading-none">Studio</span>
                 </div>
                 
-                <div className="w-[1px] h-8 bg-[var(--border-main)]" />
+                <div className="hidden lg:block w-[1px] h-6 bg-white/10 mx-2" />
                 
-                <div className="flex items-center gap-3">
-                  <div className="relative group">
+                {/* Navigation */}
+                <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1 justify-center px-2">
+                  {[
+                    { id: 'home', icon: Home, label: t.home },
+                    { id: 'video', icon: Video, label: t.videoGen },
+                    { id: 'shorts', icon: Zap, label: t.shortsGen },
+                    { id: 'idea', icon: Lightbulb, label: t.ideaGen },
+                    { id: 'image', icon: Palette, label: t.imageGen },
+                    { id: 'voice', icon: Mic, label: t.voiceOver },
+                    { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
+                    { id: 'analytics', icon: BarChart3, label: 'Analytics' },
+                    { id: 'download', icon: Download, label: t.downloadReport },
+                  ].map((item) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => {
+                        if (item.id === 'download') {
+                          downloadPdf();
+                        } else {
+                          setCurrentView(item.id as any);
+                          if (item.id === 'video') {
+                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                          } else if (item.id === 'shorts') {
+                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
+                          }
+                        }
+                      }}
+                      className={cn(
+                        "relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-500 text-[11px] font-bold whitespace-nowrap group",
+                        currentView === item.id 
+                          ? "text-black" 
+                          : "text-hw-muted hover:text-white hover:bg-white/5"
+                      )}
+                    >
+                      {currentView === item.id && (
+                        <motion.div 
+                          layoutId="nav-active-pill"
+                          className="absolute inset-0 bg-gradient-to-r from-hw-accent to-yellow-500 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <item.icon size={15} className={cn("relative z-10", currentView === item.id ? "text-black" : "group-hover:scale-110 transition-transform")} />
+                      <span className="hidden xl:block relative z-10 tracking-wider">{item.label}</span>
+                    </button>
+                  ))}
+                </nav>
+
+                <div className="hidden lg:block w-[1px] h-6 bg-white/10 mx-2" />
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pr-1">
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/5">
+                    <div className={cn("w-2 h-2 rounded-full", isApiConnected ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500")} />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-hw-muted">{isApiConnected ? 'Online' : 'Offline'}</span>
+                  </div>
+                  
+                  <div className="relative group flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer">
                     <select
                       value={uiLang}
                       onChange={(e) => setUiLang(e.target.value as 'en' | 'bn')}
-                      className="appearance-none bg-transparent text-xs font-bold text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors outline-none cursor-pointer pr-5"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
                     >
-                      <option value="en" className="bg-[var(--bg-card)] text-[var(--text-main)]">EN</option>
-                      <option value="bn" className="bg-[var(--bg-card)] text-[var(--text-main)]">BN</option>
+                      <option value="en">EN</option>
+                      <option value="bn">BN</option>
                     </select>
-                    <Languages size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none group-hover:text-[var(--accent-main)] transition-colors" />
+                    <Languages size={15} className="text-hw-muted group-hover:text-hw-accent transition-colors" />
                   </div>
 
                   <button
                     onClick={handleRefresh}
-                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-hw-muted hover:text-hw-accent hover:bg-white/10 transition-all border border-white/5"
                   >
-                    <RefreshCw size={16} className={cn(loading && "animate-spin")} />
+                    <RefreshCw size={15} className={cn(loading && "animate-spin")} />
                   </button>
 
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-hw-muted hover:text-hw-accent hover:bg-white/10 transition-all border border-white/5"
                   >
-                    <Globe size={16} />
+                    <Globe size={15} />
                   </button>
                 </div>
               </div>
-
-              {/* Navigation Pill */}
-              <nav className="glass-card px-2 py-2 flex items-center gap-1 overflow-x-auto scrollbar-hide pointer-events-auto shadow-sm max-w-full">
-                {[
-                  { id: 'home', icon: Home, label: t.home },
-                  { id: 'video', icon: Video, label: t.videoGen },
-                  { id: 'shorts', icon: Zap, label: t.shortsGen },
-                  { id: 'idea', icon: Lightbulb, label: t.ideaGen },
-                  { id: 'image', icon: Palette, label: t.imageGen },
-                  { id: 'voice', icon: Mic, label: t.voiceOver },
-                  { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
-                  { id: 'download', icon: Download, label: t.downloadReport },
-                ].map((item) => (
-                  <button 
-                    key={item.id}
-                    onClick={() => {
-                      if (item.id === 'download') {
-                        downloadPdf();
-                      } else {
-                        setCurrentView(item.id as any);
-                        if (item.id === 'video') {
-                          setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                        } else if (item.id === 'shorts') {
-                          setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
-                        }
-                      }
-                    }}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 text-xs font-semibold whitespace-nowrap",
-                      currentView === item.id 
-                        ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-glow)]" 
-                        : "text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)]"
-                    )}
-                  >
-                    <item.icon size={16} />
-                    <span className="hidden lg:block">{item.label}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
             </header>
 
 
@@ -2415,7 +2680,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(var(--accent-main-rgb), 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -2487,7 +2752,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           return (
                                             <motion.button
                                               key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(242, 125, 38, 0.3)" : "rgba(242, 125, 38, 0.2)" }}
+                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(var(--accent-main-rgb), 0.3)" : "rgba(var(--accent-main-rgb), 0.2)" }}
                                               whileTap={{ scale: 0.95 }}
                                               onClick={() => {
                                                 const currentText = topics[currentView];
@@ -2624,7 +2889,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       trendingTopics.map((trend, idx) => (
                         <motion.div
                           key={idx}
-                          whileHover={{ scale: 1.02, backgroundColor: "rgba(242, 125, 38, 0.05)" }}
+                          whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => {
                             setTopics(prev => ({ ...prev, idea: trend.topic }));
@@ -2891,7 +3156,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.05 }}
-                        whileHover={{ y: -2, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
+                        whileHover={{ y: -2, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
                         className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-center glass-card shadow-sm"
                       >
                         <span className="text-2xl mb-1">{item.icon}</span>
@@ -2914,169 +3179,196 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               )}
 
               {currentView === 'voice' && (
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Languages size={14} className="text-[var(--accent-main)]" /> {t.voiceLang}
-                    </label>
-                    <div className="flex gap-2">
-                      {[
-                        { id: 'bn', label: t.bn, flag: '🇧🇩' },
-                        { id: 'en', label: t.en, flag: '🇺🇸' },
-                        { id: 'hi', label: 'Hindi', flag: '🇮🇳' },
-                      ].map((lang) => (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          key={lang.id}
-                          onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
-                          className={cn(
-                            "flex-1 py-2 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all",
-                            options.voiceLanguage === lang.id ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
-                          )}
-                        >
-                          {lang.flag} {lang.label}
-                        </motion.button>
-                      ))}
+                <div className="hw-panel p-8 space-y-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                        <Mic size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-white tracking-tight">Voice Synthesizer</h3>
+                        <p className="hw-label">Professional Grade Output</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="hw-knob" style={{ transform: 'rotate(45deg)' }}></div>
+                        <span className="hw-label">Gain</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="hw-knob" style={{ transform: 'rotate(-30deg)' }}></div>
+                        <span className="hw-label">Pitch</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Volume2 size={14} className="text-[var(--accent-main)]" /> {t.selectVoice}
-                    </label>
-                    
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{t.femaleVoices}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <label className="hw-label flex items-center gap-2">
+                          <Languages size={14} className="text-hw-accent" /> {t.voiceLang}
+                        </label>
+                        <div className="flex gap-2">
+                          {[
+                            { id: 'bn', label: t.bn, flag: '🇧🇩' },
+                            { id: 'en', label: t.en, flag: '🇺🇸' },
+                            { id: 'hi', label: 'Hindi', flag: '🇮🇳' },
+                          ].map((lang) => (
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              key={lang.id}
+                              onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
+                              className={cn(
+                                "flex-1 py-2 rounded-lg border border-hw-border text-xs font-bold transition-all",
+                                options.voiceLanguage === lang.id ? "bg-hw-accent text-black shadow-[0_0_15px_rgba(212,175,55,0.3)]" : "bg-black/40 text-hw-muted hover:bg-black/60"
+                              )}
+                            >
+                              {lang.flag} {lang.label}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="hw-label flex items-center gap-2">
+                          <Volume2 size={14} className="text-hw-accent" /> {t.selectVoice}
+                        </label>
+                        
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <p className="hw-label opacity-50">{t.femaleVoices}</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                { id: 'Kore', label: 'Kore (Warm)', desc: 'Natural & Soft' },
+                                { id: 'Zephyr', label: 'Zephyr (Pro)', desc: 'Clear & Crisp' }
+                              ].map((v) => (
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  key={v.id}
+                                  onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
+                                  className={cn(
+                                    "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                  )}
+                                >
+                                  <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
+                                  <span className="text-[9px] opacity-60">{v.desc}</span>
+                                </motion.button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="hw-label opacity-50">{t.maleVoices}</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                { id: 'Puck', label: 'Puck', desc: 'Friendly' },
+                                { id: 'Charon', label: 'Charon', desc: 'Deep' },
+                                { id: 'Fenrir', label: 'Fenrir', desc: 'Strong' }
+                              ].map((v) => (
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  key={v.id}
+                                  onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
+                                  className={cn(
+                                    "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                  )}
+                                >
+                                  <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
+                                  <span className="text-[9px] opacity-60">{v.desc}</span>
+                                </motion.button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <label className="hw-label flex items-center gap-2">
+                          <Sparkles size={14} className="text-hw-accent" /> {t.voiceTone}
+                        </label>
                         <div className="grid grid-cols-2 gap-2">
                           {[
-                            { id: 'Kore', label: 'Kore (Warm)', desc: 'Natural & Soft' },
-                            { id: 'Zephyr', label: 'Zephyr (Pro)', desc: 'Clear & Crisp' }
-                          ].map((v) => (
+                            { id: 'Excited', label: t.toneExcited },
+                            { id: 'Calm', label: t.toneCalm },
+                            { id: 'Serious', label: t.toneSerious },
+                            { id: 'Professional', label: t.toneProfessional },
+                            { id: 'Storyteller', label: t.toneStoryteller },
+                          ].map((tone) => (
                             <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
+                              whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              key={v.id}
-                              onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
+                              key={tone.id}
+                              onClick={() => setOptions(prev => ({ ...prev, voiceTone: tone.id }))}
                               className={cn(
-                                "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-main)]/30"
+                                "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
+                                options.voiceTone === tone.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
                               )}
                             >
-                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-[var(--accent-main)]" : "text-[var(--text-main)]")}>{v.label}</span>
-                              <span className="text-[10px] opacity-60">{v.desc}</span>
+                              {tone.label}
                             </motion.button>
                           ))}
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{t.maleVoices}</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {[
-                            { id: 'Puck', label: 'Puck', desc: 'Friendly' },
-                            { id: 'Charon', label: 'Charon', desc: 'Deep' },
-                            { id: 'Fenrir', label: 'Fenrir', desc: 'Strong' }
-                          ].map((v) => (
-                            <motion.button
-                              whileHover={{ scale: 1.02, backgroundColor: "rgba(var(--accent-main-rgb), 0.05)" }}
-                              whileTap={{ scale: 0.98 }}
-                              key={v.id}
-                              onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
-                              className={cn(
-                                "p-3 rounded-xl border transition-all text-left flex flex-col gap-1",
-                                options.voice === v.id ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-main)]/30"
-                              )}
-                            >
-                              <span className={cn("text-sm font-semibold", options.voice === v.id ? "text-[var(--accent-main)]" : "text-[var(--text-main)]")}>{v.label}</span>
-                              <span className="text-[10px] opacity-60">{v.desc}</span>
-                            </motion.button>
-                          ))}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <label className="hw-label flex items-center gap-2">
+                            <Globe size={14} className="text-hw-accent" /> {t.voiceAccent}
+                          </label>
+                          <div className="grid grid-cols-1 gap-2">
+                            {[
+                              { id: 'US', label: t.accentUS },
+                              { id: 'UK', label: t.accentUK },
+                              { id: 'Indian', label: t.accentIndian },
+                            ].map((acc) => (
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                key={acc.id}
+                                onClick={() => setOptions(prev => ({ ...prev, voiceAccent: acc.id }))}
+                                className={cn(
+                                  "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
+                                  options.voiceAccent === acc.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
+                                )}
+                              >
+                                {acc.label}
+                              </motion.button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="space-y-3">
-                    <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                      <Sparkles size={14} className="text-[var(--accent-main)]" /> {t.voiceTone}
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {[
-                        { id: 'Excited', label: t.toneExcited },
-                        { id: 'Calm', label: t.toneCalm },
-                        { id: 'Serious', label: t.toneSerious },
-                        { id: 'Professional', label: t.toneProfessional },
-                        { id: 'Storyteller', label: t.toneStoryteller },
-                      ].map((tone) => (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          key={tone.id}
-                          onClick={() => setOptions(prev => ({ ...prev, voiceTone: tone.id }))}
-                          className={cn(
-                            "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                            options.voiceTone === tone.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
-                          )}
-                        >
-                          {tone.label}
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                        <Globe size={14} className="text-[var(--accent-main)]" /> {t.voiceAccent}
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { id: 'US', label: t.accentUS },
-                          { id: 'UK', label: t.accentUK },
-                          { id: 'Indian', label: t.accentIndian },
-                          { id: 'Australian', label: t.accentAustralian },
-                        ].map((acc) => (
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            key={acc.id}
-                            onClick={() => setOptions(prev => ({ ...prev, voiceAccent: acc.id }))}
-                            className={cn(
-                              "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                              options.voiceAccent === acc.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
-                            )}
-                          >
-                            {acc.label}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                        <User size={14} className="text-[var(--accent-main)]" /> {t.voiceAge}
-                      </label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {[
-                          { id: 'Young', label: t.ageYoung },
-                          { id: 'Adult', label: t.ageAdult },
-                          { id: 'Senior', label: t.ageSenior },
-                        ].map((age) => (
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            key={age.id}
-                            onClick={() => setOptions(prev => ({ ...prev, voiceAge: age.id }))}
-                            className={cn(
-                              "py-2 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all",
-                              options.voiceAge === age.id ? "bg-[var(--accent-main)]/20 text-[var(--accent-main)] border-[var(--accent-main)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
-                            )}
-                          >
-                            {age.label}
-                          </motion.button>
-                        ))}
+                        <div className="space-y-3">
+                          <label className="hw-label flex items-center gap-2">
+                            <User size={14} className="text-hw-accent" /> {t.voiceAge}
+                          </label>
+                          <div className="grid grid-cols-1 gap-2">
+                            {[
+                              { id: 'Young', label: t.ageYoung },
+                              { id: 'Adult', label: t.ageAdult },
+                              { id: 'Senior', label: t.ageSenior },
+                            ].map((age) => (
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                key={age.id}
+                                onClick={() => setOptions(prev => ({ ...prev, voiceAge: age.id }))}
+                                className={cn(
+                                  "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
+                                  options.voiceAge === age.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
+                                )}
+                              >
+                                {age.label}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4266,7 +4558,19 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </AnimatePresence>
             </div> {/* End of Right Column */}
           </div> {/* End of Main Content Grid */}
-        </motion.main>
+          {currentView === 'analytics' && <AnalyticsView uiLang={uiLang} />}
+
+        {/* Collaboration Chat */}
+        <CollaborationChat 
+          messages={messages}
+          onSendMessage={sendMessage}
+          roomId={roomId}
+          onJoinRoom={setRoomId}
+          isJoined={isJoined}
+          isOpen={chatOpen}
+          onToggle={() => setChatOpen(!chatOpen)}
+        />
+      </motion.main>
 
       {/* Settings Modal */}
           <AnimatePresence>
