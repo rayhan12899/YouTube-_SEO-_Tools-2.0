@@ -99,7 +99,15 @@ const initClients = () => {
 
 initClients();
 
-let isOffline = !getApiKey(getProvider()) && getProvider() === 'gemini' && !process.env.GEMINI_API_KEY;
+const checkOfflineStatus = (provider: AIProvider) => {
+  const currentKey = getApiKey(provider);
+  if (provider === 'gemini') {
+    return !currentKey && !process.env.GEMINI_API_KEY;
+  }
+  return !currentKey;
+};
+
+let isOffline = checkOfflineStatus(getProvider());
 
 // Function to update provider and keys
 export const updateAIConfig = (provider: AIProvider, keys: Partial<Record<AIProvider, string>>) => {
@@ -114,13 +122,13 @@ export const updateAIConfig = (provider: AIProvider, keys: Partial<Record<AIProv
     if (keys.openrouter) localStorage.setItem('CUSTOM_OPENROUTER_API_KEY', keys.openrouter);
   }
   initClients();
-  const currentKey = getApiKey(provider);
-  isOffline = !currentKey && provider === 'gemini' && !process.env.GEMINI_API_KEY;
+  isOffline = checkOfflineStatus(provider);
 };
 
 // Function to transcribe audio
 export const transcribeAudio = async (audioData: string, mimeType: string): Promise<string> => {
   try {
+    const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
@@ -135,7 +143,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
         parts: [
           {
             inlineData: {
-              data: audioData,
+              data: base64Data,
               mimeType: mimeType,
             },
           },
@@ -153,6 +161,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
 // Function to analyze image
 export const analyzeImage = async (imageData: string, mimeType: string): Promise<string> => {
   try {
+    const base64Data = imageData.includes(',') ? imageData.split(',')[1] : imageData;
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
@@ -167,7 +176,7 @@ export const analyzeImage = async (imageData: string, mimeType: string): Promise
         parts: [
           {
             inlineData: {
-              data: imageData,
+              data: base64Data,
               mimeType: mimeType,
             },
           },
@@ -559,7 +568,7 @@ export const generateVoiceExtractor = async (
   }
 
   try {
-    const base64Data = audioData.split(',')[1];
+    const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
     const languageName = targetLanguage === 'en' ? 'English' : targetLanguage === 'bn' ? 'Bengali' : 'Hindi';
 
     const response = await ai.models.generateContent({
@@ -798,11 +807,12 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
     };
   }
 
-  if (!base64Video || !base64Video.includes(",")) {
+  if (!base64Video) {
     throw new Error("Invalid video data provided");
   }
 
-  const actualMimeType = mimeType || base64Video.split(";")[0].split(":")[1] || "video/mp4";
+  const actualMimeType = mimeType || (base64Video.includes(";") ? base64Video.split(";")[0].split(":")[1] : "video/mp4");
+  const base64Data = base64Video.includes(',') ? base64Video.split(',')[1] : base64Video;
   
   try {
     const model = ai.models.generateContent({
@@ -822,7 +832,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
           parts: [
             {
               inlineData: {
-                data: base64Video.split(",")[1],
+                data: base64Data,
                 mimeType: actualMimeType,
               },
             },
