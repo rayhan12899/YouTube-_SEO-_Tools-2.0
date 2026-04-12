@@ -2505,13 +2505,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="space-y-8 pt-32 md:pt-24"
+        className="space-y-8 pt-6 md:pt-8 max-w-7xl mx-auto px-4 md:px-8"
       >
         {/* Dashboard Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-3">
-            <div className="w-8 h-[1px] bg-[var(--accent-main)]/30"></div>
-            <LayoutDashboard size={14} className="text-[var(--accent-main)]" /> {t.dashboardOverview}
+          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-hw-muted flex items-center gap-4">
+            <div className="w-12 h-[2px] bg-gradient-to-r from-hw-accent to-transparent"></div>
+            <LayoutDashboard size={14} className="text-hw-accent" /> {t.dashboardOverview}
           </h2>
           {deferredPrompt && (
             <motion.button
@@ -2520,7 +2520,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={installApp}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)] text-white text-[10px] font-bold uppercase tracking-widest shadow-md shadow-[var(--accent-glow)] hover:shadow-[var(--accent-glow)] transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-yellow-600 text-black text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all"
             >
               <Download size={14} />
               {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
@@ -2529,27 +2529,27 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         </div>
 
         {/* Dashboard Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {[
-            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
-            { label: t.totalHistory, value: history.length, icon: History, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
-            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" },
-            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10" }
+            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-hw-accent", bg: "bg-hw-accent/10" },
+            { label: t.totalHistory, value: history.length, icon: History, color: "text-hw-accent", bg: "bg-hw-accent/10" },
+            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-hw-accent", bg: "bg-hw-accent/10" },
+            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-hw-accent", bg: "bg-hw-accent/10" }
           ].map((stat, i) => (
             <motion.div 
               key={i}
-              whileHover={{ y: -2, scale: 1.01 }}
-              className="p-6 rounded-xl bg-[var(--bg-card)] border border-[var(--border-main)] shadow-sm flex items-center gap-5 group transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              className="hw-panel p-6 flex items-center gap-5 group cursor-pointer"
             >
               <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105",
+                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
                 stat.bg, stat.color
               )}>
-                <stat.icon size={22} />
+                <stat.icon size={24} />
               </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold">{stat.label}</p>
-                <p className="text-lg font-bold text-[var(--text-main)] capitalize tracking-tight leading-none">{stat.value}</p>
+              <div className="space-y-1">
+                <p className="hw-label">{stat.label}</p>
+                <p className="text-xl font-black text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors">{stat.value}</p>
               </div>
             </motion.div>
           ))}
@@ -2560,20 +2560,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {/* Left Column: Inputs */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
             <section className="studio-card p-8 md:p-10 space-y-10">
-            <div className="flex items-center justify-between border-b border-[var(--border-main)] pb-8">
-              <div className="space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
-                    {currentView === 'home' && <LayoutDashboard size={24} />}
-                    {currentView === 'youtube' && <Youtube size={24} />}
-                    {currentView === 'video' && <Video size={24} />}
-                    {currentView === 'shorts' && <Zap size={24} />}
-                    {currentView === 'idea' && <Lightbulb size={24} />}
-                    {currentView === 'image' && <Palette size={24} />}
-                    {currentView === 'voice' && <Mic size={24} />}
-                    {currentView === 'voiceExtractor' && <AudioLines size={24} />}
+            <div className="flex items-center justify-between border-b border-white/10 pb-8">
+              <div className="space-y-3">
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent shadow-[0_0_30px_rgba(212,175,55,0.15)] border border-hw-accent/20">
+                    {currentView === 'home' && <LayoutDashboard size={28} />}
+                    {currentView === 'youtube' && <Youtube size={28} />}
+                    {currentView === 'video' && <Video size={28} />}
+                    {currentView === 'shorts' && <Zap size={28} />}
+                    {currentView === 'idea' && <Lightbulb size={28} />}
+                    {currentView === 'image' && <Palette size={28} />}
+                    {currentView === 'voice' && <Mic size={28} />}
+                    {currentView === 'voiceExtractor' && <AudioLines size={28} />}
                   </div>
-                  <span className="text-[var(--text-main)]">
+                  <span className="text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
                     {currentView === 'home' ? t.dashboard : 
                      currentView === 'youtube' ? t.youtubeToolset : 
                      currentView === 'video' ? t.videoPrompter : 
@@ -2584,15 +2584,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                      currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
                   </span>
                 </h2>
-                <p className="text-sm font-medium text-[var(--text-muted)] ml-16">
+                <p className="text-sm font-bold tracking-widest uppercase text-hw-muted ml-[76px]">
                   {uiLang === 'en' ? "AI Powered Creative Studio" : "এআই চালিত ক্রিয়েটিভ স্টুডিও"}
                 </p>
               </div>
               <button 
                 onClick={() => setShowHistory(!showHistory)}
-                className="btn-secondary py-3 px-6 text-sm"
+                className="btn-secondary py-3 px-6 text-xs uppercase tracking-widest"
               >
-                <History size={14} /> {t.history}
+                <History size={16} /> {t.history}
               </button>
             </div>
 
@@ -2604,9 +2604,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               className="space-y-4"
             >
               {currentView !== 'voiceExtractor' && (
-                <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                    <FileText size={14} className="text-[var(--accent-main)]" /> {
+                <div className="space-y-3">
+                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-bold flex items-center gap-2">
+                    <FileText size={14} className="text-hw-accent" /> {
                       currentView === 'video' ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
@@ -2626,7 +2626,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         currentView === 'promptGen' ? t.promptGenPlaceholder :
                         t.topicPlaceholder
                       }
-                      className="w-full input-field min-h-[120px] resize-none text-base font-medium"
+                      className="w-full input-field min-h-[140px] resize-none text-base font-medium shadow-inner"
                       value={currentTopic}
                       onFocus={() => setShowAllTopics(true)}
                       onBlur={() => setTimeout(() => setShowAllTopics(false), 200)}
@@ -2638,23 +2638,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       }}
                     />
                     {showAllTopics && filteredSuggestions.length > 0 && (
-                      <div className="absolute z-10 w-full mt-2 bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border-main)] rounded-2xl shadow-2xl overflow-hidden max-h-[280px] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
-                        <div className="p-2 text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold border-b border-[var(--border-main)]">
+                      <div className="absolute z-10 w-full mt-2 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] overflow-hidden max-h-[280px] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
+                        <div className="p-3 text-[10px] uppercase tracking-widest text-hw-muted font-bold border-b border-white/10 bg-white/5">
                           {uiLang === 'en' ? "Suggestions" : "পরামর্শ"}
                         </div>
                         {filteredSuggestions.map((suggestion, idx) => (
                           <div 
                             key={idx} 
-                            className="p-3 hover:bg-[var(--border-main)] cursor-pointer text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] flex items-center gap-3 transition-colors"
+                            className="p-4 hover:bg-white/10 cursor-pointer text-sm text-white/70 hover:text-white flex items-center gap-4 transition-colors border-b border-white/5 last:border-0"
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: suggestion.text }));
                               setShowAllTopics(false);
                             }}
                           >
-                            <span className="text-lg">{suggestion.icon}</span>
-                            <span className="flex-1 truncate">{suggestion.text}</span>
+                            <span className="text-xl">{suggestion.icon}</span>
+                            <span className="flex-1 truncate font-medium">{suggestion.text}</span>
                             {suggestion.isTrending && (
-                              <span className="text-[9px] uppercase tracking-wider bg-[var(--accent-main)]/20 text-[var(--accent-main)] px-2 py-0.5 rounded-full font-bold">
+                              <span className="text-[9px] uppercase tracking-wider bg-hw-accent/20 text-hw-accent px-2.5 py-1 rounded-full font-bold border border-hw-accent/30">
                                 {uiLang === 'en' ? "Trending" : "ট্রেন্ডিং"}
                               </span>
                             )}
@@ -2665,9 +2665,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
 
                   {(currentView === 'image' || currentView === 'video') && (
-                    <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="space-y-5 mt-6 animate-in fade-in slide-in-from-top-2 duration-500 bg-white/5 rounded-2xl p-6 border border-white/5">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-[var(--accent-main)] font-semibold">
+                        <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-hw-accent font-bold">
                           <Sparkles size={14} /> {uiLang === 'en' ? "Prompt Suggestions" : "প্রম্পট সাজেশন"}
                         </div>
                         {topics[currentView].trim() !== "" && (
@@ -2676,24 +2676,24 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               setTopics(prev => ({ ...prev, [currentView]: "" }));
                               toast.info(uiLang === 'en' ? "Prompt cleared" : "প্রম্পট মুছে ফেলা হয়েছে");
                             }}
-                            className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors font-bold flex items-center gap-1"
+                            className="text-[10px] uppercase tracking-widest text-hw-muted hover:text-red-400 transition-colors font-bold flex items-center gap-1.5"
                           >
                             <Trash2 size={12} /> {uiLang === 'en' ? "Clear" : "মুছুন"}
                           </button>
                         )}
                       </div>
                       
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {/* Scene Presets */}
-                        <div className="space-y-2">
-                          <span className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold px-1 flex items-center gap-1">
+                        <div className="space-y-3">
+                          <span className="text-[9px] uppercase tracking-widest text-hw-accent/80 font-bold px-1 flex items-center gap-1.5">
                             <Zap size={12} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
                           </span>
-                          <div className="flex flex-wrap gap-1.5">
+                          <div className="flex flex-wrap gap-2">
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(var(--accent-main-rgb), 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(212, 175, 55, 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -2709,7 +2709,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   }));
                                   toast.success(`${preset[uiLang]} ${uiLang === 'en' ? "applied!" : "যুক্ত হয়েছে!"}`);
                                 }}
-                                className="text-[10px] px-2.5 py-1.5 rounded-lg bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 hover:border-[var(--accent-main)]/50 transition-all flex items-center gap-1.5 text-[var(--accent-main)] font-bold"
+                                className="text-[11px] px-3 py-2 rounded-xl bg-hw-accent/10 border border-hw-accent/20 hover:border-hw-accent/50 transition-all flex items-center gap-2 text-hw-accent font-bold shadow-sm"
                               >
                                 <span>{preset.icon}</span>
                                 {preset[uiLang]}
@@ -2727,12 +2727,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           .map(([category, elements]) => {
                             const isExpanded = expandedCategories.includes(category);
                             return (
-                              <div key={category} className="space-y-1.5 border-t border-white/5 pt-2 first:border-0 first:pt-0">
+                              <div key={category} className="space-y-2 border-t border-white/5 pt-4 first:border-0 first:pt-0">
                                 <button 
                                   onClick={() => setExpandedCategories(prev => 
                                     prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
                                   )}
-                                  className="w-full flex items-center justify-between text-[9px] uppercase tracking-tighter text-[var(--text-muted)] font-bold px-1 hover:text-[var(--text-main)] transition-colors"
+                                  className="w-full flex items-center justify-between text-[10px] uppercase tracking-widest text-hw-muted font-bold px-1 hover:text-white transition-colors"
                                 >
                                   <span>
                                     {category === 'subject' ? (uiLang === 'en' ? "Subjects" : "বিষয়") :
@@ -2748,7 +2748,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                      category === 'texture' ? (uiLang === 'en' ? "Textures" : "টেক্সচার") :
                                      (uiLang === 'en' ? "Movements" : "মুভমেন্ট")}
                                   </span>
-                                  {isExpanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                                  {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                                 </button>
                                 
                                 <AnimatePresence>
@@ -2759,13 +2759,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       exit={{ height: 0, opacity: 0 }}
                                       className="overflow-hidden"
                                     >
-                                      <div className="flex flex-wrap gap-1.5 py-1">
+                                      <div className="flex flex-wrap gap-2 py-2">
                                         {elements.map((el, idx) => {
                                           const isSelected = topics[currentView].split(',').map(s => s.trim()).includes(el.en);
                                           return (
                                             <motion.button
                                               key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(var(--accent-main-rgb), 0.3)" : "rgba(var(--accent-main-rgb), 0.2)" }}
+                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(212, 175, 55, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
                                               whileTap={{ scale: 0.95 }}
                                               onClick={() => {
                                                 const currentText = topics[currentView];
@@ -2789,10 +2789,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                                 }
                                               }}
                                               className={cn(
-                                                "text-[10px] px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-1.5",
+                                                "text-[11px] px-3 py-2 rounded-xl border transition-all flex items-center gap-2 font-medium",
                                                 isSelected 
-                                                  ? "bg-[var(--accent-main)]/20 border-[var(--accent-main)] text-white shadow-[0_0_10px_rgba(var(--accent-main-rgb),0.2)]" 
-                                                  : "bg-white/5 border-white/5 text-slate-300 hover:border-[var(--accent-main)]/30 hover:text-white"
+                                                  ? "bg-hw-accent/20 border-hw-accent text-white shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+                                                  : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white"
                                               )}
                                             >
                                               <span>{el.icon}</span>
@@ -3459,8 +3459,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && currentView !== 'promptGen' && !currentSelectedMedia && (
             <section className="space-y-6 mb-10">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                  <LayoutTemplate size={18} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
+                <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                  <LayoutTemplate size={16} className="text-hw-accent" /> {uiLang === 'en' ? 'Template Presets' : 'টেমপ্লেট প্রিসেট'}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -3493,9 +3493,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <button
                     key={template.id}
                     onClick={() => setOptions(prev => ({ ...prev, ...template.preset }))}
-                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/50 hover:bg-[var(--accent-main)]/5 transition-all text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
+                    className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-hw-accent/50 hover:bg-hw-accent/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/70 hover:text-hw-accent shadow-sm"
                   >
-                    <template.icon size={18} className="text-[var(--accent-main)]" />
+                    <template.icon size={16} className="text-hw-accent" />
                     {template.label}
                   </button>
                 ))}
@@ -3507,24 +3507,24 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           {currentView !== 'video' && currentView !== 'idea' && currentView !== 'image' && currentView !== 'voice' && currentView !== 'voiceExtractor' && !currentSelectedMedia && (
             <section className="space-y-8">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                  <Sparkles size={18} className="text-[var(--accent-main)] animate-pulse" /> {t.whatToCreate}
+                <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                  <Sparkles size={16} className="text-hw-accent animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold bg-[var(--accent-main)]/10 px-3 py-1 rounded-full border border-[var(--accent-main)]/20 shadow-sm">
+                <span className="text-[9px] uppercase tracking-widest text-hw-accent font-black bg-hw-accent/10 px-3 py-1 rounded-full border border-hw-accent/20 shadow-[0_0_10px_rgba(212,175,55,0.2)]">
                   AI Powered
                 </span>
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[
-                  { id: 'generateImagePrompt', label: t.imagePromptLabel, desc: t.imagePromptDesc, icon: ImageIcon, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateVideoPrompt', label: t.videoPromptLabel, desc: t.videoPromptDesc, icon: Video, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateThumbnail', label: t.thumbnailLabel, desc: t.thumbnailDesc, icon: Palette, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateDescription', label: t.descLabel, desc: t.descriptionDesc, icon: FileText, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateTags', label: t.tagsLabel, desc: t.tagsDesc, icon: Tag, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateScript', label: t.scriptLabel, desc: t.scriptDesc, icon: ScrollText, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateSeoChecklist', label: t.seoChecklistLabel, desc: t.seoChecklistDesc, icon: CheckCircle2, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
-                  { id: 'generateKeywords', label: t.keywordsLabel, desc: t.keywordsDesc, icon: Search, color: "from-[var(--accent-main)]/20 to-[var(--accent-main)]/10" },
+                  { id: 'generateImagePrompt', label: t.imagePromptLabel, desc: t.imagePromptDesc, icon: ImageIcon, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateVideoPrompt', label: t.videoPromptLabel, desc: t.videoPromptDesc, icon: Video, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateThumbnail', label: t.thumbnailLabel, desc: t.thumbnailDesc, icon: Palette, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateDescription', label: t.descLabel, desc: t.descriptionDesc, icon: FileText, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateTags', label: t.tagsLabel, desc: t.tagsDesc, icon: Tag, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateScript', label: t.scriptLabel, desc: t.scriptDesc, icon: ScrollText, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateSeoChecklist', label: t.seoChecklistLabel, desc: t.seoChecklistDesc, icon: CheckCircle2, color: "from-hw-accent/20 to-hw-accent/10" },
+                  { id: 'generateKeywords', label: t.keywordsLabel, desc: t.keywordsDesc, icon: Search, color: "from-hw-accent/20 to-hw-accent/10" },
                 ].map((opt) => (
                   <motion.div 
                     whileHover={{ scale: 1.02, y: -5 }}
@@ -3532,43 +3532,43 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     key={opt.id}
                     onClick={() => setOptions(prev => ({ ...prev, [opt.id]: !prev[opt.id as keyof typeof prev] }))}
                     className={cn(
-                      "relative group cursor-pointer rounded-2xl p-4 transition-all duration-300 border overflow-hidden flex flex-col gap-4",
+                      "relative group cursor-pointer rounded-2xl p-5 transition-all duration-300 border overflow-hidden flex flex-col gap-4",
                       options[opt.id as keyof typeof options] 
-                        ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)] shadow-lg shadow-[var(--accent-main)]/5" 
-                        : "bg-[var(--bg-card)]/40 border-[var(--border-main)] hover:border-[var(--accent-main)]/30"
+                        ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.15)]" 
+                        : "bg-black/40 border-white/10 hover:border-hw-accent/40 hover:bg-white/5"
                     )}
                   >
                     <div className={cn(
-                      "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm",
-                      options[opt.id as keyof typeof options] ? "bg-[var(--accent-main)] text-black" : "bg-[var(--bg-card)]/60 text-[var(--text-muted)] group-hover:text-[var(--accent-main)]"
+                      "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner",
+                      options[opt.id as keyof typeof options] ? "bg-hw-accent text-black" : "bg-white/5 text-hw-muted group-hover:text-hw-accent"
                     )}>
                       <opt.icon size={24} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={cn(
-                        "font-bold text-xs transition-colors uppercase tracking-widest",
-                        options[opt.id as keyof typeof options] ? "text-[var(--accent-main)]" : "text-[var(--text-main)]"
+                        "font-black text-[10px] transition-colors uppercase tracking-widest",
+                        options[opt.id as keyof typeof options] ? "text-hw-accent" : "text-white"
                       )}>
                         {opt.label}
                       </h3>
-                      <p className="text-[10px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-relaxed">
+                      <p className="text-[10px] text-white/50 line-clamp-2 mt-1.5 leading-relaxed font-medium">
                         {opt.desc}
                       </p>
                     </div>
                     {options[opt.id as keyof typeof options] && (
-                      <div className="absolute top-3 right-3 w-5 h-5 shrink-0 rounded-full bg-[var(--accent-main)] flex items-center justify-center shadow-lg">
-                        <Check size={12} className="text-white" />
+                      <div className="absolute top-4 right-4 w-5 h-5 shrink-0 rounded-full bg-hw-accent flex items-center justify-center shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+                        <Check size={12} className="text-black font-bold" />
                       </div>
                     )}
                   </motion.div>
                 ))}
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs uppercase tracking-widest text-slate-500 font-bold flex items-center gap-2">
-                  <Languages size={14} /> {t.selectLanguage}
+              <div className="space-y-4">
+                <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                  <Languages size={14} className="text-hw-accent" /> {t.selectLanguage}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {[
                     { id: 'bn', label: t.bn },
                     { id: 'en', label: t.en },
@@ -3580,8 +3580,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       key={lang.id}
                       onClick={() => setOptions(prev => ({ ...prev, language: lang.id as any }))}
                       className={cn(
-                        "flex-1 py-2 rounded-xl border border-brand-border text-sm transition-all",
-                        options.language === lang.id ? "bg-[var(--accent-main)] text-black border-[var(--accent-main)] shadow-[0_0_10px_rgba(var(--accent-main-rgb),0.3)]" : "bg-black/20 text-slate-400"
+                        "flex-1 py-3 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all shadow-inner",
+                        options.language === lang.id ? "bg-hw-accent text-black border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.3)]" : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5 hover:text-white"
                       )}
                     >
                       {lang.id === 'bn' && '🇧🇩 '}
@@ -3731,8 +3731,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
           {currentView === 'image' && (
             <section className="glass-card p-8 space-y-8">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-                <ImageIcon size={18} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
+              <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                <ImageIcon size={16} className="text-hw-accent" /> {uiLang === 'en' ? "Aspect Ratio" : "অ্যাসপেক্ট রেশিও"}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {['1:1', '3:4', '4:3', '9:16', '16:9', '2:3', '3:2', '21:9'].map((ratio) => (
@@ -3742,10 +3742,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     key={ratio}
                     onClick={() => setOptions(prev => ({ ...prev, aspectRatio: ratio as any }))}
                     className={cn(
-                      "py-3 rounded-xl border text-xs font-semibold transition-all shadow-sm",
+                      "py-3 rounded-xl border text-xs font-bold transition-all shadow-inner",
                       options.aspectRatio === ratio 
-                        ? "bg-[var(--accent-main)] text-black border-[var(--accent-main)] shadow-md shadow-[var(--accent-main)]/20" 
-                        : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] border-[var(--border-main)] hover:border-[var(--accent-main)]/30"
+                        ? "bg-hw-accent text-black border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.3)]" 
+                        : "bg-black/40 text-white/50 border-white/10 hover:border-hw-accent/40 hover:text-white"
                     )}
                   >
                     {ratio}
@@ -3756,36 +3756,33 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           <motion.button 
-            whileHover={{ scale: 1.01, y: -2 }}
-            whileTap={{ scale: 0.99 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleGenerate}
             disabled={loading || (!(currentView === 'home' ? (topics.home || topics.promptGen) : currentTopic) && !currentSelectedMedia)}
-            className="w-full relative overflow-hidden rounded-2xl p-[2px] group shadow-sm"
+            className="w-full btn-primary mt-8"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-main)] via-[var(--accent-main)]/80 to-[var(--accent-main)] opacity-70 group-hover:opacity-100 transition-opacity duration-500 animate-[shine_3s_linear_infinite]" />
-            <div className="relative bg-[var(--bg-main)] rounded-2xl px-8 py-5 flex items-center justify-center gap-3 transition-colors duration-500 group-hover:bg-[var(--bg-main)]/80">
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin text-[var(--accent-main)]" size={24} /> 
-                  <span className="text-lg font-bold tracking-wider text-[var(--accent-main)] uppercase">{t.processing}</span>
-                </>
-              ) : (
-                <>
-                  <Zap size={24} className="text-[var(--accent-main)] group-hover:rotate-12 transition-transform" /> 
-                  <span className="text-lg font-bold tracking-wider text-[var(--text-main)] uppercase">
-                    {
-                      currentView === 'video' ? t.genPrompt : 
-                      currentView === 'idea' ? t.genIdea : 
-                      currentView === 'image' ? t.genImage :
-                      currentView === 'voice' ? t.genVoice :
-                      currentView === 'voiceExtractor' ? t.genVoiceExtractor :
-                      (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
-                      (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
-                    }
-                  </span>
-                </>
-              )}
-            </div>
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin text-black" size={24} /> 
+                <span className="text-lg font-black tracking-widest uppercase">{t.processing}</span>
+              </>
+            ) : (
+              <>
+                <Zap size={24} className="text-black group-hover:rotate-12 transition-transform" /> 
+                <span className="text-lg font-black tracking-widest uppercase">
+                  {
+                    currentView === 'video' ? t.genPrompt : 
+                    currentView === 'idea' ? t.genIdea : 
+                    currentView === 'image' ? t.genImage :
+                    currentView === 'voice' ? t.genVoice :
+                    currentView === 'voiceExtractor' ? t.genVoiceExtractor :
+                    (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
+                    (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
+                  }
+                </span>
+              </>
+            )}
           </motion.button>
         </div>
 
@@ -3796,17 +3793,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               key="result"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col relative overflow-hidden group"
+              className="studio-card p-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col relative overflow-hidden group"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)] opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="flex items-center justify-between mb-8">
                 <div className="space-y-1">
-                  <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2 text-[var(--text-main)]">
-                    <Sparkles size={20} className="text-[var(--accent-main)]" /> 
+                  <h2 className="text-xl font-black tracking-tight flex items-center gap-3 text-white">
+                    <Sparkles size={20} className="text-hw-accent" /> 
                     {t.outputPreview}
                   </h2>
-                  <p className="text-xs font-medium text-[var(--text-muted)] ml-7">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-hw-muted ml-8">
                     {uiLang === 'en' ? "AI Generated Result" : "এআই জেনারেটেড রেজাল্ট"}
                   </p>
                 </div>
@@ -3827,7 +3824,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       }
                       copyToClipboard(allText, 'copy-all');
                     }}
-                    className="text-xs flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 hover:border-[var(--text-muted)]/30 rounded-lg transition-all text-[var(--text-muted)] hover:text-[var(--text-main)] shadow-sm"
+                    className="text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-hw-accent/50 rounded-xl transition-all text-white/70 hover:text-hw-accent shadow-sm"
                   >
                     {copied === 'copy-all' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                     {t.copyAll}
@@ -3836,22 +3833,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
 
               {!currentResult && !loading && (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-6">
-                  <div className="w-24 h-24 rounded-3xl bg-[var(--accent-main)]/5 flex items-center justify-center text-[var(--accent-main)]/20 animate-float">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-8">
+                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent animate-float shadow-[0_0_30px_rgba(212,175,55,0.15)] border border-hw-accent/20">
                     <Sparkles size={48} />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-semibold text-[var(--text-main)]">{t.readyToCreate}</h3>
-                    <p className="text-sm text-[var(--text-muted)] max-w-xs mx-auto">{t.readySubtitle}</p>
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-black text-white tracking-tight">{t.readyToCreate}</h3>
+                    <p className="text-sm font-medium text-white/50 max-w-xs mx-auto leading-relaxed">{t.readySubtitle}</p>
                   </div>
                   
                   {/* Quick Suggestions Bento Grid */}
                   <div className="grid grid-cols-2 gap-4 w-full pt-8">
                     {[
-                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
-                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
-                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" },
-                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-[var(--accent-main)]", bg: "bg-[var(--accent-main)]/10", border: "border-[var(--accent-main)]/20" }
+                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
+                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
+                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
+                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" }
                     ].map((item, i) => (
                       <button 
                         key={i}
@@ -3861,13 +3858,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
                           }
                         }}
-                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--text-muted)]/30 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden shadow-sm"
+                        className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/50 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden shadow-sm"
                       >
                         <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500", item.bg)} />
-                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", item.bg, item.color, item.border)}>
-                          <item.icon size={20} />
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-inner", item.bg, item.color, item.border)}>
+                          <item.icon size={24} />
                         </div>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">{item.label}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-hw-accent transition-colors">{item.label}</span>
                       </button>
                     ))}
                   </div>
@@ -3875,27 +3872,27 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               )}
 
               {loading && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-[var(--bg-card)]/30 rounded-3xl border border-[var(--border-main)] backdrop-blur-sm relative overflow-hidden">
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-black/40 rounded-[2rem] border border-white/10 backdrop-blur-xl relative overflow-hidden">
                     {/* Background glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[var(--accent-main)]/10 rounded-full blur-[80px]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-hw-accent/20 rounded-full blur-[100px]" />
                     
                     <div className="relative z-10">
                       <motion.div 
                         animate={{ rotate: 360 }}
                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="w-32 h-32 rounded-full border border-[var(--border-main)] border-t-[var(--accent-main)]/50 border-r-[var(--accent-main)]/30"
+                        className="w-32 h-32 rounded-full border border-white/10 border-t-hw-accent/80 border-r-hw-accent/40"
                       />
                       <motion.div 
                         animate={{ rotate: -360 }}
                         transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-2 rounded-full border border-[var(--border-main)] border-b-brand-blue-glow/50 border-l-brand-blue-glow/30"
+                        className="absolute inset-2 rounded-full border border-white/10 border-b-yellow-500/80 border-l-yellow-500/40"
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
                           <motion.div
                             animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--accent-main)]/20 to-transparent flex items-center justify-center text-[var(--accent-main)] border border-[var(--accent-main)]/20 shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)] backdrop-blur-md"
+                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-hw-accent/30 to-transparent flex items-center justify-center text-hw-accent border border-hw-accent/30 shadow-[0_0_40px_rgba(212,175,55,0.3)] backdrop-blur-md"
                           >
                             <Sparkles size={32} />
                           </motion.div>
@@ -3905,20 +3902,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="w-full max-w-sm space-y-6 z-10">
                       <div className="flex justify-between items-end">
-                        <div className="text-xs uppercase tracking-wider font-semibold text-[var(--accent-main)] h-4">
+                        <div className="text-[10px] uppercase tracking-widest font-black text-hw-accent h-4">
                           <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="typewriter-text" />
                         </div>
-                        <span className="text-xs font-mono text-[var(--text-muted)]">{Math.round(loadingProgress)}%</span>
+                        <span className="text-xs font-mono font-bold text-white/50">{Math.round(loadingProgress)}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[var(--bg-main)] rounded-full overflow-hidden border border-[var(--border-main)] relative">
-                        <div className="absolute inset-0 bg-[var(--accent-main)]/10" />
+                      <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
+                        <div className="absolute inset-0 bg-hw-accent/10" />
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-[var(--accent-main)] via-[var(--accent-main)]/80 to-[var(--accent-main)] relative"
+                          className="h-full bg-gradient-to-r from-hw-accent via-yellow-400 to-hw-accent relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
                           transition={{ type: "spring", stiffness: 40, damping: 15 }}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shine_2s_linear_infinite]" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shine_2s_linear_infinite]" />
                         </motion.div>
                       </div>
                       <div className="flex justify-center gap-3">
@@ -3926,17 +3923,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <div 
                             key={i} 
                             className={cn(
-                              "w-1.5 h-1.5 rounded-full transition-all duration-700",
+                              "w-2 h-2 rounded-full transition-all duration-700",
                               i <= loadingStep 
-                                ? "bg-[var(--accent-main)] shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)] scale-125" 
-                                : "bg-[var(--border-main)]"
+                                ? "bg-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.8)] scale-125" 
+                                : "bg-white/10"
                             )}
                           />
                         ))}
                       </div>
                     </div>
 
-                    <p className="text-xs text-[var(--text-muted)] font-medium text-center max-w-xs leading-relaxed z-10 opacity-70">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 text-center max-w-xs leading-relaxed z-10">
                       {uiLang === 'en' 
                         ? "Synthesizing creative parameters..." 
                         : "সৃজনশীল পরামিতি সংশ্লেষণ করা হচ্ছে..."}
@@ -3974,56 +3971,56 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     )}
                     {currentResult.imageUrl ? (
                       <div className="space-y-4">
-                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-[var(--border-main)] group">
+                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                           <img src={currentResult.imageUrl} alt="Generated" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                             <a 
                               href={currentResult.imageUrl} 
                               download="generated-image.png"
-                              className="w-10 h-10 rounded-full bg-[var(--accent-main)] flex items-center justify-center text-white hover:scale-110 transition-transform"
+                              className="w-12 h-12 rounded-full bg-hw-accent flex items-center justify-center text-black hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.5)]"
                             >
-                              <Download size={20} />
+                              <Download size={24} />
                             </a>
                           </div>
                         </div>
-                        <p className="text-xs text-[var(--text-muted)] text-center italic">{t.generatedImage}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-white/50 text-center font-bold">{t.generatedImage}</p>
                       </div>
                     ) : currentResult.audioUrl ? (
                       <div className="space-y-6 py-4">
                         <div className="flex flex-col items-center gap-6">
-                          <div className="w-20 h-20 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] animate-pulse">
-                            <Volume2 size={40} />
+                          <div className="w-24 h-24 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_30px_rgba(212,175,55,0.2)] border border-hw-accent/20">
+                            <Volume2 size={48} />
                           </div>
                           <audio controls src={currentResult.audioUrl} className="w-full" />
-                          <p className="text-[10px] text-[var(--text-muted)] italic text-center max-w-xs">{t.voiceNote}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold text-center max-w-xs">{t.voiceNote}</p>
                           <a 
                             href={currentResult.audioUrl} 
                             download="voice-over.wav"
-                            className="flex items-center gap-2 px-6 py-3 bg-[var(--accent-main)] text-white rounded-xl font-semibold hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)] transition-all"
+                            className="flex items-center gap-2 px-8 py-4 bg-hw-accent text-black rounded-xl font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all"
                           >
-                            <Download size={18} /> {t.downloadAudio}
+                            <Download size={20} /> {t.downloadAudio}
                           </a>
                         </div>
                       </div>
                     ) : currentResult.titles ? (
                       <div className="space-y-4">
                         {currentResult.titles.map((t: any, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group glass-card shadow-sm">
+                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">Variation {idx + 1}</h3>
+                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Variation {idx + 1}</h3>
                             </div>
                             <div className="space-y-3">
-                              <div className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-1">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">SEO Title</label>
-                                <div className="text-sm font-medium text-[var(--text-main)]">{t.title}</div>
-                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                              <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">SEO Title</label>
+                                <div className="text-sm font-bold text-white leading-relaxed">{t.title}</div>
+                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
                                   {copied === `title-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
-                              <div className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-1">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">High CTR Title</label>
-                                <div className="text-sm font-bold text-[var(--text-main)]">{t.highCtrTitle}</div>
-                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                              <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">High CTR Title</label>
+                                <div className="text-sm font-black text-white leading-relaxed">{t.highCtrTitle}</div>
+                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
                                   {copied === `highCtr-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
@@ -4034,17 +4031,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : currentResult.prompts ? (
                       <div className="space-y-4">
                         {currentResult.prompts.map((prompt: string, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">Option {idx + 1}</h3>
+                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Option {idx + 1}</h3>
                               <button 
                                 onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                                className="text-white/50 hover:text-hw-accent transition-colors"
                               >
                                 {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
                             </div>
-                            <div className="text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
+                            <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">
                               <TypewriterText text={prompt} className="typewriter-text" />
                             </div>
                           </div>
@@ -4053,17 +4050,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : currentResult.ideas ? (
                       <div className="space-y-4">
                         {currentResult.ideas.map((idea: any, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-[var(--accent-main)] font-semibold text-xs uppercase tracking-wider">{idx + 1}. {idea.title}</h3>
+                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">{idx + 1}. {idea.title}</h3>
                               <button 
                                 onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
-                                className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                                className="text-white/50 hover:text-hw-accent transition-colors"
                               >
                                 {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                               </button>
                             </div>
-                            <div className="text-sm text-[var(--text-main)] leading-relaxed">
+                            <div className="text-sm text-white/80 leading-relaxed font-medium">
                               <TypewriterText text={idea.description} className="typewriter-text" />
                             </div>
                           </div>
@@ -4075,28 +4072,28 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {(currentResult.videoTitle || currentResult.imagePrompt || currentResult.videoPrompt) && (
                           <div className="space-y-6">
                             {currentResult.videoTitle && (
-                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Video Title</label>
-                                <div className="text-lg font-bold text-[var(--text-main)]">{currentResult.videoTitle}</div>
-                                <button onClick={() => copyToClipboard(currentResult.videoTitle, 'videoTitle')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Video Title</label>
+                                <div className="text-lg font-black text-white">{currentResult.videoTitle}</div>
+                                <button onClick={() => copyToClipboard(currentResult.videoTitle, 'videoTitle')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
                                   {copied === 'videoTitle' ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
                             )}
                             {currentResult.imagePrompt && (
-                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Image Prompt</label>
-                                <div className="text-sm text-[var(--text-main)] leading-relaxed">{currentResult.imagePrompt}</div>
-                                <button onClick={() => copyToClipboard(currentResult.imagePrompt, 'imagePrompt')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Image Prompt</label>
+                                <div className="text-sm text-white/90 leading-relaxed font-medium">{currentResult.imagePrompt}</div>
+                                <button onClick={() => copyToClipboard(currentResult.imagePrompt, 'imagePrompt')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
                                   {copied === 'imagePrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
                             )}
                             {currentResult.videoPrompt && (
-                              <div className="p-6 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold">Video Prompt</label>
-                                <div className="text-sm text-[var(--text-main)] leading-relaxed">{currentResult.videoPrompt}</div>
-                                <button onClick={() => copyToClipboard(currentResult.videoPrompt, 'videoPrompt')} className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1">
+                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Video Prompt</label>
+                                <div className="text-sm text-white/90 leading-relaxed font-medium">{currentResult.videoPrompt}</div>
+                                <button onClick={() => copyToClipboard(currentResult.videoPrompt, 'videoPrompt')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
                                   {copied === 'videoPrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
                                 </button>
                               </div>
@@ -4119,11 +4116,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               const langName = langNames[langKey] || langKey;
                               
                               return (
-                                <div key={`subtitle-${langKey}`} className="space-y-3 group">
+                                <div key={`subtitle-${langKey}`} className="space-y-4 group">
                                   <div className="flex items-center justify-between px-2">
-                                    <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
-                                      <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
-                                        <Languages size={12} />
+                                    <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2">
+                                      <div className="w-8 h-8 rounded-xl bg-hw-accent/10 flex items-center justify-center">
+                                        <Languages size={14} />
                                       </div>
                                       {uiLang === 'en' ? `${langName} Subtitles` : `${langName} সাবটাইটেল`}
                                     </label>
@@ -4138,20 +4135,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           a.click();
                                           URL.revokeObjectURL(url);
                                         }}
-                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
                                         title="Download .srt"
                                       >
                                         <Download size={18} />
                                       </button>
                                       <button 
                                         onClick={() => copyToClipboard(String(langValue), `subtitle-${langKey}`)}
-                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
                                       >
                                         {copied === `subtitle-${langKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                       </button>
                                     </div>
                                   </div>
-                                  <div className="p-8 rounded-3xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar glass-card shadow-sm group-hover:border-[var(--accent-main)]/20 transition-all duration-500">
+                                  <div className="p-8 rounded-3xl bg-black/40 border border-white/10 text-sm text-white/90 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto custom-scrollbar shadow-inner group-hover:border-hw-accent/30 transition-all duration-500 font-medium">
                                     <TypewriterText text={String(langValue)} className="typewriter-text" />
                                   </div>
                                 </div>
@@ -4162,9 +4159,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           // Handle nested metadata object from video analysis
                           if (key === 'metadata' && typeof value === 'object' && value !== null) {
                             return (
-                              <div key="metadata-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
-                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
-                                  <FileText size={16} className="text-[var(--accent-main)]" />
+                              <div key="metadata-section" className="space-y-6 pt-8 border-t border-white/10">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                                  <FileText size={16} className="text-hw-accent" />
                                   {uiLang === 'en' ? "Video Metadata" : "ভিডিও মেটাডেটা"}
                                 </h3>
                                 {Object.entries(value).map(([mKey, mValue]) => {
@@ -4183,21 +4180,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   if (mKey === 'titles' && Array.isArray(mValue)) {
                                     return (
                                       <div key={`${key}-${mKey}`} className="space-y-4">
-                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2 px-2">
-                                          <mConfig.icon size={12} /> {mConfig.label}
+                                        <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                          <mConfig.icon size={14} /> {mConfig.label}
                                         </label>
-                                        <div className="grid grid-cols-1 gap-3">
+                                        <div className="grid grid-cols-1 gap-4">
                                           {mValue.map((t: any, idx: number) => (
-                                            <div key={idx} className="p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
+                                            <div key={idx} className="p-5 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
                                               <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-bold text-[var(--accent-main)]/60 uppercase">Variation {idx + 1}</span>
-                                                <button onClick={() => copyToClipboard(`${t.title}\n${t.highCtrTitle}`, `titles-${idx}`)} className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors">
-                                                  {copied === `titles-${idx}` ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                                <span className="text-[10px] font-black text-hw-accent/60 uppercase tracking-widest">Variation {idx + 1}</span>
+                                                <button onClick={() => copyToClipboard(`${t.title}\n${t.highCtrTitle}`, `titles-${idx}`)} className="text-white/50 hover:text-hw-accent transition-colors">
+                                                  {copied === `titles-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                                 </button>
                                               </div>
-                                              <div className="space-y-1">
-                                                <div className="text-sm font-medium text-[var(--text-main)]"><span className="text-[var(--accent-main)]/40 mr-1">SEO:</span> {t.title}</div>
-                                                <div className="text-sm font-bold text-[var(--text-main)]"><span className="text-[var(--accent-main)]/40 mr-1">CTR:</span> {t.highCtrTitle}</div>
+                                              <div className="space-y-2">
+                                                <div className="text-sm font-medium text-white"><span className="text-hw-accent/50 mr-2 font-bold">SEO:</span> {t.title}</div>
+                                                <div className="text-sm font-black text-white"><span className="text-hw-accent/50 mr-2 font-bold">CTR:</span> {t.highCtrTitle}</div>
                                               </div>
                                             </div>
                                           ))}
@@ -4211,16 +4208,16 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   // Make title more prominent
                                   if (mKey === 'title' || mKey === 'highCtrTitle') {
                                     return (
-                                      <div key={`${key}-${mKey}`} className="p-4 rounded-2xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 space-y-2">
-                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
-                                          <mConfig.icon size={12} /> {mConfig.label}
+                                      <div key={`${key}-${mKey}`} className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
+                                        <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2">
+                                          <mConfig.icon size={14} /> {mConfig.label}
                                         </label>
-                                        <div className="text-lg font-bold text-[var(--text-main)]">
+                                        <div className="text-lg font-black text-white">
                                           {displayValue}
                                         </div>
                                         <button 
                                           onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                          className="text-xs text-[var(--accent-main)] hover:text-[var(--accent-main)]/80 flex items-center gap-1"
+                                          className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2"
                                         >
                                           {copied === `${key}-${mKey}` ? <Check size={14} /> : <Copy size={14} />}
                                           {uiLang === 'en' ? "Copy Title" : "শিরোনাম কপি করুন"}
@@ -4230,22 +4227,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   }
 
                                   return (
-                                    <div key={`${key}-${mKey}`} className="space-y-2 group">
+                                    <div key={`${key}-${mKey}`} className="space-y-3 group">
                                       <div className="flex items-center justify-between px-2">
-                                        <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
-                                          <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
-                                            <mConfig.icon size={12} />
+                                        <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2">
+                                          <div className="w-8 h-8 rounded-xl bg-hw-accent/10 flex items-center justify-center">
+                                            <mConfig.icon size={14} />
                                           </div>
                                           {mConfig.label}
                                         </label>
                                         <button 
                                           onClick={() => copyToClipboard(displayValue, `${key}-${mKey}`)}
-                                          className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
+                                          className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
                                         >
                                           {copied === `${key}-${mKey}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                         </button>
                                       </div>
-                                      <div className="p-4 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar">
+                                      <div className="p-6 rounded-2xl bg-black/40 border border-white/10 text-sm text-white/90 leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar font-medium shadow-inner">
                                         {displayValue}
                                       </div>
                                     </div>
@@ -4258,36 +4255,36 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           // Handle socialMedia object
                           if (key === 'socialMedia' && typeof value === 'object' && value !== null) {
                             return (
-                              <div key="social-media-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
-                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
-                                  <Share2 size={16} className="text-[var(--accent-main)]" />
+                              <div key="social-media-section" className="space-y-6 pt-8 border-t border-white/10">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                                  <Share2 size={16} className="text-hw-accent" />
                                   {uiLang === 'en' ? "Social Media Captions" : "সোশ্যাল মিডিয়া ক্যাপশন"}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {Object.entries(value).map(([sKey, sValue]) => {
                                     const sLabelMap: any = {
-                                      facebook: { label: "Facebook", icon: Facebook, color: "text-blue-600" },
-                                      linkedin: { label: "LinkedIn", icon: Linkedin, color: "text-blue-700" },
-                                      instagram: { label: "Instagram", icon: Instagram, color: "text-pink-600" },
-                                      tiktok: { label: "TikTok", icon: Video, color: "text-black" },
+                                      facebook: { label: "Facebook", icon: Facebook, color: "text-blue-500" },
+                                      linkedin: { label: "LinkedIn", icon: Linkedin, color: "text-blue-600" },
+                                      instagram: { label: "Instagram", icon: Instagram, color: "text-pink-500" },
+                                      tiktok: { label: "TikTok", icon: Video, color: "text-white" },
                                     };
-                                    const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-[var(--accent-main)]" };
+                                    const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-hw-accent" };
                                     
                                     return (
-                                      <div key={`social-${sKey}`} className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-3 group glass-card shadow-sm">
+                                      <div key={`social-${sKey}`} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
                                         <div className="flex items-center justify-between">
-                                          <div className="flex items-center gap-2">
-                                            <sConfig.icon size={16} className={sConfig.color} />
-                                            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{sConfig.label}</span>
+                                          <div className="flex items-center gap-3">
+                                            <sConfig.icon size={18} className={sConfig.color} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/50">{sConfig.label}</span>
                                           </div>
                                           <button 
                                             onClick={() => copyToClipboard(String(sValue), `social-${sKey}`)}
-                                            className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                                            className="text-white/50 hover:text-hw-accent transition-colors"
                                           >
                                             {copied === `social-${sKey}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                                           </button>
                                         </div>
-                                        <p className="text-sm text-[var(--text-main)] leading-relaxed line-clamp-6">
+                                        <p className="text-sm text-white/90 leading-relaxed line-clamp-6 font-medium">
                                           {String(sValue)}
                                         </p>
                                       </div>
@@ -4301,18 +4298,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           // Handle repurposeAddons array
                           if (key === 'repurposeAddons' && Array.isArray(value)) {
                             return (
-                              <div key="repurpose-section" className="space-y-6 pt-6 border-t border-[var(--border-main)]">
-                                <h3 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
+                              <div key="repurpose-section" className="space-y-6 pt-8 border-t border-white/10">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
                                   <Repeat size={16} className="text-emerald-500" />
                                   {uiLang === 'en' ? "Content Repurposing Ideas" : "কন্টেন্ট রিপারপাসিং আইডিয়া"}
                                 </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   {value.map((addon: string, idx: number) => (
-                                    <div key={idx} className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-3">
-                                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                        <Lightbulb size={16} />
+                                    <div key={idx} className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-4">
+                                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+                                        <Lightbulb size={20} />
                                       </div>
-                                      <span className="text-sm font-medium text-[var(--text-main)]">{addon}</span>
+                                      <span className="text-sm font-bold text-white leading-relaxed">{addon}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -4323,74 +4320,74 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           // Handle sceneBreakdown array
                           if (key === 'sceneBreakdown' && Array.isArray(value)) {
                             return (
-                              <div key="scene-breakdown" className="space-y-6 mt-4">
-                                <div className="flex items-center gap-3 pb-2 border-b border-[var(--border-main)]">
-                                  <Film className="text-[var(--accent-main)]" size={20} />
-                                  <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                              <div key="scene-breakdown" className="space-y-6 mt-6">
+                                <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+                                  <Film className="text-hw-accent" size={20} />
+                                  <h3 className="text-[10px] font-black uppercase tracking-widest text-hw-muted">
                                     {uiLang === 'en' ? "Scene-by-Scene Breakdown" : "সীন-বাই-সীন ব্রেকডাউন"}
                                   </h3>
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                   {value.map((scene: any, idx: number) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-5 hover:border-[var(--accent-main)]/30 transition-all group glass-card shadow-sm">
+                                    <div key={idx} className="p-8 rounded-[2rem] bg-black/40 border border-white/10 space-y-6 hover:border-hw-accent/30 transition-all group shadow-sm">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                          <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/20 flex items-center justify-center text-[var(--accent-main)] font-semibold text-sm shadow-inner">
+                                          <div className="w-12 h-12 rounded-2xl bg-hw-accent/20 flex items-center justify-center text-hw-accent font-black text-lg shadow-inner">
                                             {scene.scene || idx + 1}
                                           </div>
-                                          <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                                            <Clock size={14} className="text-[var(--accent-main)]" /> {scene.time || "0:00"}
+                                          <div className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-widest">
+                                            <Clock size={14} className="text-hw-accent" /> {scene.time || "0:00"}
                                           </div>
                                         </div>
                                         <button 
                                           onClick={() => copyToClipboard(`Scene ${scene.scene}\nTime: ${scene.time}\nScript: ${scene.script}\nVisual: ${scene.visual}`, `scene-${idx}`)}
-                                          className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors"
+                                          className="text-white/50 hover:text-hw-accent transition-colors"
                                         >
-                                          {copied === `scene-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                          {copied === `scene-${idx}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                         </button>
                                       </div>
                                       
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-3">
+                                        <div className="space-y-4">
                                           <div className="flex items-center justify-between">
-                                            <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                                              <MessageSquare size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
+                                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
+                                              <MessageSquare size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Script / Voiceover" : "স্ক্রিপ্ট / ভয়েসওভার"}
                                             </label>
                                             <div className="flex items-center gap-2">
                                               {sceneAudioUrls[`scene-${idx}`] ? (
                                                 <audio 
                                                   src={sceneAudioUrls[`scene-${idx}`]} 
                                                   controls 
-                                                  className="h-7 w-36 custom-audio-mini"
+                                                  className="h-8 w-40 custom-audio-mini"
                                                 />
                                               ) : (
                                                 <button
                                                   onClick={() => handleSceneVoiceOver(idx, scene.script)}
                                                   disabled={loadingSceneAudio === `scene-${idx}`}
                                                   className={cn(
-                                                    "text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-xl bg-[var(--accent-main)]/10 text-[var(--accent-main)] border border-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/20 transition-all flex items-center gap-2",
+                                                    "text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-hw-accent/10 text-hw-accent border border-hw-accent/20 hover:bg-hw-accent/20 transition-all flex items-center gap-2",
                                                     loadingSceneAudio === `scene-${idx}` && "opacity-50 cursor-not-allowed"
                                                   )}
                                                 >
                                                   {loadingSceneAudio === `scene-${idx}` ? (
-                                                    <Loader2 size={12} className="animate-spin" />
+                                                    <Loader2 size={14} className="animate-spin" />
                                                   ) : (
-                                                    <Volume2 size={12} />
+                                                    <Volume2 size={14} />
                                                   )}
                                                   {uiLang === 'en' ? "Voice" : "ভয়েস"}
                                                 </button>
                                               )}
                                             </div>
                                           </div>
-                                          <p className="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-card)]/40 p-4 rounded-xl border border-[var(--border-main)]/50">
+                                          <p className="text-sm text-white/90 leading-relaxed bg-black/40 p-5 rounded-2xl border border-white/10 font-medium shadow-inner">
                                             {scene.script}
                                           </p>
                                         </div>
-                                        <div className="space-y-3">
-                                          <label className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                                            <Eye size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
+                                        <div className="space-y-4">
+                                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
+                                            <Eye size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
                                           </label>
-                                          <p className="text-sm text-[var(--text-muted)] italic leading-relaxed bg-[var(--accent-main)]/5 p-4 rounded-xl border border-[var(--accent-main)]/10">
+                                          <p className="text-sm text-white/70 italic leading-relaxed bg-hw-accent/5 p-5 rounded-2xl border border-hw-accent/10 font-medium">
                                             {scene.visual}
                                           </p>
                                         </div>
@@ -4425,48 +4422,48 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           const config = labelMap[key] || { label: key, icon: Sparkles };
                           
                           return (
-                            <div key={key} className="space-y-3 group">
+                            <div key={key} className="space-y-4 group">
                               <div className="flex items-center justify-between px-2">
-                                <label className="text-[10px] uppercase tracking-wider text-[var(--accent-main)] font-semibold flex items-center gap-2">
-                                  <div className="w-6 h-6 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center">
-                                    <config.icon size={12} />
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-xl bg-hw-accent/10 flex items-center justify-center">
+                                    <config.icon size={14} />
                                   </div>
                                   {config.label}
                                 </label>
                                 <div className="flex gap-4">
                                   {key === 'script' && (
-                                    <div className="flex gap-3 items-center">
+                                    <div className="flex gap-4 items-center">
                                       <button 
                                         onClick={() => shareScript('facebook', String(value))}
-                                        className="text-[var(--text-muted)] hover:text-[#1877F2] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-[#1877F2] transition-all hover:scale-110"
                                         title="Share on Facebook"
                                       >
                                         <Facebook size={18} />
                                       </button>
                                       <button 
                                         onClick={() => shareScript('twitter', String(value))}
-                                        className="text-[var(--text-muted)] hover:text-[#1DA1F2] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-[#1DA1F2] transition-all hover:scale-110"
                                         title="Share on Twitter"
                                       >
                                         <Twitter size={18} />
                                       </button>
                                       <button 
                                         onClick={() => shareScript('whatsapp', String(value))}
-                                        className="text-[var(--text-muted)] hover:text-[#25D366] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-[#25D366] transition-all hover:scale-110"
                                         title="Share on WhatsApp"
                                       >
                                         <MessageCircle size={18} />
                                       </button>
                                       <button 
                                         onClick={() => shareScript('native', String(value))}
-                                        className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
                                         title="Share"
                                       >
                                         <Share2 size={18} />
                                       </button>
                                       <button 
                                         onClick={downloadPdf}
-                                        className="text-[var(--text-muted)] hover:text-indigo-400 transition-all hover:scale-110"
+                                        className="text-white/50 hover:text-indigo-400 transition-all hover:scale-110"
                                         title="Download PDF"
                                       >
                                         <Download size={18} />
@@ -4482,30 +4479,30 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         copyToClipboard(String(value), key);
                                       }
                                     }}
-                                    className="text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-all hover:scale-110"
+                                    className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
                                   >
                                     {copied === key ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                                   </button>
                                 </div>
                               </div>
-                              <div className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] text-sm text-[var(--text-main)] leading-relaxed whitespace-pre-wrap glass-card shadow-xl group-hover:border-[var(--accent-main)]/20 transition-all duration-500">
+                              <div className="p-8 rounded-[2rem] bg-black/40 border border-white/10 text-sm text-white/90 leading-relaxed whitespace-pre-wrap shadow-inner group-hover:border-hw-accent/30 transition-all duration-500 font-medium">
                                 {key === 'keywords' && Array.isArray(value) ? (
                                   <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                       <thead>
-                                        <tr className="border-b border-[var(--border-main)]">
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Keyword</th>
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Volume</th>
-                                          <th className="py-3 px-4 text-[10px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Competition</th>
+                                        <tr className="border-b border-white/10">
+                                          <th className="py-4 px-4 text-[10px] uppercase text-white/50 font-black tracking-widest">Keyword</th>
+                                          <th className="py-4 px-4 text-[10px] uppercase text-white/50 font-black tracking-widest">Volume</th>
+                                          <th className="py-4 px-4 text-[10px] uppercase text-white/50 font-black tracking-widest">Competition</th>
                                         </tr>
                                       </thead>
                                       <tbody>
                                         {value.map((kw: any, i: number) => (
-                                          <tr key={i} className="border-b border-[var(--border-main)]/30 last:border-0 hover:bg-[var(--accent-main)]/5 transition-colors">
-                                            <td className="py-3 px-4 font-bold text-[var(--accent-main)]">{kw.keyword}</td>
-                                            <td className="py-3 px-4">
+                                          <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-hw-accent/5 transition-colors">
+                                            <td className="py-4 px-4 font-bold text-hw-accent">{kw.keyword}</td>
+                                            <td className="py-4 px-4">
                                               <span className={cn(
-                                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter",
+                                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
                                                 kw.searchVolume === 'High' ? "bg-green-500/20 text-green-500" :
                                                 kw.searchVolume === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
                                                 "bg-blue-500/20 text-blue-500"
@@ -4513,9 +4510,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                                 {kw.searchVolume}
                                               </span>
                                             </td>
-                                            <td className="py-3 px-4">
+                                            <td className="py-4 px-4">
                                               <span className={cn(
-                                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter",
+                                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
                                                 kw.competition === 'Low' ? "bg-green-500/20 text-green-500" :
                                                 kw.competition === 'Medium' ? "bg-yellow-500/20 text-yellow-500" :
                                                 "bg-red-500/20 text-red-500"
@@ -4541,27 +4538,27 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         )}
                 
                 {relatedIdeas.length > 0 && (
-                    <div className="mt-10 p-8 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card shadow-2xl">
-                      <h3 className="text-xl font-bold tracking-tighter flex items-center gap-3 mb-6 text-[var(--text-main)]">
-                        <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
-                          <Sparkles size={20} />
+                    <div className="mt-12 p-8 rounded-[2.5rem] bg-black/40 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                      <h3 className="text-xl font-black tracking-tight flex items-center gap-3 mb-8 text-white">
+                        <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent">
+                          <Sparkles size={24} />
                         </div>
                         {uiLang === 'en' ? "Related Video Ideas" : "সম্পর্কিত ভিডিও আইডিয়া"}
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {relatedIdeas.map((idea, idx) => (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(168, 85, 247, 0.05)" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.05)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
                               handleGenerate();
                             }}
-                            className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/30 transition-all text-left glass-card group"
+                            className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/30 transition-all text-left shadow-sm group"
                           >
-                            <h4 className="text-sm font-bold text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{idea.title}</h4>
-                            <p className="text-xs text-[var(--text-muted)] mt-2 leading-relaxed">{idea.description}</p>
+                            <h4 className="text-sm font-black text-white group-hover:text-hw-accent transition-colors">{idea.title}</h4>
+                            <p className="text-xs text-white/50 mt-3 leading-relaxed font-medium">{idea.description}</p>
                           </motion.button>
                         ))}
                       </div>
@@ -4605,21 +4602,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-lg glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
+                    className="relative w-full max-w-lg bg-black/80 border border-white/10 rounded-[2rem] p-6 sm:p-8 space-y-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-hw-accent to-transparent" />
                   
                   <div className="flex items-center justify-between">
-                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
+                      <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
                         <Globe size={24} />
                       </div>
                       <span>{t.settings}</span>
                     </h2>
                     <button 
                       onClick={() => setShowSettings(false)}
-                      className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors rounded-full hover:bg-[var(--bg-main)]"
+                      className="p-3 text-white/50 hover:text-hw-accent transition-colors rounded-full hover:bg-white/5"
                     >
                       <X size={24} />
                     </button>
@@ -4628,10 +4625,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="space-y-8">
                     {/* Theme Selection */}
                     <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
-                        <Palette size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
+                      <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2 px-1">
+                        <Palette size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
                       </label>
-                      <div className="grid grid-cols-3 gap-4 p-2 bg-[var(--bg-card)]/40 rounded-[1.5rem] border border-[var(--border-main)] shadow-inner">
+                      <div className="grid grid-cols-3 gap-4 p-2 bg-black/40 rounded-[1.5rem] border border-white/10 shadow-inner">
                         {[
                           { id: 'dark', label: uiLang === 'en' ? 'Dark' : 'ডার্ক', icon: Moon },
                           { id: 'light', label: uiLang === 'en' ? 'Light' : 'লাইট', icon: Sun },
@@ -4643,20 +4640,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setTheme(t.id as any)}
                             className={cn(
-                              "relative py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
-                              theme === t.id ? "text-[var(--accent-main)]" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                              "relative py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
+                              theme === t.id ? "text-black" : "text-white/50 hover:text-white"
                             )}
                           >
                             {theme === t.id && (
                               <motion.div
                                 layoutId="activeTheme"
-                                className="absolute inset-0 bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 rounded-2xl -z-10 shadow-lg shadow-[var(--accent-main)]/10"
+                                className="absolute inset-0 bg-hw-accent rounded-2xl -z-10 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                               />
                             )}
                             <t.icon size={20} className={cn(
                               "transition-all duration-500",
-                              theme === t.id ? "scale-110 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" : "scale-100"
+                              theme === t.id ? "scale-110" : "scale-100"
                             )} />
                             {t.label}
                           </motion.button>
@@ -4667,35 +4664,35 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="space-y-6">
                       {/* API Keys List */}
                       <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-bold flex items-center gap-2 px-1">
-                          <Zap size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
+                        <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2 px-1">
+                          <Zap size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
                         </label>
                         
                         <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                           {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma', 'openrouter'] as AIProvider[]).map((p) => (
-                            <div key={p} className="p-5 rounded-[1.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-4 group hover:border-[var(--accent-main)]/30 transition-all glass-card">
+                            <div key={p} className="p-6 rounded-[1.5rem] bg-black/40 border border-white/10 space-y-5 group hover:border-hw-accent/30 transition-all shadow-sm">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                   <div className={cn(
-                                    "w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-inner",
-                                    aiProvider === p ? "bg-[var(--accent-main)] text-white" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)]"
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black uppercase tracking-widest shadow-inner",
+                                    aiProvider === p ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.3)]" : "bg-white/5 text-white/50"
                                   )}>
                                     {p.charAt(0)}
                                   </div>
                                   <div>
-                                    <h4 className="text-xs font-bold text-[var(--text-main)] uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
-                                    <div className="flex items-center gap-1.5 mt-1">
+                                    <h4 className="text-xs font-black text-white uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
+                                    <div className="flex items-center gap-2 mt-2">
                                       <div className={cn(
-                                        "w-1.5 h-1.5 rounded-full",
-                                        connectionStatus[p] === 'connected' ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : 
+                                        "w-2 h-2 rounded-full",
+                                        connectionStatus[p] === 'connected' ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : 
                                         connectionStatus[p] === 'testing' ? "bg-blue-500 animate-pulse" :
-                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-[var(--bg-card)]/20"
+                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-white/20"
                                       )} />
                                       <span className={cn(
-                                        "text-[9px] font-bold uppercase tracking-[0.1em]",
+                                        "text-[9px] font-bold uppercase tracking-widest",
                                         connectionStatus[p] === 'connected' ? "text-green-500" : 
                                         connectionStatus[p] === 'testing' ? "text-blue-500" :
-                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-[var(--text-muted)]"
+                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-white/50"
                                       )}>
                                         {connectionStatus[p]}
                                       </span>
@@ -4703,19 +4700,19 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3">
                                   <button
                                     onClick={() => testConnection(p)}
                                     disabled={testingConnection[p]}
-                                    className="px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-main)] hover:border-[var(--accent-main)]/30 transition-all disabled:opacity-50"
+                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-hw-accent hover:border-hw-accent/30 transition-all disabled:opacity-50"
                                   >
-                                    {testingConnection[p] ? <RefreshCw size={12} className="animate-spin" /> : "Test"}
+                                    {testingConnection[p] ? <RefreshCw size={14} className="animate-spin" /> : "Test"}
                                   </button>
                                   <button
                                     onClick={() => setAiProvider(p)}
                                     className={cn(
-                                      "px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all",
-                                      aiProvider === p ? "bg-[var(--accent-main)] text-white shadow-lg shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/10 text-[var(--text-muted)] hover:text-[var(--text-main)]"
+                                      "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                      aiProvider === p ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]" : "bg-white/5 text-white/50 hover:text-white"
                                     )}
                                   >
                                     {aiProvider === p ? "Active" : "Select"}
@@ -4727,7 +4724,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 <input 
                                   type="password" 
                                   placeholder={`${p.toUpperCase()} API Key...`}
-                                  className="w-full bg-[var(--bg-card)]/30 border border-[var(--border-main)] rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:border-[var(--accent-main)]/50 transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]/50"
+                                  className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-xs font-medium focus:outline-none focus:border-hw-accent/50 transition-all text-white placeholder:text-white/30 shadow-inner"
                                   value={
                                     p === 'gemini' ? customGeminiKey : 
                                     p === 'openai' ? customOpenaiKey : 
@@ -4766,17 +4763,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col gap-4 pt-6">
+                    <div className="flex flex-col gap-4 pt-8 border-t border-white/10">
                       <button 
                         onClick={saveAIConfig}
-                        className="w-full py-5 rounded-[1.5rem] bg-[var(--accent-main)] text-black font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-glow)] hover:shadow-[var(--accent-main)]/40 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-black font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                       >
                         <Save size={20} />
                         {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
                       </button>
                       <button 
                         onClick={() => setShowSettings(false)}
-                        className="w-full py-5 rounded-[1.5rem] bg-[var(--bg-card)]/20 border border-[var(--border-main)] text-[var(--text-main)] font-bold text-xs uppercase tracking-[0.2em] hover:bg-[var(--bg-card)]/40 transition-all active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all active:scale-[0.98]"
                       >
                         {uiLang === 'en' ? "Close Settings" : "সেটিংস বন্ধ করুন"}
                       </button>
@@ -4795,14 +4792,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             toast.success(uiLang === 'en' ? "AI Configuration Reset!" : "AI কনফিগারেশন রিসেট করা হয়েছে!");
                             setTimeout(() => window.location.reload(), 1000);
                           }}
-                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
+                          className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/50 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
                         >
                           <RefreshCw size={16} /> {uiLang === 'en' ? "Reset Default" : "ডিফল্ট রিসেট"}
                         </button>
 
                         <button 
                           onClick={downloadHistory}
-                          className="w-full py-4 rounded-2xl bg-[var(--bg-card)]/10 border border-[var(--border-main)] text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--accent-main)]/10 hover:text-[var(--accent-main)] hover:border-[var(--accent-main)]/30 transition-all flex items-center justify-center gap-3"
+                          className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/50 font-black text-[10px] uppercase tracking-widest hover:bg-hw-accent/10 hover:text-hw-accent hover:border-hw-accent/30 transition-all flex items-center justify-center gap-3"
                         >
                           <Download size={16} /> {uiLang === 'en' ? "Export Data" : "ডেটা এক্সপোর্ট"}
                         </button>
@@ -4811,7 +4808,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {deferredPrompt && (
                         <button 
                           onClick={installApp}
-                          className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                          className="w-full py-5 rounded-[1.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
                           <Download size={22} /> {uiLang === 'en' ? "Install as Android App" : "অ্যান্ড্রয়েড অ্যাপ হিসেবে ইনস্টল করুন"}
                         </button>
@@ -4819,7 +4816,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                       <button 
                         onClick={clearHistory}
-                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
+                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
                       >
                         <Trash2 size={16} /> {t.clearHistory}
                       </button>
@@ -4830,23 +4827,23 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             )}
           </AnimatePresence>
 
-      <footer className="mt-12 text-center text-slate-600 text-xs pb-8 space-y-4">
+      <footer className="mt-12 text-center text-white/50 text-xs pb-8 space-y-4">
         <div className="flex items-center justify-center gap-6">
-          <div className="flex items-center gap-2 text-green-500/60 font-mono">
-            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-main)] animate-pulse" />
+          <div className="flex items-center gap-2 text-green-500/60 font-mono font-bold">
+            <div className="w-1.5 h-1.5 rounded-full bg-hw-accent animate-pulse" />
             SYSTEM LIVE
           </div>
           <a 
             href={APP_CONFIG.githubRepo} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-white transition-colors"
+            className="flex items-center gap-2 hover:text-white transition-colors font-bold"
           >
             <Github size={14} />
             GitHub
           </a>
         </div>
-        <p>© {new Date().getFullYear()} YouTube AI Creator Studio. All Rights Reserved.</p>
+        <p className="font-medium">© {new Date().getFullYear()} YouTube AI Creator Studio. All Rights Reserved.</p>
       </footer>
 
       <style dangerouslySetInnerHTML={{ __html: `
@@ -4871,12 +4868,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: var(--accent-main);
+          background: #D4AF37;
           opacity: 0.2;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: var(--accent-main);
+          background: #D4AF37;
           opacity: 0.4;
         }
       `}} />
@@ -4893,42 +4890,42 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowHistory(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-3xl glass-card p-6 sm:p-8 h-[85vh] flex flex-col overflow-hidden shadow-2xl"
+              className="relative w-full max-w-3xl bg-black/80 border border-white/10 rounded-[2rem] p-6 sm:p-8 h-[85vh] flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-hw-accent to-transparent" />
               
               <div className="flex flex-col gap-6 w-full mb-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
-                      <History size={20} />
+                  <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
+                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                      <History size={24} />
                     </div>
                     <span>{uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}</span>
                   </h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={downloadHistory} 
-                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--accent-main)] hover:bg-[var(--bg-main)] transition-colors"
+                      className="p-3 rounded-xl text-white/50 hover:text-hw-accent hover:bg-white/5 transition-colors"
                       title="Download History"
                     >
                       <Download size={20} />
                     </button>
                     <button 
                       onClick={clearHistory} 
-                      className="p-2 rounded-xl text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                      className="p-3 rounded-xl text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                       title="Clear History"
                     >
                       <Trash2 size={20} />
                     </button>
                     <button 
                       onClick={() => setShowHistory(false)}
-                      className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors"
+                      className="p-3 rounded-xl text-white/50 hover:text-hw-accent hover:bg-white/5 transition-colors"
                     >
                       <X size={20} />
                     </button>
@@ -4939,7 +4936,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <select 
                     value={historyFilter} 
                     onChange={(e) => setHistoryFilter(e.target.value)}
-                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-[var(--accent-main)]/50 transition-all cursor-pointer hover:bg-[var(--bg-card)]/60"
+                    className="bg-black/50 text-[10px] uppercase font-black text-white/50 px-5 py-3 rounded-full border border-white/10 outline-none focus:border-hw-accent/50 transition-all cursor-pointer hover:bg-white/5 shadow-inner"
                   >
                     <option value="all">All Categories</option>
                     <option value="idea">Idea Gen</option>
@@ -4950,7 +4947,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </select>
                   <button 
                     onClick={() => setHistorySort(s => s === 'newest' ? 'oldest' : 'newest')}
-                    className="bg-[var(--bg-card)]/40 text-[10px] uppercase font-bold text-[var(--text-muted)] px-4 py-2 rounded-full border border-[var(--border-main)] hover:bg-[var(--bg-card)]/60 transition-all flex items-center gap-2"
+                    className="bg-black/50 text-[10px] uppercase font-black text-white/50 px-5 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-all flex items-center gap-2 shadow-inner"
                   >
                     {historySort === 'newest' ? <ArrowDownWideNarrow size={12} /> : <ArrowUpWideNarrow size={12} />}
                     {historySort === 'newest' ? 'Newest First' : 'Oldest First'}
@@ -4961,18 +4958,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       placeholder="Search keywords..."
                       value={historySearch}
                       onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full bg-[var(--bg-card)]/40 text-[10px] font-bold text-[var(--text-main)] px-10 py-2 rounded-full border border-[var(--border-main)] outline-none focus:border-[var(--accent-main)]/50 transition-all placeholder:text-[var(--text-muted)]/50"
+                      className="w-full bg-black/50 text-[10px] font-black text-white px-10 py-3 rounded-full border border-white/10 outline-none focus:border-hw-accent/50 transition-all placeholder:text-white/30 shadow-inner"
                     />
-                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40" />
+                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 px-1">
-                  <div className="flex items-center gap-2 bg-[var(--bg-card)]/20 p-1 rounded-full border border-[var(--border-main)]">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] px-3">Date Range:</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-bold text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
-                    <span className="text-[var(--text-muted)] text-[10px]">→</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-bold text-[var(--text-main)] px-2 py-1 outline-none cursor-pointer" />
+                  <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 shadow-inner">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-white/50 px-3">Date Range:</span>
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-black text-white px-2 py-1 outline-none cursor-pointer" />
+                    <span className="text-white/30 text-[10px]">→</span>
+                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-black text-white px-2 py-1 outline-none cursor-pointer" />
                   </div>
                 </div>
               </div>
@@ -4987,12 +4984,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   )
                   .sort((a, b) => historySort === 'newest' ? Number(new Date(b.id)) - Number(new Date(a.id)) : Number(new Date(a.id)) - Number(new Date(b.id)))
                   .length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
+                  <div className="flex flex-col items-center justify-center h-full text-white/30">
                     <Clock size={64} className="mb-4 opacity-10" />
                     <p className="font-medium">{t.noHistory}</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {history
                       .filter(item => 
                         (historyFilter === 'all' || item.type === historyFilter) &&
@@ -5004,7 +5001,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       .map((item) => (
                       <motion.div 
                         key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(168, 85, 247, 0.05)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);
@@ -5012,21 +5009,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           setResults(prev => ({ ...prev, [targetView]: item.result }));
                           setShowHistory(false);
                         }}
-                        className="p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] hover:border-[var(--accent-main)]/30 transition-all cursor-pointer group glass-card shadow-lg"
+                        className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/30 transition-all cursor-pointer group shadow-sm"
                       >
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
-                              {item.type === 'idea' && <Lightbulb size={16} />}
-                              {item.type === 'image' && <ImageIcon size={16} />}
-                              {item.type === 'voice' && <Mic size={16} />}
-                              {item.type === 'voiceExtractor' && <AudioLines size={16} />}
-                              {item.type === 'promptGen' && <Sparkles size={16} />}
-                              {item.type === 'shorts' && <Zap size={16} />}
-                              {item.type === 'image-to-prompt' && <Search size={16} />}
-                              {item.type === 'youtube' && <Video size={16} />}
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-inner">
+                              {item.type === 'idea' && <Lightbulb size={18} />}
+                              {item.type === 'image' && <ImageIcon size={18} />}
+                              {item.type === 'voice' && <Mic size={18} />}
+                              {item.type === 'voiceExtractor' && <AudioLines size={18} />}
+                              {item.type === 'promptGen' && <Sparkles size={18} />}
+                              {item.type === 'shorts' && <Zap size={18} />}
+                              {item.type === 'image-to-prompt' && <Search size={18} />}
+                              {item.type === 'youtube' && <Video size={18} />}
                             </div>
-                            <span className="text-[10px] uppercase tracking-widest text-[var(--accent-main)] font-bold">
+                            <span className="text-[10px] uppercase tracking-widest text-hw-accent font-black">
                               {
                                 item.type === 'youtube' ? (uiLang === 'en' ? 'YouTube AI' : 'ইউটিউব এআই') : 
                                 item.type === 'idea' ? t.ideaGenHistory : 
@@ -5039,12 +5036,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               }
                             </span>
                           </div>
-                          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-[var(--bg-card)]/20 px-3 py-1 rounded-full border border-[var(--border-main)]">
+                          <span className="text-[9px] text-white/50 font-black uppercase tracking-widest flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
                             <Clock size={10} />
                             {format(item.timestamp, 'MMM d, HH:mm')}
                           </span>
                         </div>
-                        <p className="text-sm font-bold line-clamp-2 group-hover:text-[var(--accent-main)] transition-colors text-[var(--text-main)] leading-relaxed">
+                        <p className="text-sm font-black line-clamp-2 group-hover:text-hw-accent transition-colors text-white leading-relaxed">
                           {item.topic}
                         </p>
                       </motion.div>
@@ -5066,58 +5063,58 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowContact(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md glass-card p-6 sm:p-8 space-y-6 shadow-2xl"
+              className="relative w-full max-w-md bg-black/80 border border-white/10 rounded-[2rem] p-6 sm:p-8 space-y-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)]" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-hw-accent to-transparent" />
               
               <div className="flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-3 text-[var(--text-main)]">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
+                  <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
                     <MessageCircle size={24} />
                   </div>
                   <span>{t.contact}</span>
                 </h2>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-main)] transition-colors rounded-full hover:bg-[var(--bg-main)]"
+                  className="p-3 text-white/50 hover:text-hw-accent transition-colors rounded-full hover:bg-white/5"
                 >
                   <X size={24} />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <p className="text-sm text-[var(--text-muted)] leading-relaxed font-medium">
+              <div className="space-y-8">
+                <p className="text-sm text-white/70 leading-relaxed font-medium">
                   {uiLang === 'en' ? "Have questions or feedback? We'd love to hear from you. Our team is here to help you grow your channel." : "আপনার কি কোনো প্রশ্ন বা মতামত আছে? আমরা আপনার কথা শুনতে পছন্দ করব। আমাদের টিম আপনার চ্যানেল বড় করতে সাহায্য করার জন্য এখানে আছে।"}
                 </p>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-[var(--accent-main)]/30 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:scale-110 transition-transform">
+                  <div className="flex items-center gap-5 p-6 rounded-[1.5rem] bg-black/40 border border-white/10 group hover:border-hw-accent/30 transition-all shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent group-hover:scale-110 transition-transform shadow-inner">
                       <Globe size={20} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold mb-0.5">Support Email</span>
-                      <span className="text-sm text-[var(--text-main)] font-bold">{APP_CONFIG.supportEmail}</span>
+                      <span className="text-[10px] uppercase tracking-widest text-white/50 font-black mb-1">Support Email</span>
+                      <span className="text-sm text-white font-black">{APP_CONFIG.supportEmail}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-card)]/40 border border-[var(--border-main)] glass-card group hover:border-[var(--accent-main)]/30 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:scale-110 transition-transform">
+                  <div className="flex items-center gap-5 p-6 rounded-[1.5rem] bg-black/40 border border-white/10 group hover:border-hw-accent/30 transition-all shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent group-hover:scale-110 transition-transform shadow-inner">
                       <Facebook size={20} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-bold mb-0.5">Facebook Page</span>
-                      <span className="text-sm text-[var(--text-main)] font-bold">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
+                      <span className="text-[10px] uppercase tracking-widest text-white/50 font-black mb-1">Facebook Page</span>
+                      <span className="text-sm text-white font-black">{APP_CONFIG.facebookPage.replace('https://', '')}</span>
                     </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-[var(--accent-main)] to-[var(--accent-main)]/80 text-white font-bold text-sm tracking-widest uppercase shadow-[0_20px_40px_rgba(var(--accent-main-rgb),0.3)] hover:shadow-[0_25px_50px_rgba(var(--accent-main-rgb),0.5)] hover:-translate-y-1 transition-all active:scale-95"
+                  className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-black font-black text-sm tracking-widest uppercase shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:-translate-y-1 transition-all active:scale-95"
                 >
                   {uiLang === 'en' ? "Close" : "বন্ধ করুন"}
                 </button>
