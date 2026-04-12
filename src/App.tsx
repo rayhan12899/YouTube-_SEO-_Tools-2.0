@@ -2385,34 +2385,73 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <header className="sticky top-6 z-50 w-full flex items-center justify-center pointer-events-none px-4 mb-12">
-              <div className="w-full max-w-6xl flex items-center justify-between bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.05)_inset] rounded-full p-2 pl-5 pointer-events-auto transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(212,175,55,0.2)_inset]">
-                
-                {/* Logo */}
+            <header className="sticky top-0 z-50 w-full flex flex-col pointer-events-none">
+              {/* Top Branding & Settings Bar */}
+              <div className="w-full bg-black/90 backdrop-blur-2xl border-b border-white/10 px-4 md:px-8 py-4 flex items-center justify-between pointer-events-auto shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                 <div 
-                  className="flex items-center gap-3 cursor-pointer group"
+                  className="flex items-center gap-4 cursor-pointer group" 
                   onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-hw-accent via-yellow-500 to-orange-500 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                    <Youtube className="text-black" size={18} />
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-yellow-500 to-orange-600 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] group-hover:scale-105 transition-all duration-500">
+                    <Youtube className="text-black" size={24} />
                   </div>
-                  <span className="hidden md:block text-sm font-black tracking-widest uppercase text-white group-hover:text-hw-accent transition-colors leading-none">Studio</span>
+                  <div className="hidden sm:flex flex-col">
+                    <h1 className="text-xl font-black tracking-[0.2em] uppercase text-white group-hover:text-hw-accent transition-colors duration-300">AI Studio</h1>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={cn("w-2 h-2 rounded-full", isApiConnected ? "bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500")} />
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-hw-muted">{isApiConnected ? 'System Online' : 'System Offline'}</span>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="hidden lg:block w-[1px] h-6 bg-white/10 mx-2" />
-                
-                {/* Navigation */}
-                <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1 justify-center px-2">
+
+                <div className="flex items-center gap-4 md:gap-6">
+                  {/* Language Toggle */}
+                  <div className="hidden md:flex items-center p-1 bg-white/5 rounded-full border border-white/10">
+                    <button 
+                      onClick={() => setUiLang('en')} 
+                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black shadow-md" : "text-hw-muted hover:text-white")}
+                    >
+                      EN
+                    </button>
+                    <button 
+                      onClick={() => setUiLang('bn')} 
+                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black shadow-md" : "text-hw-muted hover:text-white")}
+                    >
+                      BN
+                    </button>
+                  </div>
+                  
+                  <div className="w-[1px] h-8 bg-white/10 hidden md:block" />
+
+                  <button 
+                    onClick={handleRefresh} 
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300 group"
+                  >
+                    <RefreshCw size={16} className={cn(loading && "animate-spin", "group-hover:rotate-180 transition-transform duration-500")} />
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowSettings(true)} 
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300 group"
+                  >
+                    <Globe size={16} className="group-hover:animate-pulse" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Gorgeous Menu Bar */}
+              <div className="w-full py-4 px-4 md:px-8 pointer-events-auto bg-gradient-to-b from-black/90 via-black/50 to-transparent">
+                <nav className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x">
                   {[
-                    { id: 'home', icon: Home, label: t.home },
-                    { id: 'video', icon: Video, label: t.videoGen },
-                    { id: 'shorts', icon: Zap, label: t.shortsGen },
-                    { id: 'idea', icon: Lightbulb, label: t.ideaGen },
-                    { id: 'image', icon: Palette, label: t.imageGen },
-                    { id: 'voice', icon: Mic, label: t.voiceOver },
-                    { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor },
-                    { id: 'analytics', icon: BarChart3, label: 'Analytics' },
-                    { id: 'download', icon: Download, label: t.downloadReport },
+                    { id: 'home', icon: Home, label: t.home, desc: 'Dashboard' },
+                    { id: 'video', icon: Video, label: t.videoGen, desc: 'Full Scripts' },
+                    { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
+                    { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
+                    { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
+                    { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
+                    { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
+                    { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
+                    { id: 'download', icon: Download, label: t.downloadReport, desc: 'Export PDF' },
                   ].map((item) => (
                     <button 
                       key={item.id}
@@ -2429,61 +2468,35 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         }
                       }}
                       className={cn(
-                        "relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-500 text-[11px] font-bold whitespace-nowrap group",
+                        "snap-start flex-shrink-0 flex items-center gap-4 p-3 pr-6 rounded-2xl border transition-all duration-500 group relative overflow-hidden min-w-[180px]",
                         currentView === item.id 
-                          ? "text-black" 
-                          : "text-hw-muted hover:text-white hover:bg-white/5"
+                          ? "bg-hw-accent/10 border-hw-accent shadow-[0_10px_20px_rgba(212,175,55,0.15)]" 
+                          : "bg-black/60 backdrop-blur-md border-white/10 hover:bg-white/10 hover:border-white/30 hover:-translate-y-1"
                       )}
                     >
                       {currentView === item.id && (
                         <motion.div 
-                          layoutId="nav-active-pill"
-                          className="absolute inset-0 bg-gradient-to-r from-hw-accent to-yellow-500 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                          layoutId="menu-active-bg"
+                          className="absolute inset-0 bg-gradient-to-r from-hw-accent/20 to-transparent opacity-50"
                           initial={false}
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         />
                       )}
-                      <item.icon size={15} className={cn("relative z-10", currentView === item.id ? "text-black" : "group-hover:scale-110 transition-transform")} />
-                      <span className="hidden xl:block relative z-10 tracking-wider">{item.label}</span>
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 relative z-10",
+                        currentView === item.id 
+                          ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.6)] scale-105" 
+                          : "bg-white/5 text-white group-hover:bg-white/20 group-hover:scale-110"
+                      )}>
+                        <item.icon size={20} />
+                      </div>
+                      <div className="flex flex-col items-start relative z-10">
+                        <span className={cn("text-sm font-black tracking-wide", currentView === item.id ? "text-hw-accent" : "text-white group-hover:text-hw-accent transition-colors")}>{item.label}</span>
+                        <span className="text-[10px] text-hw-muted font-bold uppercase tracking-widest mt-0.5">{item.desc}</span>
+                      </div>
                     </button>
                   ))}
                 </nav>
-
-                <div className="hidden lg:block w-[1px] h-6 bg-white/10 mx-2" />
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pr-1">
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/5">
-                    <div className={cn("w-2 h-2 rounded-full", isApiConnected ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500")} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-hw-muted">{isApiConnected ? 'Online' : 'Offline'}</span>
-                  </div>
-                  
-                  <div className="relative group flex items-center justify-center w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer">
-                    <select
-                      value={uiLang}
-                      onChange={(e) => setUiLang(e.target.value as 'en' | 'bn')}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    >
-                      <option value="en">EN</option>
-                      <option value="bn">BN</option>
-                    </select>
-                    <Languages size={15} className="text-hw-muted group-hover:text-hw-accent transition-colors" />
-                  </div>
-
-                  <button
-                    onClick={handleRefresh}
-                    className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-hw-muted hover:text-hw-accent hover:bg-white/10 transition-all border border-white/5"
-                  >
-                    <RefreshCw size={15} className={cn(loading && "animate-spin")} />
-                  </button>
-
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-hw-muted hover:text-hw-accent hover:bg-white/10 transition-all border border-white/5"
-                  >
-                    <Globe size={15} />
-                  </button>
-                </div>
               </div>
             </header>
 
