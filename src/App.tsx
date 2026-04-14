@@ -837,7 +837,7 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    if (showSettings) {
+    if (showSettings || isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -845,7 +845,7 @@ export default function App() {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showSettings]);
+  }, [showSettings, isMobileMenuOpen]);
 
   const isApiConnected = !!(
     aiProvider === 'gemini' ? customGeminiKey : 
@@ -1919,7 +1919,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl lg:hidden flex flex-col p-8"
+                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl lg:hidden flex flex-col p-8 overflow-y-auto overscroll-contain touch-pan-y"
                   >
                     <div className="flex justify-between items-center mb-12">
                       <div className="flex items-center gap-3">
@@ -2609,7 +2609,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       initial={{ opacity: 0, y: -20, height: 0 }}
                       animate={{ opacity: 1, y: 0, height: 'auto' }}
                       exit={{ opacity: 0, y: -20, height: 0 }}
-                      className="w-full bg-black/95 backdrop-blur-3xl border-b border-white/10 pointer-events-auto md:hidden overflow-hidden z-50 relative"
+                      className="w-full bg-black/95 backdrop-blur-3xl border-b border-white/10 pointer-events-auto md:hidden overflow-y-auto max-h-[85vh] z-50 relative scrollbar-hide overscroll-contain touch-pan-y"
                     >
                       <div className="p-6 space-y-6">
                         <div className="grid grid-cols-2 gap-3">
@@ -4205,70 +4205,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           </a>
                         </div>
                       </div>
-                    ) : currentResult.titles ? (
-                      <div className="space-y-4">
-                        {currentResult.titles.map((t: any, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Variation {idx + 1}</h3>
-                            </div>
-                            <div className="space-y-3">
-                              <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">SEO Title</label>
-                                <div className="text-sm font-bold text-white leading-relaxed">{t.title}</div>
-                                <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
-                                  {copied === `title-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
-                                </button>
-                              </div>
-                              <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">High CTR Title</label>
-                                <div className="text-sm font-black text-white leading-relaxed">{t.highCtrTitle}</div>
-                                <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
-                                  {copied === `highCtr-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : currentResult.prompts ? (
-                      <div className="space-y-4">
-                        {currentResult.prompts.map((prompt: string, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Option {idx + 1}</h3>
-                              <button 
-                                onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                className="text-white/50 hover:text-hw-accent transition-colors"
-                              >
-                                {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                              </button>
-                            </div>
-                            <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">
-                              <TypewriterText text={prompt} className="typewriter-text" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : currentResult.ideas ? (
-                      <div className="space-y-4">
-                        {currentResult.ideas.map((idea: any, idx: number) => (
-                          <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">{idx + 1}. {idea.title}</h3>
-                              <button 
-                                onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
-                                className="text-white/50 hover:text-hw-accent transition-colors"
-                              >
-                                {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                              </button>
-                            </div>
-                            <div className="text-sm text-white/80 leading-relaxed font-medium">
-                              <TypewriterText text={idea.description} className="typewriter-text" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     ) : (
                       <div className="space-y-12">
                         {/* Featured Fields */}
@@ -4305,6 +4241,123 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         )}
                         {Object.entries(currentResult).map(([key, value]) => {
                           if (!value || ['videoTitle', 'imagePrompt', 'videoPrompt'].includes(key)) return null;
+                          
+                          // Handle prompts array
+                          if (key === 'prompts' && Array.isArray(value)) {
+                            return (
+                              <div key="prompts-section" className="space-y-4">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                  <Sparkles size={14} /> {uiLang === 'en' ? 'AI Prompts' : 'এআই প্রম্পট'}
+                                </label>
+                                <div className="grid grid-cols-1 gap-4">
+                                  {value.map((prompt: string, idx: number) => (
+                                    <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
+                                      <div className="flex justify-between items-start">
+                                        <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Option {idx + 1}</h3>
+                                        <button 
+                                          onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
+                                          className="text-white/50 hover:text-hw-accent transition-colors"
+                                        >
+                                          {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                        </button>
+                                      </div>
+                                      <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">
+                                        <TypewriterText text={prompt} className="typewriter-text" />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Handle ideas array
+                          if (key === 'ideas' && Array.isArray(value)) {
+                            return (
+                              <div key="ideas-section" className="space-y-4">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                  <Lightbulb size={14} /> {uiLang === 'en' ? 'Video Ideas' : 'ভিডিও আইডিয়া'}
+                                </label>
+                                <div className="grid grid-cols-1 gap-4">
+                                  {value.map((idea: any, idx: number) => (
+                                    <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
+                                      <div className="flex justify-between items-start">
+                                        <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">{idx + 1}. {idea.title}</h3>
+                                        <button 
+                                          onClick={() => copyToClipboard(`${idea.title}\n\n${idea.description}`, `idea-${idx}`)}
+                                          className="text-white/50 hover:text-hw-accent transition-colors"
+                                        >
+                                          {copied === `idea-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                        </button>
+                                      </div>
+                                      <div className="text-sm text-white/80 leading-relaxed font-medium">
+                                        <TypewriterText text={idea.description} className="typewriter-text" />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Handle titles array (top level)
+                          if (key === 'titles' && Array.isArray(value)) {
+                            return (
+                              <div key="titles-section" className="space-y-4">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                  <LayoutTemplate size={14} /> {uiLang === 'en' ? 'Title Variations' : 'শিরোনাম বৈচিত্র্য'}
+                                </label>
+                                <div className="grid grid-cols-1 gap-4">
+                                  {value.map((t: any, idx: number) => (
+                                    <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
+                                      <div className="flex justify-between items-start">
+                                        <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Variation {idx + 1}</h3>
+                                      </div>
+                                      <div className="space-y-3">
+                                        <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
+                                          <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">SEO Title</label>
+                                          <div className="text-sm font-bold text-white leading-relaxed">{t.title}</div>
+                                          <button onClick={() => copyToClipboard(t.title, `title-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
+                                            {copied === `title-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
+                                          </button>
+                                        </div>
+                                        <div className="p-5 rounded-xl bg-hw-accent/5 border border-hw-accent/20 space-y-2">
+                                          <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">High CTR Title</label>
+                                          <div className="text-sm font-black text-white leading-relaxed">{t.highCtrTitle}</div>
+                                          <button onClick={() => copyToClipboard(t.highCtrTitle, `highCtr-${idx}`)} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
+                                            {copied === `highCtr-${idx}` ? <Check size={14} /> : <Copy size={14} />} Copy
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Handle seoTitles array (top level)
+                          if (key === 'seoTitles' && Array.isArray(value)) {
+                            return (
+                              <div key="seo-titles-section" className="space-y-4">
+                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                  <Zap size={14} /> {uiLang === 'en' ? 'SEO Friendly Video Titles' : 'SEO ফ্রেন্ডলি ভিডিও টাইটেল'}
+                                </label>
+                                <div className="grid grid-cols-1 gap-3">
+                                  {value.map((title: string, idx: number) => (
+                                    <div key={idx} className="p-5 rounded-2xl bg-black/40 border border-white/10 flex justify-between items-center group/title hover:border-hw-accent/30 transition-all">
+                                      <div className="text-base font-bold text-white leading-relaxed">
+                                        <TypewriterText text={title} className="typewriter-text" />
+                                      </div>
+                                      <button onClick={() => copyToClipboard(title, `seoTitle-${idx}`)} className="text-white/30 hover:text-hw-accent transition-colors">
+                                        {copied === `seoTitle-${idx}` ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
                           
                           // Handle nested subtitles object
                           if (key === 'subtitles' && typeof value === 'object' && value !== null) {
@@ -4371,6 +4424,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   const mLabelMap: any = {
                                     title: { label: uiLang === 'en' ? "Suggested Title" : "প্রস্তাবিত শিরোনাম", icon: FileText },
                                     titles: { label: uiLang === 'en' ? "Multiple Title Variations" : "একাধিক শিরোনাম বৈচিত্র্য", icon: LayoutTemplate },
+                                    seoTitles: { label: uiLang === 'en' ? "SEO Friendly Titles" : "SEO ফ্রেন্ডলি টাইটেল", icon: Zap },
                                     highCtrTitle: { label: t.highCtrTitle, icon: Zap },
                                     thumbnailTitle: { label: t.thumbnailTitle, icon: ImageIcon },
                                     thumbnailConcept: { label: uiLang === 'en' ? "Thumbnail Concept" : "থাম্বনেইল কনসেপ্ট", icon: Palette },
@@ -4399,6 +4453,26 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                                 <div className="text-sm font-medium text-white"><span className="text-hw-accent/50 mr-2 font-bold">SEO:</span> {t.title}</div>
                                                 <div className="text-sm font-black text-white"><span className="text-hw-accent/50 mr-2 font-bold">CTR:</span> {t.highCtrTitle}</div>
                                               </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
+                                  if (mKey === 'seoTitles' && Array.isArray(mValue)) {
+                                    return (
+                                      <div key={`${key}-${mKey}`} className="space-y-4">
+                                        <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
+                                          <mConfig.icon size={14} /> {mConfig.label}
+                                        </label>
+                                        <div className="grid grid-cols-1 gap-3">
+                                          {mValue.map((title: string, idx: number) => (
+                                            <div key={idx} className="p-4 rounded-xl bg-hw-accent/5 border border-hw-accent/20 flex justify-between items-center group/title">
+                                              <div className="text-sm font-bold text-white">{title}</div>
+                                              <button onClick={() => copyToClipboard(title, `seoTitle-${idx}`)} className="text-white/30 hover:text-hw-accent transition-colors">
+                                                {copied === `seoTitle-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                              </button>
                                             </div>
                                           ))}
                                         </div>

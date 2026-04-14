@@ -202,7 +202,8 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
           - description: A detailed description of the image.
           - keyElements: A string listing the key elements found in the image.
           - potentialUses: A string suggesting potential uses for the image.
-          - prompts: An array of 3 strings, each being a creative prompt to recreate the image.` },
+          - prompts: An array of 3 strings, each being a creative prompt to recreate the image.
+          - seoTitles: An array of 5 unique, SEO-friendly video titles based on this image content.` },
         ],
       },
     });
@@ -441,9 +442,10 @@ export const generateContent = async (options: GenerationOptions) => {
               
               Special Instruction for Content Type: If the Content Type is 'shorts', focus on high-energy, fast-paced vertical content. If it's 'thumbnail', provide detailed visual descriptions for a high-CTR thumbnail. If it's 'titleIdea', provide 5 catchy, viral-style titles. If it's 'description', provide an SEO-optimized video description. If it's 'fullScript', provide a comprehensive video script with scene details.
               
-              Return the result as a strictly valid JSON object with keys: videoTitle, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
+              Return the result as a strictly valid JSON object with keys: videoTitle, seoTitles, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
               
               - videoTitle: A catchy, SEO-optimized title for the video.
+              - seoTitles: An array of 5 unique, SEO-friendly video title variations.
               - sceneBreakdown: An array of objects, each representing a scene. Each object MUST have:
                 - 'scene': The scene number (1, 2, 3...).
                 - 'time': The timestamp range (e.g., "0:00 - 0:10").
