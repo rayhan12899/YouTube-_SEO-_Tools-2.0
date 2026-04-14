@@ -1889,19 +1889,107 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   ))}
                 </motion.div>
 
-                <motion.div
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="pointer-events-auto"
-                >
-                  <button
-                    onClick={() => setCurrentView('home')}
-                    className="btn-primary py-3 px-6 text-sm"
+                <div className="flex items-center gap-4 pointer-events-auto">
+                  <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="hidden sm:block"
                   >
-                    {t.getStarted}
+                    <button
+                      onClick={() => setCurrentView('home')}
+                      className="btn-primary py-3 px-6 text-sm"
+                    >
+                      {t.getStarted}
+                    </button>
+                  </motion.div>
+
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="lg:hidden w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[var(--accent-main)] hover:text-black hover:border-[var(--accent-main)] transition-all duration-300"
+                  >
+                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                   </button>
-                </motion.div>
+                </div>
               </nav>
+
+              {/* Mobile Menu for Landing Page */}
+              <AnimatePresence>
+                {isMobileMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl lg:hidden flex flex-col p-8"
+                  >
+                    <div className="flex justify-between items-center mb-12">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hw-accent to-orange-600 flex items-center justify-center">
+                          <Youtube className="text-black" size={20} />
+                        </div>
+                        <span className="text-xl font-black tracking-widest text-white uppercase">AI Studio</span>
+                      </div>
+                      <button 
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white"
+                      >
+                        <X size={24} />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center space-y-6">
+                      {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item, i) => (
+                        <motion.button 
+                          key={item}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="text-4xl font-black text-white hover:text-hw-accent transition-colors text-left tracking-tighter"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {item}
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    <div className="space-y-8 pt-8 border-t border-white/10">
+                      <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        onClick={() => {
+                          setCurrentView('home');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full bg-hw-accent text-black py-5 rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(212,175,55,0.3)] active:scale-95 transition-all"
+                      >
+                        {t.getStarted}
+                      </motion.button>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center p-1 bg-white/5 rounded-full border border-white/10">
+                          <button 
+                            onClick={() => setUiLang('en')} 
+                            className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black" : "text-hw-muted")}
+                          >
+                            EN
+                          </button>
+                          <button 
+                            onClick={() => setUiLang('bn')} 
+                            className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black" : "text-hw-muted")}
+                          >
+                            BN
+                          </button>
+                        </div>
+                        <div className="flex gap-4">
+                          {[Facebook, Twitter, Instagram].map((Icon, i) => (
+                            <Icon key={i} size={20} className="text-hw-muted hover:text-hw-accent cursor-pointer transition-colors" />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Hero Section */}
               <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
@@ -2405,6 +2493,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
 
                 <div className="flex items-center gap-4 md:gap-6">
+                  {/* Hamburger Menu for Mobile */}
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="md:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300"
+                  >
+                    {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                  </button>
+
                   {/* Language Toggle */}
                   <div className="hidden md:flex items-center p-1 bg-white/5 rounded-full border border-white/10">
                     <button 
@@ -2440,7 +2536,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
 
               {/* Gorgeous Menu Bar */}
-              <div className="w-full py-4 px-4 md:px-8 pointer-events-auto bg-gradient-to-b from-black/90 via-black/50 to-transparent">
+              <div className="w-full py-4 px-4 md:px-8 pointer-events-auto bg-gradient-to-b from-black/90 via-black/50 to-transparent hidden md:block">
                 <nav className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x">
                   {[
                     { id: 'home', icon: Home, label: t.home, desc: 'Dashboard' },
@@ -2498,6 +2594,113 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   ))}
                 </nav>
               </div>
+              {/* Mobile Menu Drawer */}
+              <AnimatePresence>
+                {isMobileMenuOpen && (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden pointer-events-auto"
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: -20, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: 'auto' }}
+                      exit={{ opacity: 0, y: -20, height: 0 }}
+                      className="w-full bg-black/95 backdrop-blur-3xl border-b border-white/10 pointer-events-auto md:hidden overflow-hidden z-50 relative"
+                    >
+                      <div className="p-6 space-y-6">
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { id: 'home', icon: Home, label: t.home, desc: 'Dashboard' },
+                            { id: 'video', icon: Video, label: t.videoGen, desc: 'Full Scripts' },
+                            { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
+                            { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
+                            { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
+                            { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
+                            { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
+                            { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
+                            { id: 'download', icon: Download, label: t.downloadReport, desc: 'Export PDF' },
+                          ].map((item, idx) => (
+                            <motion.button
+                              key={item.id}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: idx * 0.05 }}
+                              onClick={() => {
+                                if (item.id === 'download') {
+                                  downloadPdf();
+                                } else {
+                                  setCurrentView(item.id as any);
+                                  if (item.id === 'video') {
+                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                                  } else if (item.id === 'shorts') {
+                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
+                                  }
+                                }
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className={cn(
+                                "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 text-center",
+                                currentView === item.id
+                                  ? "bg-hw-accent/10 border-hw-accent text-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                                  : "bg-white/5 border-white/10 text-white active:bg-white/10"
+                              )}
+                            >
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center transition-transform active:scale-90",
+                                currentView === item.id ? "bg-hw-accent text-black" : "bg-white/5"
+                              )}>
+                                <item.icon size={18} />
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <span className="text-[11px] font-black tracking-tight">{item.label}</span>
+                                <span className="text-[8px] text-hw-muted uppercase tracking-widest mt-0.5">{item.desc}</span>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                        
+                        <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+                          <div className="flex items-center p-1 bg-white/5 rounded-full border border-white/10">
+                            <button 
+                              onClick={() => setUiLang('en')} 
+                              className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black shadow-lg" : "text-hw-muted")}
+                            >
+                              EN
+                            </button>
+                            <button 
+                              onClick={() => setUiLang('bn')} 
+                              className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black shadow-lg" : "text-hw-muted")}
+                            >
+                              BN
+                            </button>
+                          </div>
+                          <div className="flex gap-3">
+                            <button 
+                              onClick={handleRefresh}
+                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-black transition-colors"
+                            >
+                              <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setShowSettings(true);
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-black transition-colors"
+                            >
+                              <Globe size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </header>
 
 
