@@ -25,9 +25,9 @@
   --color-hw-bg: #151619;
   --color-hw-text: #ffffff;
   --color-hw-muted: #8e9299;
-  --color-hw-accent: #d4af37;
+  --color-hw-accent: #8b5cf6;
   --color-hw-border: rgba(255, 255, 255, 0.1);
-  --color-hw-glow: rgba(212, 175, 55, 0.3);
+  --color-hw-glow: rgba(139, 92, 246, 0.3);
 }
 
 :root {
@@ -36,9 +36,9 @@
   --text-main: #ffffff; /* White */
   --text-muted: #888888; /* Muted Gray */
   --border-main: rgba(255, 255, 255, 0.1);
-  --accent-main: #d4af37; /* Gold/Bronze accent */
-  --accent-main-rgb: 212, 175, 55;
-  --accent-glow: rgba(212, 175, 55, 0.15);
+  --accent-main: #8b5cf6; /* Gold/Bronze accent */
+  --accent-main-rgb: 139, 92, 246;
+  --accent-glow: rgba(139, 92, 246, 0.15);
   --glass-bg: rgba(20, 20, 20, 0.8);
   --glass-border: rgba(255, 255, 255, 0.05);
   --background: oklch(0.145 0 0);
@@ -106,8 +106,8 @@
   }
 
   .hw-panel:hover {
-    border-color: rgba(212, 175, 55, 0.3);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.1);
   }
 
   .hw-panel::before {
@@ -167,7 +167,7 @@
   }
 
   .glass-card:hover {
-    @apply border-hw-accent/40 shadow-[0_8px_32px_rgba(212,175,55,0.15)] -translate-y-1;
+    @apply border-hw-accent/40 shadow-[0_8px_32px_rgba(139,92,246,0.15)] -translate-y-1;
   }
 
   .studio-card {
@@ -179,7 +179,7 @@
   }
 
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-r from-hw-accent to-yellow-600 text-black font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-wide;
+    @apply relative overflow-hidden bg-gradient-to-r from-hw-accent to-pink-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-wide;
   }
 
   .btn-secondary {
@@ -187,7 +187,7 @@
   }
 
   .premium-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-yellow-300 to-hw-accent;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-fuchsia-400 to-hw-accent;
     background-size: 200% auto;
     animation: shine 4s linear infinite;
   }
@@ -217,8 +217,8 @@
 
   .bento-item:hover {
     transform: translateY(-4px);
-    border-color: rgba(212, 175, 55, 0.3);
-    box-shadow: 0 30px 60px -15px rgba(212, 175, 55, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 30px 60px -15px rgba(139, 92, 246, 0.15);
   }
 }
 
@@ -247,9 +247,9 @@
 .mesh-gradient {
   background-color: #050505;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
     radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.02) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
     radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.02) 0px, transparent 50%);
   background-attachment: fixed;
 }

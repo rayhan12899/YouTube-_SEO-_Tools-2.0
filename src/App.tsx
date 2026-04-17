@@ -210,8 +210,8 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -219,9 +219,9 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
               <YAxis stroke="#8e9299" fontSize={12} />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#151619', border: '1px solid rgba(255,255,255,0.1)' }}
-                itemStyle={{ color: '#d4af37' }}
+                itemStyle={{ color: '#8b5cf6' }}
               />
-              <Area type="monotone" dataKey="views" stroke="#d4af37" fillOpacity={1} fill="url(#colorViews)" />
+              <Area type="monotone" dataKey="views" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorViews)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -292,7 +292,7 @@ const CollaborationChat = ({
               />
               <button 
                 onClick={() => onJoinRoom(roomId)}
-                className="w-full py-2 bg-hw-accent text-black font-bold rounded-lg hover:opacity-90 transition-opacity"
+                className="w-full py-2 bg-hw-accent text-white font-bold rounded-lg hover:opacity-90 transition-opacity"
               >
                 Join Studio
               </button>
@@ -308,7 +308,7 @@ const CollaborationChat = ({
                     <span className="text-[10px] text-hw-muted mb-1">{msg.user} • {msg.time}</span>
                     <div className={cn(
                       "p-2 rounded-lg text-sm",
-                      msg.user === 'You' ? "bg-hw-accent text-black" : "bg-white/5 text-white"
+                      msg.user === 'You' ? "bg-hw-accent text-white" : "bg-white/5 text-white"
                     )}>
                       {msg.text}
                     </div>
@@ -1262,8 +1262,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             text-shadow: none !important;
           }
         </style>
-        <div style="border-bottom: 2px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
-          <h1 style="color: #d4af37 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
+        <div style="border-bottom: 2px solid #8b5cf6; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
+          <h1 style="color: #8b5cf6 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
           <p style="color: #666 !important; margin: 10px 0 0 0; box-sizing: border-box !important;">Topic: ${currentTopic || "Generated Content"}</p>
           <p style="color: #666 !important; margin: 5px 0 0 0; box-sizing: border-box !important;">Date: ${format(new Date(), 'dd MMM, yyyy HH:mm')}</p>
         </div>
@@ -1285,11 +1285,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.prompts) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.prompts.map((prompt: string, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #d4af37 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
+                  <strong style="color: #8b5cf6 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important; white-space: pre-wrap !important;">${prompt}</p>
                 </li>
               `).join('')}
@@ -1301,11 +1301,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.ideas) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.ideas.map((idea: any, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #d4af37 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
+                  <strong style="color: #8b5cf6 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important;">${idea.reason || idea.description}</p>
                 </li>
               `).join('')}
@@ -1344,7 +1344,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
 
           contentHtml += `
             <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-              <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
+              <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
               <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                 ${content}
               </div>
@@ -1368,7 +1368,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
             contentHtml += `
               <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-                <h2 style="color: #1a1a1a !important; border-left: 4px solid #d4af37 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
+                <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
                 <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                   ${displayValue}
                 </div>
@@ -1606,16 +1606,16 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       margin: 0;
       font-size: 16px;
       font-weight: 800;
-      color: #d4af37;
+      color: #8b5cf6;
     }
     .btn {
       display: block;
       width: 100%;
       padding: 12px;
       margin-bottom: 8px;
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      color: #d4af37;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: #8b5cf6;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -1623,10 +1623,10 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       text-align: center;
     }
     .btn:hover {
-      background: rgba(212, 175, 55, 0.2);
+      background: rgba(139, 92, 246, 0.2);
     }
     .btn-primary {
-      background: #d4af37;
+      background: #8b5cf6;
       color: #000;
     }
     .btn-primary:hover {
@@ -1648,7 +1648,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       display: none;
       text-align: center;
       margin: 16px 0;
-      color: #d4af37;
+      color: #8b5cf6;
       font-weight: bold;
     }
   </style>
@@ -1803,7 +1803,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle = '#d4af37';
+          ctx.fillStyle = '#8b5cf6';
           ctx.beginPath();
           ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
           ctx.fill();
@@ -1923,7 +1923,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   >
                     <div className="flex justify-between items-center mb-12">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hw-accent to-orange-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hw-accent to-pink-600 flex items-center justify-center">
                           <Youtube className="text-black" size={20} />
                         </div>
                         <span className="text-xl font-black tracking-widest text-white uppercase">AI Studio</span>
@@ -1960,7 +1960,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           setCurrentView('home');
                           setIsMobileMenuOpen(false);
                         }}
-                        className="w-full bg-hw-accent text-black py-5 rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(212,175,55,0.3)] active:scale-95 transition-all"
+                        className="w-full bg-hw-accent text-white py-5 rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(139,92,246,0.3)] active:scale-95 transition-all"
                       >
                         {t.getStarted}
                       </motion.button>
@@ -2075,7 +2075,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
                     >
                       <div className="relative z-10 space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
                           <Zap size={28} />
                         </div>
                         <div className="space-y-3">
@@ -2101,7 +2101,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
                       <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
                           <Shield size={28} />
                         </div>
                         <div className="space-y-3">
@@ -2124,7 +2124,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
                     >
                       <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
                           <Users size={28} />
                         </div>
                         <div className="space-y-3">
@@ -2138,7 +2138,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {[1, 2, 3, 4].map(i => (
                           <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
                         ))}
-                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-[var(--accent-main)] flex items-center justify-center text-black text-xs font-bold">
+                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-[var(--accent-main)] flex items-center justify-center text-white text-xs font-bold">
                           +10k
                         </div>
                       </div>
@@ -2150,7 +2150,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     >
                       <div className="flex flex-col md:flex-row gap-10 items-center h-full">
                         <div className="space-y-6 flex-1">
-                          <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-black transition-all duration-500">
+                          <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
                             <Globe size={28} />
                           </div>
                           <div className="space-y-3">
@@ -2331,7 +2331,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         )}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[var(--accent-main)] text-black text-[10px] font-bold uppercase tracking-widest shadow-md">
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[var(--accent-main)] text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
                             Most Popular
                           </div>
                         )}
@@ -2359,7 +2359,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <button className={cn(
                           "w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-md",
                           plan.popular 
-                            ? "bg-[var(--accent-main)] text-black hover:bg-[var(--accent-main)]/90" 
+                            ? "bg-[var(--accent-main)] text-white hover:bg-[var(--accent-main)]/90" 
                             : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-card)]"
                         )}>
                           {plan.button}
@@ -2448,7 +2448,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           placeholder="Email Address" 
                           className="bg-transparent px-3 py-2 text-[var(--text-main)] text-sm w-full outline-none" 
                         />
-                        <button className="bg-[var(--accent-main)] text-black px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90">
+                        <button className="bg-[var(--accent-main)] text-white px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90">
                           Join
                         </button>
                       </div>
@@ -2480,7 +2480,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   className="flex items-center gap-4 cursor-pointer group" 
                   onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-yellow-500 to-orange-600 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] group-hover:scale-105 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-fuchsia-500 to-pink-600 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
                     <Youtube className="text-black" size={24} />
                   </div>
                   <div className="hidden sm:flex flex-col">
@@ -2496,7 +2496,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {/* Hamburger Menu for Mobile */}
                   <button 
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="md:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300"
+                    className="md:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300"
                   >
                     {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                   </button>
@@ -2521,14 +2521,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <button 
                     onClick={handleRefresh} 
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300 group"
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300 group"
                   >
                     <RefreshCw size={16} className={cn(loading && "animate-spin", "group-hover:rotate-180 transition-transform duration-500")} />
                   </button>
                   
                   <button 
                     onClick={() => setShowSettings(true)} 
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-black hover:border-hw-accent transition-all duration-300 group"
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300 group"
                   >
                     <Globe size={16} className="group-hover:animate-pulse" />
                   </button>
@@ -2566,7 +2566,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       className={cn(
                         "snap-start flex-shrink-0 flex items-center gap-4 p-3 pr-6 rounded-2xl border transition-all duration-500 group relative overflow-hidden min-w-[180px]",
                         currentView === item.id 
-                          ? "bg-hw-accent/10 border-hw-accent shadow-[0_10px_20px_rgba(212,175,55,0.15)]" 
+                          ? "bg-hw-accent/10 border-hw-accent shadow-[0_10px_20px_rgba(139,92,246,0.15)]" 
                           : "bg-black/60 backdrop-blur-md border-white/10 hover:bg-white/10 hover:border-white/30 hover:-translate-y-1"
                       )}
                     >
@@ -2581,7 +2581,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className={cn(
                         "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 relative z-10",
                         currentView === item.id 
-                          ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.6)] scale-105" 
+                          ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.6)] scale-105" 
                           : "bg-white/5 text-white group-hover:bg-white/20 group-hover:scale-110"
                       )}>
                         <item.icon size={20} />
@@ -2645,13 +2645,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               className={cn(
                                 "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 text-center",
                                 currentView === item.id
-                                  ? "bg-hw-accent/10 border-hw-accent text-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                                  ? "bg-hw-accent/10 border-hw-accent text-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]"
                                   : "bg-white/5 border-white/10 text-white active:bg-white/10"
                               )}
                             >
                               <div className={cn(
                                 "w-10 h-10 rounded-xl flex items-center justify-center transition-transform active:scale-90",
-                                currentView === item.id ? "bg-hw-accent text-black" : "bg-white/5"
+                                currentView === item.id ? "bg-hw-accent text-white" : "bg-white/5"
                               )}>
                                 <item.icon size={18} />
                               </div>
@@ -2681,7 +2681,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <div className="flex gap-3">
                             <button 
                               onClick={handleRefresh}
-                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-black transition-colors"
+                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-white transition-colors"
                             >
                               <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                             </button>
@@ -2690,7 +2690,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 setShowSettings(true);
                                 setIsMobileMenuOpen(false);
                               }}
-                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-black transition-colors"
+                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-white transition-colors"
                             >
                               <Globe size={18} />
                             </button>
@@ -2723,7 +2723,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={installApp}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-yellow-600 text-black text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-pink-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] transition-all"
             >
               <Download size={14} />
               {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
@@ -2766,7 +2766,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             <div className="flex items-center justify-between border-b border-white/10 pb-8">
               <div className="space-y-3">
                 <h2 className="text-3xl md:text-4xl font-black tracking-tight flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent shadow-[0_0_30px_rgba(212,175,55,0.15)] border border-hw-accent/20">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent shadow-[0_0_30px_rgba(139,92,246,0.15)] border border-hw-accent/20">
                     {currentView === 'home' && <LayoutDashboard size={28} />}
                     {currentView === 'youtube' && <Youtube size={28} />}
                     {currentView === 'video' && <Video size={28} />}
@@ -2896,7 +2896,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(212, 175, 55, 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -2968,7 +2968,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           return (
                                             <motion.button
                                               key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(212, 175, 55, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
+                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(139, 92, 246, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
                                               whileTap={{ scale: 0.95 }}
                                               onClick={() => {
                                                 const currentText = topics[currentView];
@@ -2994,7 +2994,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                               className={cn(
                                                 "text-[11px] px-3 py-2 rounded-xl border transition-all flex items-center gap-2 font-medium",
                                                 isSelected 
-                                                  ? "bg-hw-accent/20 border-hw-accent text-white shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+                                                  ? "bg-hw-accent/20 border-hw-accent text-white shadow-[0_0_15px_rgba(139,92,246,0.2)]" 
                                                   : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white"
                                               )}
                                             >
@@ -3028,7 +3028,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'en' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'en' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'en' ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'en' && <Check size={16} />} {t.en}
@@ -3039,7 +3039,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'bn' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'bn' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'bn' ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'bn' && <Check size={16} />} {t.bn}
@@ -3050,7 +3050,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: 'hi' }))}
                       className={cn(
                         "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                        options.language === 'hi' ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                        options.language === 'hi' ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                       )}
                     >
                       {options.language === 'hi' && <Check size={16} />} {t.hi}
@@ -3073,7 +3073,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
                         className={cn(
                           "py-3 rounded-xl border border-[var(--border-main)] text-sm font-semibold transition-all flex items-center justify-center gap-2",
-                          options.promptCategory === cat ? "bg-[var(--accent-main)] text-black shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
+                          options.promptCategory === cat ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-main)]/20" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
                         )}
                       >
                         {options.promptCategory === cat && <Check size={16} />} 
@@ -3177,7 +3177,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {topic.subs.map((sub, sIdx) => (
                                 <motion.button
                                   key={sIdx}
-                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.2)" }}
+                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
@@ -3251,7 +3251,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             setLoading(false);
                           }
                         }}
-                        className="w-full py-3 rounded-xl bg-[var(--accent-main)] text-black text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90 transition-all"
+                        className="w-full py-3 rounded-xl bg-[var(--accent-main)] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90 transition-all"
                       >
                         {loading ? (uiLang === 'en' ? 'Generating...' : 'জেনারেট হচ্ছে...') : (uiLang === 'en' ? 'Generate High CTR Titles' : 'হাই সিটিআর শিরোনাম জেনারেট করুন')}
                       </motion.button>
@@ -3398,7 +3398,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="hw-panel p-8 space-y-8">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                      <div className="w-10 h-10 rounded-lg bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.2)]">
                         <Mic size={20} />
                       </div>
                       <div>
@@ -3437,7 +3437,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               onClick={() => setOptions(prev => ({ ...prev, voiceLanguage: lang.id as any }))}
                               className={cn(
                                 "flex-1 py-2 rounded-lg border border-hw-border text-xs font-bold transition-all",
-                                options.voiceLanguage === lang.id ? "bg-hw-accent text-black shadow-[0_0_15px_rgba(212,175,55,0.3)]" : "bg-black/40 text-hw-muted hover:bg-black/60"
+                                options.voiceLanguage === lang.id ? "bg-hw-accent text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]" : "bg-black/40 text-hw-muted hover:bg-black/60"
                               )}
                             >
                               {lang.flag} {lang.label}
@@ -3466,7 +3466,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                                   className={cn(
                                     "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
-                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
                                   )}
                                 >
                                   <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
@@ -3491,7 +3491,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
                                   className={cn(
                                     "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
-                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
                                   )}
                                 >
                                   <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
@@ -3713,7 +3713,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
                   <Sparkles size={16} className="text-hw-accent animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[9px] uppercase tracking-widest text-hw-accent font-black bg-hw-accent/10 px-3 py-1 rounded-full border border-hw-accent/20 shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                <span className="text-[9px] uppercase tracking-widest text-hw-accent font-black bg-hw-accent/10 px-3 py-1 rounded-full border border-hw-accent/20 shadow-[0_0_10px_rgba(139,92,246,0.2)]">
                   AI Powered
                 </span>
               </div>
@@ -3737,13 +3737,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className={cn(
                       "relative group cursor-pointer rounded-2xl p-5 transition-all duration-300 border overflow-hidden flex flex-col gap-4",
                       options[opt.id as keyof typeof options] 
-                        ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.15)]" 
+                        ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
                         : "bg-black/40 border-white/10 hover:border-hw-accent/40 hover:bg-white/5"
                     )}
                   >
                     <div className={cn(
                       "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-inner",
-                      options[opt.id as keyof typeof options] ? "bg-hw-accent text-black" : "bg-white/5 text-hw-muted group-hover:text-hw-accent"
+                      options[opt.id as keyof typeof options] ? "bg-hw-accent text-white" : "bg-white/5 text-hw-muted group-hover:text-hw-accent"
                     )}>
                       <opt.icon size={24} />
                     </div>
@@ -3759,8 +3759,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </p>
                     </div>
                     {options[opt.id as keyof typeof options] && (
-                      <div className="absolute top-4 right-4 w-5 h-5 shrink-0 rounded-full bg-hw-accent flex items-center justify-center shadow-[0_0_10px_rgba(212,175,55,0.5)]">
-                        <Check size={12} className="text-black font-bold" />
+                      <div className="absolute top-4 right-4 w-5 h-5 shrink-0 rounded-full bg-hw-accent flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.5)]">
+                        <Check size={12} className="text-white font-bold" />
                       </div>
                     )}
                   </motion.div>
@@ -3784,7 +3784,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       onClick={() => setOptions(prev => ({ ...prev, language: lang.id as any }))}
                       className={cn(
                         "flex-1 py-3 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all shadow-inner",
-                        options.language === lang.id ? "bg-hw-accent text-black border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.3)]" : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5 hover:text-white"
+                        options.language === lang.id ? "bg-hw-accent text-white border-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.3)]" : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5 hover:text-white"
                       )}
                     >
                       {lang.id === 'bn' && '🇧🇩 '}
@@ -3947,7 +3947,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className={cn(
                       "py-3 rounded-xl border text-xs font-bold transition-all shadow-inner",
                       options.aspectRatio === ratio 
-                        ? "bg-hw-accent text-black border-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.3)]" 
+                        ? "bg-hw-accent text-white border-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.3)]" 
                         : "bg-black/40 text-white/50 border-white/10 hover:border-hw-accent/40 hover:text-white"
                     )}
                   >
@@ -3972,7 +3972,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </>
             ) : (
               <>
-                <Zap size={24} className="text-black group-hover:rotate-12 transition-transform" /> 
+                <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
                 <span className="text-lg font-black tracking-widest uppercase">
                   {
                     currentView === 'video' ? t.genPrompt : 
@@ -4037,7 +4037,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {!currentResult && !loading && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-8">
-                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent animate-float shadow-[0_0_30px_rgba(212,175,55,0.15)] border border-hw-accent/20">
+                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent animate-float shadow-[0_0_30px_rgba(139,92,246,0.15)] border border-hw-accent/20">
                     <Sparkles size={48} />
                   </div>
                   <div className="space-y-3">
@@ -4095,7 +4095,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <motion.div
                             animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-hw-accent/30 to-transparent flex items-center justify-center text-hw-accent border border-hw-accent/30 shadow-[0_0_40px_rgba(212,175,55,0.3)] backdrop-blur-md"
+                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-hw-accent/30 to-transparent flex items-center justify-center text-hw-accent border border-hw-accent/30 shadow-[0_0_40px_rgba(139,92,246,0.3)] backdrop-blur-md"
                           >
                             <Sparkles size={32} />
                           </motion.div>
@@ -4113,7 +4113,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
                         <div className="absolute inset-0 bg-hw-accent/10" />
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-hw-accent via-yellow-400 to-hw-accent relative"
+                          className="h-full bg-gradient-to-r from-hw-accent via-fuchsia-500 to-hw-accent relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
                           transition={{ type: "spring", stiffness: 40, damping: 15 }}
@@ -4128,7 +4128,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             className={cn(
                               "w-2 h-2 rounded-full transition-all duration-700",
                               i <= loadingStep 
-                                ? "bg-hw-accent shadow-[0_0_15px_rgba(212,175,55,0.8)] scale-125" 
+                                ? "bg-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.8)] scale-125" 
                                 : "bg-white/10"
                             )}
                           />
@@ -4180,7 +4180,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <a 
                               href={currentResult.imageUrl} 
                               download="generated-image.png"
-                              className="w-12 h-12 rounded-full bg-hw-accent flex items-center justify-center text-black hover:scale-110 transition-transform shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+                              className="w-12 h-12 rounded-full bg-hw-accent flex items-center justify-center text-white hover:scale-110 transition-transform shadow-[0_0_20px_rgba(139,92,246,0.5)]"
                             >
                               <Download size={24} />
                             </a>
@@ -4191,7 +4191,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : currentResult.audioUrl ? (
                       <div className="space-y-6 py-4">
                         <div className="flex flex-col items-center gap-6">
-                          <div className="w-24 h-24 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_30px_rgba(212,175,55,0.2)] border border-hw-accent/20">
+                          <div className="w-24 h-24 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_30px_rgba(139,92,246,0.2)] border border-hw-accent/20">
                             <Volume2 size={48} />
                           </div>
                           <audio controls src={currentResult.audioUrl} className="w-full" />
@@ -4199,7 +4199,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <a 
                             href={currentResult.audioUrl} 
                             download="voice-over.wav"
-                            className="flex items-center gap-2 px-8 py-4 bg-hw-accent text-black rounded-xl font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all"
+                            className="flex items-center gap-2 px-8 py-4 bg-hw-accent text-white rounded-xl font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all"
                           >
                             <Download size={20} /> {t.downloadAudio}
                           </a>
@@ -4826,7 +4826,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {relatedIdeas.map((idea, idx) => (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.05)" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
@@ -4886,7 +4886,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
-                      <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                      <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                         <Globe size={24} />
                       </div>
                       <span>{t.settings}</span>
@@ -4924,7 +4924,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {theme === t.id && (
                               <motion.div
                                 layoutId="activeTheme"
-                                className="absolute inset-0 bg-hw-accent rounded-2xl -z-10 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                                className="absolute inset-0 bg-hw-accent rounded-2xl -z-10 shadow-[0_0_20px_rgba(139,92,246,0.4)]"
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                               />
                             )}
@@ -4952,7 +4952,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 <div className="flex items-center gap-4">
                                   <div className={cn(
                                     "w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black uppercase tracking-widest shadow-inner",
-                                    aiProvider === p ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.3)]" : "bg-white/5 text-white/50"
+                                    aiProvider === p ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]" : "bg-white/5 text-white/50"
                                   )}>
                                     {p.charAt(0)}
                                   </div>
@@ -4989,7 +4989,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     onClick={() => setAiProvider(p)}
                                     className={cn(
                                       "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                      aiProvider === p ? "bg-hw-accent text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]" : "bg-white/5 text-white/50 hover:text-white"
+                                      aiProvider === p ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.4)]" : "bg-white/5 text-white/50 hover:text-white"
                                     )}
                                   >
                                     {aiProvider === p ? "Active" : "Select"}
@@ -5043,7 +5043,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="flex flex-col gap-4 pt-8 border-t border-white/10">
                       <button 
                         onClick={saveAIConfig}
-                        className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-black font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                        className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-white font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                       >
                         <Save size={20} />
                         {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
@@ -5145,12 +5145,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #D4AF37;
+          background: #8b5cf6;
           opacity: 0.2;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #D4AF37;
+          background: #8b5cf6;
           opacity: 0.4;
         }
       `}} />
@@ -5180,7 +5180,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               <div className="flex flex-col gap-6 w-full mb-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
-                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                       <History size={24} />
                     </div>
                     <span>{uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}</span>
@@ -5278,7 +5278,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       .map((item) => (
                       <motion.div 
                         key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(212, 175, 55, 0.05)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);
@@ -5352,7 +5352,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               
               <div className="flex items-center justify-between">
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
-                  <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                  <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                     <MessageCircle size={24} />
                   </div>
                   <span>{t.contact}</span>
@@ -5391,7 +5391,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
                 <button 
                   onClick={() => setShowContact(false)}
-                  className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-black font-black text-sm tracking-widest uppercase shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:-translate-y-1 transition-all active:scale-95"
+                  className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-white font-black text-sm tracking-widest uppercase shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:-translate-y-1 transition-all active:scale-95"
                 >
                   {uiLang === 'en' ? "Close" : "বন্ধ করুন"}
                 </button>
