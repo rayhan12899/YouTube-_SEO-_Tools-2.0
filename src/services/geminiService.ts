@@ -329,17 +329,20 @@ const extractJson = (text: string) => {
       }
     }
 
-    // Fallback: try to find the first '{' and search backwards for the matching '}'
+    // Check for "error" property which indicates partial failure handled by generateContent catch
+    if (cleanText.includes('"errorGeneratingPrompt": true')) {
+       return { error: true };
+    }
+
+    // Attempt to extract largest JSON block
     const firstBrace = cleanText.indexOf('{');
     const firstBracket = cleanText.indexOf('[');
-    
-    // Choose the one that appears first
     const startIndex = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
 
     if (startIndex !== -1) {
-      // First try standard extraction (largest valid block)
-      const endChar = startIndex === firstBrace ? '}' : ']';
+      const endChar = (startIndex === firstBrace) ? '}' : ']';
       let lastIndex = cleanText.lastIndexOf(endChar);
+      
       while (lastIndex > startIndex) {
         try {
           const candidate = cleanText.substring(startIndex, lastIndex + 1);
@@ -348,13 +351,29 @@ const extractJson = (text: string) => {
           lastIndex = cleanText.lastIndexOf(endChar, lastIndex - 1);
         }
       }
-      
-      // If that fails, the JSON might be truncated. Try to fix it from the start.
+
+      // Aggressive repair for truncated JSON
       try {
         const partialJson = cleanText.substring(startIndex);
-        return JSON.parse(fixTruncatedJson(partialJson));
+        const fixed = fixTruncatedJson(partialJson);
+        const parsed = JSON.parse(fixed);
+        return { ...parsed, _truncated: true };
       } catch (err) {
-        // Final fallback
+        // RegEx fallback for critical fields if JSON is beyond repair
+        const res: any = { _truncated: true };
+        const scriptMatch = cleanText.match(/"script":\s*"(.*?)(?:"|$)/s);
+        const descMatch = cleanText.match(/"description":\s*"(.*?)(?:"|$)/s);
+        const titleMatch = cleanText.match(/"(?:videoTitle|title)":\s*"(.*?)(?:"|$)/s);
+        const sceneMatch = cleanText.match(/"sceneBreakdown":\s*(\[.*?\])/s);
+        
+        if (scriptMatch) res.script = scriptMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\.\.\.$/, '');
+        if (descMatch) res.description = descMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+        if (titleMatch) res.videoTitle = titleMatch[1];
+        if (sceneMatch) {
+            try { res.sceneBreakdown = JSON.parse(fixTruncatedJson(sceneMatch[1])); } catch(e) {}
+        }
+        
+        if (res.script || res.videoTitle) return res;
       }
     }
 
@@ -497,14 +516,14 @@ export const generateContent = async (options: GenerationOptions) => {
                   SCALING REQUIREMENT: 
                   - For short videos (8s - 60s), provide 2-4 highly dynamic scenes.
                   - For medium videos (1m - 5m), provide 5-10 detailed scenes.
-                  - For long videos (10m - 60m), provide a comprehensive breakdown of 15-25 detailed chapters or segments that cover the entire duration of ${options.videoDuration} seconds. Focus on depth for each segment rather than excessive scene fragmenting to ensure the response completes successfully within token limits.
+                  - For long videos (10m - 60m), provide a highly structured and detailed narrative outline or expanded script of about 1500-2000 words. DO NOT attempt to write a word-for-word 60-minute script as it will be truncated. Focus on professional depth and high-quality storytelling for 15-20 distinct chapters/segments.
                   
                   The video prompt MUST be broken down into SCENES/SEGMENTS that correspond EXACTLY to the script's scenes in the 'sceneBreakdown'. 
                   Include specific details about:
                   1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}".
                   2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}".
                   3. Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${options.mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
-                  4. Pacing: Ensure the prompt aligns with the target duration and word count (${options.scriptWordCount || 'N/A'} words).
+                  4. Pacing: Ensure the prompt aligns with the target duration and word count.
                   5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}".)` : ""}
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
@@ -513,18 +532,17 @@ export const generateContent = async (options: GenerationOptions) => {
                   DYNAMIC PACING & DEPTH:
                   - Total Duration: ${options.videoDuration} seconds.
                   - Target Word Count: ${options.scriptWordCount} words.
-                  - Calculated speaking rate is ~${Math.round((options.scriptWordCount / (options.videoDuration || 60)) * 60)} words per minute.
-                  - CRITICAL: For videos between 10m to 60m, you MUST generate a "LONG-FORM NARRATIVE STORY". This is NOT a summary. It is a full, minute-by-minute script.
-                  - EXPANSION REQUIREMENT: Divide the script into at least 10 detailed chapters or sections. Each section must have substantial and engaging content to fill the time.
-                  - Ensure the script timing matches ${options.videoDuration} seconds exactly. If the video is 50 minutes, the script MUST be long enough for a 50-minute professional narration.
+                  - CRITICAL: For videos between 10m to 60m, you MUST generate an "EXPANDED NARRATIVE OUTLINE & STORY". Aim for about 1500-2500 words. DO NOT attempt to write every single word for a full 60 minutes as it will be truncated. Instead, provide a dense, high-quality script that covers the entire topic thoroughly.
+                  - EXPANSION REQUIREMENT: Divide the script into 12-18 detailed chapters. Each section must be substantial.
+                  - Ensure the script covers the timeline from 0:00 to ${Math.floor(options.videoDuration / 60)}:${(options.videoDuration % 60).toString().padStart(2, '0')}.
                   
                   SCALES OF CONTENT:
-                  - For short-form: High-energy hooks and fast transitions.
-                  - For long-form (10-60 min): Extensive storytelling, detailed examples, sub-topics, and expert analysis.
-                  - The script MUST be a professional production script including: 
-                  1. Explicit vocal directions for every segment.
-                  2. Engaging dialogue/voiceover that covers the ENTIRE duration.
-                  3. Exact timestamps in the scene breakdown that span from 0:00 to ${Math.floor(options.videoDuration / 60)}:${(options.videoDuration % 60).toString().padStart(2, '0')}.)` : ""}
+                  - For short-form: High-energy hooks.
+                  - For long-form (10-60 min): Extensive storytelling, expert analysis, and structured chapters.
+                  - The script MUST include: 
+                  1. Vocal directions.
+                  2. Engaging dialogue/voiceover.
+                  3. Exact timestamps in the scene breakdown.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist including keyword research, title optimization, description best practices, tag strategy, thumbnail effectiveness, and end screen/card usage. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords for the topic. For each keyword, include an estimated 'searchVolume' (Low, Medium, High, or a number) and 'competition' (Low, Medium, High). Return as an array of objects.)
               
@@ -534,14 +552,14 @@ export const generateContent = async (options: GenerationOptions) => {
               
               - videoTitle: A catchy, SEO-optimized title for the video.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
-              - script: The FULL narrative script.
-              - sceneBreakdown: An array of objects, each representing a scene or segment. For 10-60m videos, provide 15-25 detailed chapters/segments.
-                CRITICAL: To avoid hitting token limits, the 'script' field inside 'sceneBreakdown' objects MUST only be a 1-sentence summary or reference to that segment from the main script. DO NOT repeat the full dialogue here.
+              - script: The FULL narrative script (Aim for 1500-2500 words for long videos).
+              - sceneBreakdown: An array of 12-18 objects representing chapters.
+                CRITICAL: To avoid hitting token limits, the 'script' field inside 'sceneBreakdown' MUST be a 1-sentence summary only.
                 Each object MUST have:
-                - 'scene': The scene number (1, 2, 3...).
-                - 'time': The timestamp range (e.g., "0:00 - 0:10" or "45:00 - 45:15").
-                - 'script': A short (10-15 words) summary of the dialogue for this scene.
-                - 'visual': A comprehensive, cinematic visual prompt for AI video generators (like Runway Gen-3 or Sora). Include specific camera techniques (e.g., "Fpv drone shot", "Extreme close-up"), specific lighting ("Cinematic volumetric lighting"), and character actions that perfectly synchronize with the 'script'.
+                - 'scene': The scene number.
+                - 'time': The timestamp range (e.g., "0:00 - 3:00").
+                - 'script': Short summary.
+                - 'visual': Detailed cinematic visual prompt.
               
               CRITICAL: The number of scenes in 'sceneBreakdown' MUST match the total duration and the complexity of the topic. Each scene's 'script' and 'visual' MUST be perfectly synchronized.
               
@@ -607,6 +625,13 @@ export const generateVoiceOver = async (
   options?: { tone?: string; accent?: string; age?: string }
 ) => {
   let promptText = text;
+  // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
+  const MAX_TTS_CHARS = 4000;
+  if (text.length > MAX_TTS_CHARS) {
+    console.warn(`Voiceover text too long (${text.length} chars). Truncating to ${MAX_TTS_CHARS} for API safety.`);
+    text = text.substring(0, MAX_TTS_CHARS) + "... [Content continues in script]";
+  }
+
   if (options && (options.tone || options.accent || options.age)) {
     const instructions = [
       options.tone && `${options.tone} tone`,
@@ -973,7 +998,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                    - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                    - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' that matches the video's content. 
-                 - SCALING: If the duration is ${videoDuration || 'longer than 10 minutes'} seconds, provide an "EXTENDED NARRATIVE" script with multiple detailed chapters.
+                 - SCALING: For videos over 10 minutes, provide a highly detailed chapter-by-chapter story of about 1500-2200 words. DO NOT attempt to write a word-for-word 60-minute script as it will exceed token limits and be truncated.
               5. 'Metadata' including:
                  - 'titles': An array of 5 unique, SEO-optimized title variations (each with 'title' and 'highCtrTitle').
                  - 'thumbnailTitle': Short, punchy text to put ON the thumbnail (thermal title).
@@ -1001,8 +1026,9 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               
               Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with titles, thumbnailTitle, thumbnailConcept, description, tags, hashtags), socialMedia (object with facebook, linkedin, instagram, tiktok), seoChecklist (array), keywords (array), repurposeAddons (array). 
               
-              - 'script': The FULL extracted narrative script.
-              - 'sceneBreakdown': An array of objects, with 'scene', 'time', 'script', and 'visual' keys. For 10-60m videos, provide 15-25 detailed segments. CRITICAL: To avoid token limits and truncated responses, the 'script' field within 'sceneBreakdown' MUST only be a 1-sentence summary of the dialogue. The full text should be in the top-level 'script' field.
+              - 'script': The FULL narrative story (Aim for 1500-2200 words for long videos).
+              - 'sceneBreakdown': An array of 12-18 objects representing chapters.
+                CRITICAL: To avoid token limits and truncated responses, the 'script' field within 'sceneBreakdown' MUST only be a 1-sentence summary (10-15 words).
               
               Do not include any text outside the JSON object.`,
             },
