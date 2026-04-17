@@ -420,23 +420,33 @@ export const generateContent = async (options: GenerationOptions) => {
               
               Generate the following sections if requested:
               - Image Prompt: ${options.generateImagePrompt} ${options.visualStyle ? `(Ensure the image prompt specifically requests a ${options.visualStyle} style with ${options.lighting || 'natural'} lighting and a ${options.cameraAngle || 'eye-level'} angle.)` : ""}
-              - Video Prompt: ${options.generateVideoPrompt} ${options.videoDuration ? `(Target duration: ${options.videoDuration} seconds. Provide a highly detailed, cinematic prompt for AI video generators like Sora, Kling, Runway, or Veo 3. 
-                  CRITICAL: The video prompt MUST be broken down into SCENES that correspond EXACTLY to the script's scenes. For each scene in the script, provide a matching visual prompt.
+              - Video Prompt: ${options.generateVideoPrompt} ${options.videoDuration ? `(Target duration: ${options.videoDuration} seconds. 
+                  CRITICAL: Provide a highly detailed, cinematic prompt for AI video generators. 
+                  SCALING REQUIREMENT: 
+                  - For short videos (8s - 60s), provide 2-4 highly dynamic scenes.
+                  - For medium videos (1m - 5m), provide 5-10 detailed scenes.
+                  - For long videos (5m - 30m), provide a comprehensive breakdown of at least 15-20 scenes or chapters that cover the entire duration.
+                  
+                  The video prompt MUST be broken down into SCENES that correspond EXACTLY to the script's scenes. 
                   Include specific details about:
-                  1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}". Use professional terms like 'close-up tracking shot', 'wide establishing shot', or 'handheld jitter' where appropriate.
-                  2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
+                  1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}".
+                  2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}".
                   3. Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${options.mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                   4. Pacing: Ensure the prompt aligns with the target duration and word count (${options.scriptWordCount || 'N/A'} words).
-                  5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.)` : ""}
+                  5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}".)` : ""}
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
               - Tags: ${options.generateTags}
-              - Script: ${options.generateScript} ${options.scriptWordCount ? `(Target length: approximately ${options.scriptWordCount} words${options.scriptCharacterCount ? ` and strictly under ${options.scriptCharacterCount} characters` : ''}. The script MUST be a full professional YouTube script including: 
-                  1. Scene-by-scene descriptions (what should be happening on screen).
+              - Script: ${options.generateScript} ${options.scriptWordCount ? `(Target length: approximately ${options.scriptWordCount} words. 
+                  SCALING REQUIREMENT:
+                  - If the duration is ${options.videoDuration} seconds, the script must be timed exactly for this length.
+                  - Use a speaking rate of ~150-160 words per minute.
+                  - For a 30-minute video, generate a detailed long-form script with intro, multiple chapters/segments, and outro.
+                  - The script MUST be a full professional YouTube script including: 
+                  1. Scene-by-scene descriptions.
                   2. Engaging dialogue or voiceover text.
-                  3. Clear Calls to Action (CTA) like subscribing, liking, or checking links.
-                  4. Timestamps or pacing suggestions based on the ${options.videoDuration} seconds duration.
-                  CRITICAL: Each scene in the script MUST have a corresponding visual description that matches the 'Video Prompt' section perfectly. Accuracy in timing and scene mapping is mandatory.)` : ""}
+                  3. Clear Calls to Action (CTA).
+                  4. Exact timestamps for each scene based on the total ${options.videoDuration} seconds duration.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist including keyword research, title optimization, description best practices, tag strategy, thumbnail effectiveness, and end screen/card usage. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords for the topic. For each keyword, include an estimated 'searchVolume' (Low, Medium, High, or a number) and 'competition' (Low, Medium, High). Return as an array of objects.)
               

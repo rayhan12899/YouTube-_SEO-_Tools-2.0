@@ -3811,13 +3811,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <input 
                           type="range" 
                           min="8" 
-                          max="1200" 
+                          max="1800" 
                           step="1"
                           value={options.videoDuration}
                           onChange={(e) => {
                             const duration = parseInt(e.target.value);
                             // Calculate characters based on ~15 chars per second (rough estimate for speech)
-                            const chars = Math.min(20000, Math.max(100, Math.round(duration * 15)));
+                            const chars = Math.min(30000, Math.max(100, Math.round(duration * 15)));
                             setOptions(prev => ({ 
                               ...prev, 
                               videoDuration: duration,
@@ -3828,7 +3828,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold">
                           <span>8s</span>
-                          <span>20m</span>
+                          <span>30m</span>
                         </div>
                       </div>
 
@@ -3871,13 +3871,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <input 
                         type="range" 
                         min="8" 
-                        max="1200" 
+                        max="1800" 
                         step="1"
                         value={options.videoDuration}
                         onChange={(e) => {
                           const duration = parseInt(e.target.value);
                           // Calculate words based on ~160 words per minute speaking rate
-                          const words = Math.min(5000, Math.max(100, Math.round((duration / 60) * 160)));
+                          const words = Math.min(6000, Math.max(100, Math.round((duration / 60) * 160)));
                           setOptions(prev => ({ 
                             ...prev, 
                             videoDuration: duration,
@@ -3888,7 +3888,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>8s</span>
-                        <span>20m</span>
+                        <span>30m</span>
                       </div>
                     </div>
                   )}
@@ -3906,13 +3906,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <input 
                         type="range" 
                         min="100" 
-                        max="5000" 
+                        max="6000" 
                         step="50"
                         value={options.scriptWordCount}
                         onChange={(e) => {
                           const words = parseInt(e.target.value);
                           // Calculate duration based on ~160 words per minute speaking rate
-                          const duration = Math.min(1200, Math.max(8, Math.round((words / 160) * 60)));
+                          const duration = Math.min(1800, Math.max(8, Math.round((words / 160) * 60)));
                           setOptions(prev => ({ 
                             ...prev, 
                             scriptWordCount: words,
@@ -3923,7 +3923,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>100w</span>
-                        <span>5000w</span>
+                        <span>6000w</span>
                       </div>
                     </div>
                   )}
