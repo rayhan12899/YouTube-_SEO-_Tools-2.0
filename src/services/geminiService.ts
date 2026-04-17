@@ -132,6 +132,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       config: {
+        maxOutputTokens: 2048,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -179,6 +180,7 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
       model: "gemini-3-flash-preview",
       config: {
         responseMimeType: "application/json",
+        maxOutputTokens: 8192,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -256,11 +258,55 @@ export interface GenerationOptions {
   mood?: string;
   lighting?: string;
   customThumbnailElements?: string;
+  audience?: string;
+  pacing?: string;
+  narrativeStrategy?: string;
+  deepSearch?: boolean;
 }
 
 // Helper to extract JSON from model response
 const extractJson = (text: string) => {
-  const cleanText = text.trim();
+  let cleanText = text.trim();
+  
+  // Basic truncation fixing: if it ends without a closing brace/bracket but has an opening one
+  const fixTruncatedJson = (jsonStr: string) => {
+    let stack: string[] = [];
+    let inString = false;
+    let escaped = false;
+    
+    for (let i = 0; i < jsonStr.length; i++) {
+      const char = jsonStr[i];
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (char === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (!inString) {
+        if (char === '{' || char === '[') {
+          stack.push(char === '{' ? '}' : ']');
+        } else if (char === '}' || char === ']') {
+          if (stack.length > 0 && stack[stack.length - 1] === char) {
+            stack.pop();
+          }
+        }
+      }
+    }
+    
+    let fixed = jsonStr;
+    if (inString) fixed += '"';
+    while (stack.length > 0) {
+      fixed += stack.pop();
+    }
+    return fixed;
+  };
+
   try {
     // Try direct parse first
     return JSON.parse(cleanText);
@@ -274,7 +320,12 @@ const extractJson = (text: string) => {
       try {
         return JSON.parse(innerText);
       } catch (e2) {
-        // If markdown block fails, fall through to brace extraction
+        // Try fixing the inner text if it might be truncated
+        try {
+          return JSON.parse(fixTruncatedJson(innerText));
+        } catch (e3) {
+          // Fall through
+        }
       }
     }
 
@@ -284,9 +335,10 @@ const extractJson = (text: string) => {
     
     // Choose the one that appears first
     const startIndex = (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) ? firstBrace : firstBracket;
-    const endChar = startIndex === firstBrace ? '}' : ']';
 
     if (startIndex !== -1) {
+      // First try standard extraction (largest valid block)
+      const endChar = startIndex === firstBrace ? '}' : ']';
       let lastIndex = cleanText.lastIndexOf(endChar);
       while (lastIndex > startIndex) {
         try {
@@ -295,6 +347,14 @@ const extractJson = (text: string) => {
         } catch (err) {
           lastIndex = cleanText.lastIndexOf(endChar, lastIndex - 1);
         }
+      }
+      
+      // If that fails, the JSON might be truncated. Try to fix it from the start.
+      try {
+        const partialJson = cleanText.substring(startIndex);
+        return JSON.parse(fixTruncatedJson(partialJson));
+      } catch (err) {
+        // Final fallback
       }
     }
 
@@ -317,6 +377,7 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
           temperature: 0.7,
           topP: 0.95,
           topK: 40,
+          maxOutputTokens: 8192,
           safetySettings: [
             { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
             { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -366,6 +427,7 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
         messages: [{ role: "user", content: prompt }],
         response_format: responseMimeType === "application/json" ? { type: "json_object" } : undefined,
         temperature: 0.7,
+        max_tokens: 8192,
       });
       
       return response.choices[0].message.content || "";
@@ -422,6 +484,10 @@ export const generateContent = async (options: GenerationOptions) => {
               Camera Angle: ${options.cameraAngle || "N/A"}
               Lighting: ${options.lighting || "N/A"}
               Mood/Atmosphere: ${options.mood || "N/A"}
+              Target Audience: ${options.audience || "General"}
+              Pacing: ${options.pacing || "Steady"}
+              Narrative Strategy: ${options.narrativeStrategy || "Storytelling"}
+              Deep AI Context Search: ${options.deepSearch ? "Enabled (Deeply research the context and latest trends for this topic)" : "Standard"}
               Custom Thumbnail Elements: ${options.customThumbnailElements || "N/A"}
               
               Generate the following sections if requested:
@@ -431,9 +497,9 @@ export const generateContent = async (options: GenerationOptions) => {
                   SCALING REQUIREMENT: 
                   - For short videos (8s - 60s), provide 2-4 highly dynamic scenes.
                   - For medium videos (1m - 5m), provide 5-10 detailed scenes.
-                  - For long videos (5m - 30m), provide a comprehensive breakdown of at least 15-20 scenes or chapters that cover the entire duration.
+                  - For long videos (10m - 60m), provide a comprehensive breakdown of 15-25 detailed chapters or segments that cover the entire duration of ${options.videoDuration} seconds. Focus on depth for each segment rather than excessive scene fragmenting to ensure the response completes successfully within token limits.
                   
-                  The video prompt MUST be broken down into SCENES that correspond EXACTLY to the script's scenes. 
+                  The video prompt MUST be broken down into SCENES/SEGMENTS that correspond EXACTLY to the script's scenes in the 'sceneBreakdown'. 
                   Include specific details about:
                   1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}".
                   2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}".
@@ -443,16 +509,22 @@ export const generateContent = async (options: GenerationOptions) => {
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
               - Tags: ${options.generateTags}
-              - Script: ${options.generateScript} ${options.scriptWordCount ? `(Target length: approximately ${options.scriptWordCount} words. 
-                  SCALING REQUIREMENT:
-                  - If the duration is ${options.videoDuration} seconds, the script must be timed exactly for this length.
-                  - Use a speaking rate of ~150-160 words per minute.
-                  - For a 30-minute video, generate a detailed long-form script with intro, multiple chapters/segments, and outro.
-                  - The script MUST be a full professional YouTube script including: 
-                  1. Scene-by-scene descriptions.
-                  2. Engaging dialogue or voiceover text.
-                  3. Clear Calls to Action (CTA).
-                  4. Exact timestamps for each scene based on the total ${options.videoDuration} seconds duration.)` : ""}
+              - Script: ${options.generateScript} ${options.scriptWordCount ? `(Target length: approximately ${options.scriptWordCount} words for a ${options.videoDuration}s video. 
+                  DYNAMIC PACING & DEPTH:
+                  - Total Duration: ${options.videoDuration} seconds.
+                  - Target Word Count: ${options.scriptWordCount} words.
+                  - Calculated speaking rate is ~${Math.round((options.scriptWordCount / (options.videoDuration || 60)) * 60)} words per minute.
+                  - CRITICAL: For videos between 10m to 60m, you MUST generate a "LONG-FORM NARRATIVE STORY". This is NOT a summary. It is a full, minute-by-minute script.
+                  - EXPANSION REQUIREMENT: Divide the script into at least 10 detailed chapters or sections. Each section must have substantial and engaging content to fill the time.
+                  - Ensure the script timing matches ${options.videoDuration} seconds exactly. If the video is 50 minutes, the script MUST be long enough for a 50-minute professional narration.
+                  
+                  SCALES OF CONTENT:
+                  - For short-form: High-energy hooks and fast transitions.
+                  - For long-form (10-60 min): Extensive storytelling, detailed examples, sub-topics, and expert analysis.
+                  - The script MUST be a professional production script including: 
+                  1. Explicit vocal directions for every segment.
+                  2. Engaging dialogue/voiceover that covers the ENTIRE duration.
+                  3. Exact timestamps in the scene breakdown that span from 0:00 to ${Math.floor(options.videoDuration / 60)}:${(options.videoDuration % 60).toString().padStart(2, '0')}.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist including keyword research, title optimization, description best practices, tag strategy, thumbnail effectiveness, and end screen/card usage. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords for the topic. For each keyword, include an estimated 'searchVolume' (Low, Medium, High, or a number) and 'competition' (Low, Medium, High). Return as an array of objects.)
               
@@ -462,11 +534,14 @@ export const generateContent = async (options: GenerationOptions) => {
               
               - videoTitle: A catchy, SEO-optimized title for the video.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
-              - sceneBreakdown: An array of objects, each representing a scene. Each object MUST have:
+              - script: The FULL narrative script.
+              - sceneBreakdown: An array of objects, each representing a scene or segment. For 10-60m videos, provide 15-25 detailed chapters/segments.
+                CRITICAL: To avoid hitting token limits, the 'script' field inside 'sceneBreakdown' objects MUST only be a 1-sentence summary or reference to that segment from the main script. DO NOT repeat the full dialogue here.
+                Each object MUST have:
                 - 'scene': The scene number (1, 2, 3...).
-                - 'time': The timestamp range (e.g., "0:00 - 0:10").
-                - 'script': The dialogue or voiceover for this specific scene.
-                - 'visual': The detailed visual prompt for this specific scene.
+                - 'time': The timestamp range (e.g., "0:00 - 0:10" or "45:00 - 45:15").
+                - 'script': A short (10-15 words) summary of the dialogue for this scene.
+                - 'visual': A comprehensive, cinematic visual prompt for AI video generators (like Runway Gen-3 or Sora). Include specific camera techniques (e.g., "Fpv drone shot", "Extreme close-up"), specific lighting ("Cinematic volumetric lighting"), and character actions that perfectly synchronize with the 'script'.
               
               CRITICAL: The number of scenes in 'sceneBreakdown' MUST match the total duration and the complexity of the topic. Each scene's 'script' and 'visual' MUST be perfectly synchronized.
               
@@ -615,6 +690,7 @@ export const generateVoiceExtractor = async (
       model: "gemini-3-flash-preview",
       config: {
         responseMimeType: "application/json",
+        maxOutputTokens: 8192,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -664,7 +740,7 @@ export const generateVoiceExtractor = async (
               - 'metadata': An object containing titles (array), thumbnailTitle, thumbnailConcept, description, tags, hashtags.
               - 'socialMedia': An object containing facebook, linkedin, instagram, tiktok.
               - 'repurposeAddons': An array of strings.
-              - 'sceneBreakdown': An array of objects, each with 'scene', 'time', 'script', and 'visual' keys, providing a 1:1 mapping between script and visual prompts.
+              - 'sceneBreakdown': An array of objects, with 'scene', 'time', 'script', and 'visual' keys. For 10-60m videos, provide 15-25 detailed segments.
               
               CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
               
@@ -773,6 +849,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
           config: {
             tools: [{ googleSearch: {} }],
             responseMimeType: "application/json",
+            maxOutputTokens: 8192,
             safetySettings: [
               { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
               { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -859,6 +936,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
       model: "gemini-3-flash-preview",
       config: {
         responseMimeType: "application/json",
+        maxOutputTokens: 8192,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -894,7 +972,8 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                    - Lighting & Atmosphere: Incorporate "${lighting || 'natural'} and ${mood || 'cinematic neon lighting, golden hour, or moody and atmospheric'}". Use phrases like 'volumetric lighting', 'high-contrast shadows', or 'soft diffused glow'.
                    - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                    - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
-              4. A full professional YouTube 'Script' that matches the video's content.
+              4. A full professional YouTube 'Script' that matches the video's content. 
+                 - SCALING: If the duration is ${videoDuration || 'longer than 10 minutes'} seconds, provide an "EXTENDED NARRATIVE" script with multiple detailed chapters.
               5. 'Metadata' including:
                  - 'titles': An array of 5 unique, SEO-optimized title variations (each with 'title' and 'highCtrTitle').
                  - 'thumbnailTitle': Short, punchy text to put ON the thumbnail (thermal title).
@@ -907,7 +986,10 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                  - 'linkedin': A professional caption for LinkedIn.
                  - 'instagram': A catchy caption with emojis for Instagram.
                  - 'tiktok': A short, high-energy caption for TikTok.
-              7. 'RepurposeAddons': Creative ideas for repurposing this content (e.g., blog post, newsletter, podcast).
+              7. 'SEO' & 'Distribution':
+                 - 'seoChecklist': A comprehensive YouTube SEO checklist.
+                 - 'keywords': A list of 10-15 relevant keywords with search volume and competition.
+              8. 'RepurposeAddons': Creative ideas for repurposing this content (e.g., blog post, newsletter, podcast).
               
               ${videoDuration ? `Target video duration: ${videoDuration} seconds.` : ""}
               ${scriptWordCount ? `Target script length: approximately ${scriptWordCount} words.` : ""}
@@ -917,9 +999,10 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               
               CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
               
-              Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with titles, thumbnailTitle, thumbnailConcept, description, tags, hashtags), socialMedia (object with facebook, linkedin, instagram, tiktok), repurposeAddons (array). 
+              Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with titles, thumbnailTitle, thumbnailConcept, description, tags, hashtags), socialMedia (object with facebook, linkedin, instagram, tiktok), seoChecklist (array), keywords (array), repurposeAddons (array). 
               
-              - 'sceneBreakdown': An array of objects, each with 'scene', 'time', 'script', and 'visual' keys, providing a 1:1 mapping between script and visual prompts.
+              - 'script': The FULL extracted narrative script.
+              - 'sceneBreakdown': An array of objects, with 'scene', 'time', 'script', and 'visual' keys. For 10-60m videos, provide 15-25 detailed segments. CRITICAL: To avoid token limits and truncated responses, the 'script' field within 'sceneBreakdown' MUST only be a 1-sentence summary of the dialogue. The full text should be in the top-level 'script' field.
               
               Do not include any text outside the JSON object.`,
             },
@@ -954,6 +1037,7 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
       model: "gemini-3-flash-preview",
       config: {
         responseMimeType: "application/json",
+        maxOutputTokens: 8192,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },

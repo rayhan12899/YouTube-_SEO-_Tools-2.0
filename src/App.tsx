@@ -110,6 +110,9 @@ import {
   CONTENT_TYPES, 
   TONES, 
   VISUAL_STYLES, 
+  AUDIENCE_TYPES,
+  PACING_TYPES,
+  NARRATIVE_STRATEGIES,
   PROMPT_ELEMENTS, 
   SCENE_PRESETS, 
   MODEL_INFO 
@@ -679,7 +682,11 @@ export default function App() {
       promptCategory: 'Video' as 'Video' | 'Story' | 'Image' | 'Voice Over',
       cameraAngle: 'Wide',
       lighting: 'Natural',
-      mood: 'Cinematic'
+      mood: 'Cinematic',
+      audience: 'General',
+      pacing: 'Steady',
+      narrativeStrategy: 'Storytelling',
+      deepSearch: false
     };
   });
 
@@ -1004,7 +1011,7 @@ export default function App() {
           setLoadingStep(2); // Generating...
           setLoadingProgress(40);
           if (mediaMimeType.startsWith('video/')) {
-            const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood);
+            const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1335,6 +1342,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         script: t.scriptLabel,
         seoChecklist: t.seoChecklistLabel,
         keywords: t.keywordsLabel,
+        socialMedia: uiLang === 'en' ? "Social Media Captions" : "সোশ্যাল মিডিয়া ক্যাপশন",
+        repurposeAddons: uiLang === 'en' ? "Repurposing Ideas" : "রিপারপাসিং আইডিয়া",
       };
 
       if (currentResult.prompts) {
@@ -1377,21 +1386,39 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               <table style="width: 100%; border-collapse: collapse; margin-top: 10px; box-sizing: border-box !important; table-layout: fixed;">
                 <thead>
                   <tr style="background-color: #f2f2f2;">
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; box-sizing: border-box !important; word-break: break-word !important;">Keyword</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; box-sizing: border-box !important; word-break: break-word !important;">Volume</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; box-sizing: border-box !important; word-break: break-word !important;">Competition</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left; box-sizing: border-box !important; word-break: break-word !important; font-size: 14px;">Keyword</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left; box-sizing: border-box !important; word-break: break-word !important; font-size: 14px;">Volume</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left; box-sizing: border-box !important; word-break: break-word !important; font-size: 14px;">Competition</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${currentResult[key].map((kw: any) => `
                     <tr>
-                      <td style="border: 1px solid #ddd; padding: 8px; box-sizing: border-box !important; word-break: break-word !important;">${kw.keyword}</td>
-                      <td style="border: 1px solid #ddd; padding: 8px; box-sizing: border-box !important; word-break: break-word !important;">${kw.searchVolume}</td>
-                      <td style="border: 1px solid #ddd; padding: 8px; box-sizing: border-box !important; word-break: break-word !important;">${kw.competition}</td>
+                      <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px; font-weight: bold; color: #C5A059;">${kw.keyword}</td>
+                      <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px;">${kw.searchVolume}</td>
+                      <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px;">${kw.competition}</td>
                     </tr>
                   `).join('')}
                 </tbody>
               </table>
+            `;
+          } else if (key === 'socialMedia' && typeof currentResult[key] === 'object') {
+            content = `
+              <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                ${Object.entries(currentResult[key]).map(([sKey, sValue]) => `
+                  <div style="padding: 15px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee;">
+                    <strong style="text-transform: uppercase; font-size: 12px; color: #C5A059;">${sKey}</strong>
+                    <p style="margin-top: 8px; font-size: 14px; color: #444; line-height: 1.5; white-space: pre-wrap;">${String(sValue)}</p>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else if (key === 'seoChecklist' && (Array.isArray(currentResult[key]) || typeof currentResult[key] === 'string')) {
+            const list = Array.isArray(currentResult[key]) ? currentResult[key] : String(currentResult[key]).split('\n').filter(Boolean);
+            content = `
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                ${list.map((item: string) => `<li style="margin-bottom: 8px; padding: 10px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #C5A059; font-size: 13px; color: #333;">✓ ${item}</li>`).join('')}
+              </ul>
             `;
           } else {
             content = currentResult[key];
@@ -1431,6 +1458,34 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             `;
           }
         });
+      }
+
+      if (currentResult.socialMedia && !labelMap.socialMedia) {
+        // Fallback for social media if not in labelMap loop
+      }
+
+      if (currentResult.sceneBreakdown && Array.isArray(currentResult.sceneBreakdown)) {
+        contentHtml += `
+          <div style="margin-top: 40px; page-break-before: always;">
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 25px !important; font-size: 22px !important;">Scene-by-Scene Production Breakdown</h2>
+            ${currentResult.sceneBreakdown.map((scene: any, i: number) => `
+              <div style="margin-bottom: 25px; padding: 20px; border: 1px solid #eee; border-radius: 15px; background: #fff; page-break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
+                  <strong style="color: #C5A059; font-size: 16px;">Scene ${scene.scene || i + 1}</strong>
+                  <span style="color: #666; font-size: 14px; font-weight: bold;">${scene.time || "0:00"}</span>
+                </div>
+                <div style="margin-bottom: 15px;">
+                  <strong style="display: block; font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 5px;">Script / Voiceover</strong>
+                  <p style="font-size: 14px; color: #333; line-height: 1.5; margin: 0; white-space: pre-wrap;">${scene.script}</p>
+                </div>
+                <div style="padding-top: 10px; border-top: 1px dashed #eee;">
+                  <strong style="display: block; font-size: 11px; text-transform: uppercase; color: #999; margin-bottom: 5px;">Visual Prompt</strong>
+                  <p style="font-size: 13px; color: #666; font-style: italic; margin: 0;">${scene.visual}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
       }
 
       element.innerHTML = contentHtml;
@@ -3488,14 +3543,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <input 
                           type="range" 
                           min="8" 
-                          max="1800" 
+                          max="3600" 
                           step="1"
                           value={options.videoDuration}
                           onChange={(e) => {
                             const duration = parseInt(e.target.value);
                             // ~150 words per minute, ~5 characters per word
-                            const words = Math.min(6000, Math.max(20, Math.round((duration / 60) * 150)));
-                            const chars = Math.min(30000, Math.max(100, words * 5));
+                            // Capped at 4000 words to ensure LLM output doesn't truncate for long videos
+                            const words = Math.min(4000, Math.max(20, Math.round((duration / 60) * 150)));
+                            const chars = Math.min(20000, Math.max(100, words * 5));
                             setOptions(prev => ({ 
                               ...prev, 
                               videoDuration: duration,
@@ -3507,7 +3563,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         />
                         <div className="flex justify-between text-[10px] text-hw-muted font-bold">
                           <span>8s</span>
-                          <span>30m</span>
+                          <span>60m</span>
                         </div>
                       </div>
 
@@ -3902,14 +3958,15 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <input 
                           type="range" 
                           min="8" 
-                          max="1800" 
+                          max="3600" 
                           step="1"
                           value={options.videoDuration}
                           onChange={(e) => {
                             const duration = parseInt(e.target.value);
                             // ~150 words per minute, ~5 characters per word
-                            const words = Math.min(6000, Math.max(20, Math.round((duration / 60) * 150)));
-                            const chars = Math.min(30000, Math.max(100, words * 5));
+                            // Capped at 4000 words to ensure LLM output doesn't truncate for long videos
+                            const words = Math.min(4000, Math.max(20, Math.round((duration / 60) * 150)));
+                            const chars = Math.min(20000, Math.max(100, words * 5));
                             setOptions(prev => ({ 
                               ...prev, 
                               videoDuration: duration,
@@ -3921,7 +3978,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold">
                           <span>8s</span>
-                          <span>30m</span>
+                          <span>60m</span>
                         </div>
                       </div>
 
@@ -3937,7 +3994,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <input 
                           type="range" 
                           min="100" 
-                          max="20000" 
+                          max="50000" 
                           step="50"
                           value={options.scriptCharacterCount}
                           onChange={(e) => setOptions(prev => ({ ...prev, scriptCharacterCount: parseInt(e.target.value) }))}
@@ -3945,7 +4002,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         />
                         <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                           <span>100</span>
-                          <span>20000</span>
+                          <span>50000</span>
                         </div>
                       </div>
                     </div>
@@ -3964,13 +4021,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <input 
                         type="range" 
                         min="8" 
-                        max="1800" 
+                        max="3600" 
                         step="1"
                         value={options.videoDuration}
                         onChange={(e) => {
                           const duration = parseInt(e.target.value);
                           // Calculate words based on ~160 words per minute speaking rate
-                          const words = Math.min(6000, Math.max(100, Math.round((duration / 60) * 160)));
+                          // Capped at 4000 words to prevent LLM truncation
+                          const words = Math.min(4000, Math.max(100, Math.round((duration / 60) * 160)));
                           setOptions(prev => ({ 
                             ...prev, 
                             videoDuration: duration,
@@ -3981,7 +4039,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>8s</span>
-                        <span>30m</span>
+                        <span>60m</span>
                       </div>
                     </div>
                   )}
@@ -3999,13 +4057,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <input 
                         type="range" 
                         min="100" 
-                        max="6000" 
+                        max="10000" 
                         step="50"
                         value={options.scriptWordCount}
                         onChange={(e) => {
                           const words = parseInt(e.target.value);
                           // Calculate duration based on ~160 words per minute speaking rate
-                          const duration = Math.min(1800, Math.max(8, Math.round((words / 160) * 60)));
+                          const duration = Math.min(3600, Math.max(8, Math.round((words / 160) * 60)));
                           setOptions(prev => ({ 
                             ...prev, 
                             scriptWordCount: words,
@@ -4016,7 +4074,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       />
                       <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
                         <span>100w</span>
-                        <span>6000w</span>
+                        <span>10000w</span>
                       </div>
                     </div>
                   )}
@@ -4047,6 +4105,108 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     {ratio}
                   </motion.button>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* Advanced AI Context & Strategy */}
+          {(currentView === 'video' || currentView === 'shorts' || options.generateScript) && (
+            <section className="glass-card p-6 md:p-8 space-y-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-hw-accent/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-hw-accent/10" />
+              
+              <div className="flex items-center justify-between">
+                <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
+                  <Rocket size={16} className="text-hw-accent" /> {uiLang === 'en' ? "Advanced AI Strategy" : "অ্যাডভান্সড এআই স্ট্র্যাটেজি"}
+                </h2>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-widest text-hw-accent font-black">{t.deepSearch}</span>
+                  <button 
+                    onClick={() => setOptions(prev => ({ ...prev, deepSearch: !prev.deepSearch }))}
+                    className={cn(
+                      "w-12 h-6 rounded-full transition-all relative",
+                      options.deepSearch ? "bg-hw-accent shadow-[0_0_10px_rgba(139,92,246,0.5)]" : "bg-white/10"
+                    )}
+                  >
+                    <motion.div 
+                      animate={{ x: options.deepSearch ? 26 : 4 }}
+                      className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-md"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Target Audience */}
+                <div className="space-y-4">
+                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                    <UsersIcon size={14} className="text-hw-accent" /> {t.audience}
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {AUDIENCE_TYPES.map((aud) => (
+                      <button
+                        key={aud.id}
+                        onClick={() => setOptions(prev => ({ ...prev, audience: aud.id }))}
+                        className={cn(
+                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
+                          options.audience === aud.id 
+                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
+                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                        )}
+                      >
+                        <span className="text-lg">{aud.icon}</span>
+                        {translations[uiLang][aud.label as keyof typeof translations['en']]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content Pacing */}
+                <div className="space-y-4">
+                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                    <Zap size={14} className="text-hw-accent" /> {t.pacing}
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {PACING_TYPES.map((pace) => (
+                      <button
+                        key={pace.id}
+                        onClick={() => setOptions(prev => ({ ...prev, pacing: pace.id }))}
+                        className={cn(
+                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
+                          options.pacing === pace.id 
+                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
+                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                        )}
+                      >
+                        <span className="text-lg">{pace.icon}</span>
+                        {translations[uiLang][pace.label as keyof typeof translations['en']]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Narrative Strategy */}
+                <div className="space-y-4">
+                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                    <ScrollText size={14} className="text-hw-accent" /> {t.narrativeStrategy}
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {NARRATIVE_STRATEGIES.map((strat) => (
+                      <button
+                        key={strat.id}
+                        onClick={() => setOptions(prev => ({ ...prev, narrativeStrategy: strat.id }))}
+                        className={cn(
+                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
+                          options.narrativeStrategy === strat.id 
+                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
+                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                        )}
+                      >
+                        <span className="text-lg">{strat.icon}</span>
+                        {translations[uiLang][strat.label as keyof typeof translations['en']]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </section>
           )}

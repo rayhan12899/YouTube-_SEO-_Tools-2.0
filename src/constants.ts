@@ -62,6 +62,28 @@ export const VISUAL_STYLES = [
   { id: '3dRender', name: '3D Render', icon: '🧊' }
 ];
 
+export const AUDIENCE_TYPES = [
+  { id: 'General', label: 'audienceGeneral', icon: '🌍' },
+  { id: 'Kids', label: 'audienceKids', icon: '🧸' },
+  { id: 'Tech', label: 'audienceTech', icon: '💻' },
+  { id: 'Business', label: 'audienceBusiness', icon: '📉' },
+  { id: 'Creative', label: 'audienceCreative', icon: '🎨' }
+];
+
+export const PACING_TYPES = [
+  { id: 'Fast', label: 'pacingFast', icon: '⚡' },
+  { id: 'Steady', label: 'pacingSteady', icon: '⚖️' },
+  { id: 'Relaxed', label: 'pacingRelaxed', icon: '🧘' }
+];
+
+export const NARRATIVE_STRATEGIES = [
+  { id: 'Educational', label: 'strategyEducational', icon: '🎓' },
+  { id: 'Storytelling', label: 'strategyStorytelling', icon: '📖' },
+  { id: 'Interview', label: 'strategyInterview', icon: '🎙️' },
+  { id: 'FirstPerson', label: 'strategyFirstPerson', icon: '🤳' },
+  { id: 'Listicle', label: 'strategyListicle', icon: '📜' }
+];
+
 export const PROMPT_ELEMENTS = {
   subject: [
     { en: "Cybernetic Human", bn: "সাইবারনেটিক মানুষ", icon: "👤" },
