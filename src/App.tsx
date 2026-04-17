@@ -210,8 +210,8 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -219,9 +219,9 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
               <YAxis stroke="#8e9299" fontSize={12} />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#151619', border: '1px solid rgba(255,255,255,0.1)' }}
-                itemStyle={{ color: '#8b5cf6' }}
+                itemStyle={{ color: '#C5A059' }}
               />
-              <Area type="monotone" dataKey="views" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorViews)" />
+              <Area type="monotone" dataKey="views" stroke="#C5A059" fillOpacity={1} fill="url(#colorViews)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -1262,8 +1262,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             text-shadow: none !important;
           }
         </style>
-        <div style="border-bottom: 2px solid #8b5cf6; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
-          <h1 style="color: #8b5cf6 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
+        <div style="border-bottom: 2px solid #C5A059; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
+          <h1 style="color: #C5A059 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
           <p style="color: #666 !important; margin: 10px 0 0 0; box-sizing: border-box !important;">Topic: ${currentTopic || "Generated Content"}</p>
           <p style="color: #666 !important; margin: 5px 0 0 0; box-sizing: border-box !important;">Date: ${format(new Date(), 'dd MMM, yyyy HH:mm')}</p>
         </div>
@@ -1285,11 +1285,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.prompts) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.prompts.map((prompt: string, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #8b5cf6 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
+                  <strong style="color: #C5A059 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important; white-space: pre-wrap !important;">${prompt}</p>
                 </li>
               `).join('')}
@@ -1301,11 +1301,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.ideas) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.ideas.map((idea: any, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #8b5cf6 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
+                  <strong style="color: #C5A059 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important;">${idea.reason || idea.description}</p>
                 </li>
               `).join('')}
@@ -1344,7 +1344,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
 
           contentHtml += `
             <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-              <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
+              <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
               <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                 ${content}
               </div>
@@ -1368,7 +1368,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
             contentHtml += `
               <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-                <h2 style="color: #1a1a1a !important; border-left: 4px solid #8b5cf6 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
+                <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
                 <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                   ${displayValue}
                 </div>
@@ -1606,16 +1606,16 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       margin: 0;
       font-size: 16px;
       font-weight: 800;
-      color: #8b5cf6;
+      color: #C5A059;
     }
     .btn {
       display: block;
       width: 100%;
       padding: 12px;
       margin-bottom: 8px;
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      color: #8b5cf6;
+      background: rgba(197, 160, 89, 0.1);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      color: #C5A059;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -1623,10 +1623,10 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       text-align: center;
     }
     .btn:hover {
-      background: rgba(139, 92, 246, 0.2);
+      background: rgba(197, 160, 89, 0.2);
     }
     .btn-primary {
-      background: #8b5cf6;
+      background: #C5A059;
       color: #000;
     }
     .btn-primary:hover {
@@ -1648,7 +1648,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       display: none;
       text-align: center;
       margin: 16px 0;
-      color: #8b5cf6;
+      color: #C5A059;
       font-weight: bold;
     }
   </style>
@@ -1803,7 +1803,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle = '#8b5cf6';
+          ctx.fillStyle = '#C5A059';
           ctx.beginPath();
           ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
           ctx.fill();
@@ -1871,7 +1871,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center border border-[var(--accent-main)]/20 group-hover:scale-105 transition-transform duration-300">
                     <Youtube className="text-[var(--accent-main)]" size={24} />
                   </div>
-                  <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{t.title}</span>
+                  <span className="text-2xl font-display italic tracking-tight text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{t.title}</span>
                 </motion.div>
                 
                 <motion.div 
@@ -1923,8 +1923,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   >
                     <div className="flex justify-between items-center mb-12">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hw-accent to-pink-600 flex items-center justify-center">
-                          <Youtube className="text-black" size={20} />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hw-accent to-[#D4AF37] flex items-center justify-center">
+                          <Youtube className="text-white" size={20} />
                         </div>
                         <span className="text-xl font-black tracking-widest text-white uppercase">AI Studio</span>
                       </div>
@@ -2061,7 +2061,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <Info size={14} />
                       {t.about}
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] tracking-tight leading-none">
+                    <h2 className="text-5xl md:text-7xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
                       Engineered for <span className="text-[var(--accent-main)] italic">Creators</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
@@ -2079,7 +2079,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <Zap size={28} />
                         </div>
                         <div className="space-y-3">
-                          <h4 className="text-2xl md:text-3xl font-bold text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
+                          <h4 className="text-2xl md:text-3xl font-display italic text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
                           <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed max-w-xl">
                             Our AI models are optimized for speed, delivering high-quality scripts, ideas, and images in under 5 seconds. No more waiting for inspiration.
                           </p>
@@ -2105,7 +2105,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <Shield size={28} />
                         </div>
                         <div className="space-y-3">
-                          <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">Privacy First</h4>
+                          <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">Privacy First</h4>
                           <p className="text-[var(--text-muted)] leading-relaxed">
                             Your API keys and content never leave your browser. We prioritize your data security and creative intellectual property.
                           </p>
@@ -2128,7 +2128,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <Users size={28} />
                         </div>
                         <div className="space-y-3">
-                          <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">Creator Community</h4>
+                          <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">Creator Community</h4>
                           <p className="text-[var(--text-muted)] leading-relaxed">
                             Join thousands of creators who are scaling their channels with our AI tools. Share tips and grow together.
                           </p>
@@ -2154,7 +2154,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <Globe size={28} />
                           </div>
                           <div className="space-y-3">
-                            <h4 className="text-2xl md:text-3xl font-bold text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
+                            <h4 className="text-2xl md:text-3xl font-display italic text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
                             <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed">
                               Create content in English, Bengali, and Hindi with perfect cultural context and nuance. Reach a global audience effortlessly.
                             </p>
@@ -2240,7 +2240,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <MessageSquare size={14} />
                       {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
+                    <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
                       Happy <span className="text-[var(--accent-main)] italic">Creators</span> <br/> Say
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
@@ -2267,7 +2267,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <div className="flex items-center gap-4 pt-6 border-t border-[var(--border-main)]/50">
                           <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-[var(--accent-main)]/20" referrerPolicy="no-referrer" />
                           <div>
-                            <h5 className="font-bold text-[var(--text-main)] tracking-tight">{t.name}</h5>
+                            <h5 className="font-display italic text-[var(--text-main)] tracking-tight">{t.name}</h5>
                             <p className="text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wide">{t.role}</p>
                           </div>
                         </div>
@@ -2287,7 +2287,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <CreditCard size={14} />
                       {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-bold text-[var(--text-main)] tracking-tight leading-none">
+                    <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
                       Scale Your <span className="text-[var(--accent-main)] italic">Growth</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
@@ -2337,11 +2337,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         )}
                         <div className="space-y-6">
                           <div className="space-y-2">
-                            <h4 className="text-xl md:text-2xl font-bold text-[var(--text-main)] tracking-tight">{plan.name}</h4>
+                            <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">{plan.name}</h4>
                             <p className="text-[var(--text-muted)] text-sm font-medium">{plan.desc}</p>
                           </div>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-4xl md:text-5xl font-bold text-[var(--text-main)] tracking-tighter">{plan.price}</span>
+                            <span className="text-4xl md:text-5xl font-display italic text-[var(--text-main)] tracking-tighter">{plan.price}</span>
                             {plan.price !== "Free" && <span className="text-[var(--text-muted)] font-semibold uppercase text-xs tracking-wide">/ Month</span>}
                           </div>
                           <div className="h-px bg-[var(--border-main)] w-full" />
@@ -2381,7 +2381,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <div className="w-10 h-10 rounded-xl bg-[var(--bg-main)] flex items-center justify-center shadow-md border border-[var(--border-main)] group cursor-pointer">
                           <Youtube className="text-[var(--accent-main)] group-hover:scale-110 transition-transform" size={20} />
                         </div>
-                        <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">{t.title}</span>
+                        <span className="text-2xl font-display italic tracking-tight text-[var(--text-main)]">{t.title}</span>
                       </div>
                       <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-sm">
                         {uiLang === 'en' ? "The ultimate AI toolkit for modern content creators. Automate your workflow, grow your audience, and save time." : "আধুনিক কন্টেন্ট ক্রিয়েটরদের জন্য সেরা এআই টুলকিট। আপনার ওয়ার্কফ্লো অটোমেট করুন, অডিয়েন্স বাড়ান এবং সময় বাঁচান।"}
@@ -2480,8 +2480,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   className="flex items-center gap-4 cursor-pointer group" 
                   onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-fuchsia-500 to-pink-600 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
-                    <Youtube className="text-black" size={24} />
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-[#E6C58B] to-[#A68045] flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
+                    <Youtube className="text-white" size={24} />
                   </div>
                   <div className="hidden sm:flex flex-col">
                     <h1 className="text-xl font-black tracking-[0.2em] uppercase text-white group-hover:text-hw-accent transition-colors duration-300">AI Studio</h1>
@@ -2723,7 +2723,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={installApp}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-pink-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-[#D4AF37] text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] transition-all"
             >
               <Download size={14} />
               {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
@@ -2896,7 +2896,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(197, 160, 89, 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -2968,7 +2968,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           return (
                                             <motion.button
                                               key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(139, 92, 246, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
+                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(197, 160, 89, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
                                               whileTap={{ scale: 0.95 }}
                                               onClick={() => {
                                                 const currentText = topics[currentView];
@@ -3177,7 +3177,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {topic.subs.map((sub, sIdx) => (
                                 <motion.button
                                   key={sIdx}
-                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.2)" }}
+                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.2)" }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
@@ -4113,7 +4113,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
                         <div className="absolute inset-0 bg-hw-accent/10" />
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-hw-accent via-fuchsia-500 to-hw-accent relative"
+                          className="h-full bg-gradient-to-r from-hw-accent via-[#E6C58B] to-hw-accent relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
                           transition={{ type: "spring", stiffness: 40, damping: 15 }}
@@ -4542,7 +4542,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     const sLabelMap: any = {
                                       facebook: { label: "Facebook", icon: Facebook, color: "text-blue-500" },
                                       linkedin: { label: "LinkedIn", icon: Linkedin, color: "text-blue-600" },
-                                      instagram: { label: "Instagram", icon: Instagram, color: "text-pink-500" },
+                                      instagram: { label: "Instagram", icon: Instagram, color: "text-hw-accent" },
                                       tiktok: { label: "TikTok", icon: Video, color: "text-white" },
                                     };
                                     const sConfig = sLabelMap[sKey] || { label: sKey, icon: MessageSquare, color: "text-hw-accent" };
@@ -4826,7 +4826,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {relatedIdeas.map((idea, idx) => (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.05)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
@@ -5145,12 +5145,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #8b5cf6;
+          background: #C5A059;
           opacity: 0.2;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #8b5cf6;
+          background: #C5A059;
           opacity: 0.4;
         }
       `}} />
@@ -5278,7 +5278,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       .map((item) => (
                       <motion.div 
                         key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(139, 92, 246, 0.05)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);

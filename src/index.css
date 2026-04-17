@@ -8,37 +8,37 @@
 
 @theme {
   --font-sans: "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", "Space Grotesk", "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", "Outfit", "Space Grotesk", "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", serif;
 
-  --color-brand-purple: var(--accent-main);
-  --color-brand-purple-dark: var(--accent-main);
-  --color-brand-purple-light: var(--accent-main);
-  --color-brand-orange: var(--accent-main);
-  --color-brand-dark: #0f172a;
-  --color-brand-card: #1e293b;
-  --color-brand-border: var(--border-main);
-  --color-brand-glow: var(--accent-glow);
-  --color-brand-blue-glow: var(--accent-glow);
+  --color-brand-purple: #C5A059;
+  --color-brand-purple-dark: #A68045;
+  --color-brand-purple-light: #E6C58B;
+  --color-brand-orange: #C5A059;
+  --color-brand-dark: #050505;
+  --color-brand-card: #0F0F0F;
+  --color-brand-border: rgba(197, 160, 89, 0.15);
+  --color-brand-glow: rgba(197, 160, 89, 0.15);
+  --color-brand-blue-glow: rgba(197, 160, 89, 0.1);
   
-  /* Recipe 3: Hardware / Specialist Tool */
-  --color-hw-bg: #151619;
-  --color-hw-text: #ffffff;
-  --color-hw-muted: #8e9299;
-  --color-hw-accent: #8b5cf6;
-  --color-hw-border: rgba(255, 255, 255, 0.1);
-  --color-hw-glow: rgba(139, 92, 246, 0.3);
+  /* Recipe 12: Luxury / Prestige */
+  --color-hw-bg: #0A0A0A;
+  --color-hw-text: #FFFFFF;
+  --color-hw-muted: #949494;
+  --color-hw-accent: #C5A059;
+  --color-hw-border: rgba(197, 160, 89, 0.1);
+  --color-hw-glow: rgba(197, 160, 89, 0.2);
 }
 
 :root {
-  --bg-main: #050505; /* Deep Black */
-  --bg-card: #111111; /* Near Black */
-  --text-main: #ffffff; /* White */
-  --text-muted: #888888; /* Muted Gray */
-  --border-main: rgba(255, 255, 255, 0.1);
-  --accent-main: #8b5cf6; /* Gold/Bronze accent */
-  --accent-main-rgb: 139, 92, 246;
-  --accent-glow: rgba(139, 92, 246, 0.15);
+  --bg-main: #050505; /* Pure Matte Black */
+  --bg-card: #0D0D0D; /* Slightly lighter black */
+  --text-main: #FFFFFF;
+  --text-muted: #A0A0A0;
+  --border-main: rgba(255, 255, 255, 0.05);
+  --accent-main: #C5A059; /* Elegant Gold */
+  --accent-main-rgb: 197, 160, 89;
+  --accent-glow: rgba(197, 160, 89, 0.12);
   --glass-bg: rgba(20, 20, 20, 0.8);
   --glass-border: rgba(255, 255, 255, 0.05);
   --background: oklch(0.145 0 0);
@@ -79,6 +79,10 @@
   body {
     @apply min-h-screen font-sans overflow-x-hidden selection:bg-[var(--color-hw-accent)]/30 selection:text-[var(--color-hw-accent)] bg-black text-white;
     transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(197, 160, 89, 0.05) 0px, transparent 50%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -179,17 +183,17 @@
   }
 
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-r from-hw-accent to-pink-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-wide;
+    @apply relative overflow-hidden bg-gradient-to-r from-hw-accent to-[#E6C58B] text-black font-bold py-4 px-10 rounded-2xl transition-all duration-700 hover:shadow-[0_0_40px_rgba(197,160,89,0.3)] hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-widest uppercase text-xs;
   }
 
   .btn-secondary {
-    @apply bg-white/5 border border-white/10 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-500 hover:bg-white/10 hover:border-hw-accent/50 active:scale-[0.98] flex items-center justify-center gap-3;
+    @apply bg-white/5 border border-white/10 text-white font-medium py-4 px-10 rounded-2xl transition-all duration-500 hover:bg-white/10 hover:border-hw-accent/30 active:scale-[0.98] flex items-center justify-center gap-3 text-xs uppercase tracking-widest;
   }
 
   .premium-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-fuchsia-400 to-hw-accent;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-white to-hw-accent;
     background-size: 200% auto;
-    animation: shine 4s linear infinite;
+    animation: shine 6s linear infinite;
   }
 
   @keyframes shine {
@@ -247,10 +251,10 @@
 .mesh-gradient {
   background-color: #050505;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.02) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.02) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(197, 160, 89, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.01) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(197, 160, 89, 0.04) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
   background-attachment: fixed;
 }
 
