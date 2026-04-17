@@ -665,6 +665,7 @@ export default function App() {
       generateScript: true,
       generateSeoChecklist: true,
       generateKeywords: true,
+      generateVoiceOver: true,
       language: 'bn' as 'bn' | 'en' | 'both' | 'hi',
       voice: 'Kore' as 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr',
       voiceTone: 'Professional',
@@ -976,6 +977,24 @@ export default function App() {
           generateKeywords: false,
           contentType: 'shorts'
         });
+
+        // Auto-generate Voice Over if enabled
+        if (options.generateVoiceOver && res.script) {
+          try {
+            const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
+            const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
+              tone: options.voiceTone,
+              accent: options.voiceAccent,
+              age: options.voiceAge
+            });
+            if (audioUrl) {
+              res.audioUrl = audioUrl;
+            }
+          } catch (vError) {
+            console.error("Auto Voice Over Failed:", vError);
+          }
+        }
+
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'shorts');
         toast.success(uiLang === 'en' ? "Shorts Script Generated!" : "শর্টস স্ক্রিপ্ট তৈরি হয়েছে!");
@@ -1102,6 +1121,24 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             generateTags: false,
             generateScript: true
           });
+
+          // Auto-generate Voice Over if enabled
+          if (options.generateVoiceOver && res.script) {
+            try {
+              const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
+              const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
+                tone: options.voiceTone,
+                accent: options.voiceAccent,
+                age: options.voiceAge
+              });
+              if (audioUrl) {
+                res.audioUrl = audioUrl;
+              }
+            } catch (vError) {
+              console.error("Auto Voice Over Failed:", vError);
+            }
+          }
+
           setResults(prev => ({ ...prev, [activeView]: res }));
           saveToHistory(activeTopic, res, 'youtube');
           toast.success((uiLang === 'en' ? "YouTube Content" : "ইউটিউব কন্টেন্ট") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1113,6 +1150,24 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           ...options,
           ...formOptions
         });
+
+        // Auto-generate Voice Over if enabled
+        if (options.generateVoiceOver && res.script) {
+          try {
+            const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
+            const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
+              tone: options.voiceTone,
+              accent: options.voiceAccent,
+              age: options.voiceAge
+            });
+            if (audioUrl) {
+              res.audioUrl = audioUrl;
+            }
+          } catch (vError) {
+            console.error("Auto Voice Over Failed:", vError);
+          }
+        }
+
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'youtube');
         toast.success((uiLang === 'en' ? "YouTube Content" : "ইউটিউব কন্টেন্ট") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -3420,6 +3475,42 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
+                      {/* Duration Slider for Voice */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <label className="hw-label flex items-center gap-2">
+                            <Clock size={14} className="text-hw-accent" /> {t.videoDuration}
+                          </label>
+                          <span className="text-hw-accent font-bold text-sm">
+                            {options.videoDuration} {t.seconds} ({Math.floor(options.videoDuration / 60)}m {options.videoDuration % 60}s)
+                          </span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="8" 
+                          max="1800" 
+                          step="1"
+                          value={options.videoDuration}
+                          onChange={(e) => {
+                            const duration = parseInt(e.target.value);
+                            // ~150 words per minute, ~5 characters per word
+                            const words = Math.min(6000, Math.max(20, Math.round((duration / 60) * 150)));
+                            const chars = Math.min(30000, Math.max(100, words * 5));
+                            setOptions(prev => ({ 
+                              ...prev, 
+                              videoDuration: duration,
+                              scriptWordCount: words,
+                              scriptCharacterCount: chars
+                            }));
+                          }}
+                          className="w-full h-2 bg-hw-accent/20 rounded-lg appearance-none cursor-pointer accent-hw-accent"
+                        />
+                        <div className="flex justify-between text-[10px] text-hw-muted font-bold">
+                          <span>8s</span>
+                          <span>30m</span>
+                        </div>
+                      </div>
+
                       <div className="space-y-3">
                         <label className="hw-label flex items-center gap-2">
                           <Languages size={14} className="text-hw-accent" /> {t.voiceLang}
@@ -3816,11 +3907,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           value={options.videoDuration}
                           onChange={(e) => {
                             const duration = parseInt(e.target.value);
-                            // Calculate characters based on ~15 chars per second (rough estimate for speech)
-                            const chars = Math.min(30000, Math.max(100, Math.round(duration * 15)));
+                            // ~150 words per minute, ~5 characters per word
+                            const words = Math.min(6000, Math.max(20, Math.round((duration / 60) * 150)));
+                            const chars = Math.min(30000, Math.max(100, words * 5));
                             setOptions(prev => ({ 
                               ...prev, 
                               videoDuration: duration,
+                              scriptWordCount: words,
                               scriptCharacterCount: chars
                             }));
                           }}
@@ -4188,7 +4281,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         </div>
                         <p className="text-[10px] uppercase tracking-widest text-white/50 text-center font-bold">{t.generatedImage}</p>
                       </div>
-                    ) : currentResult.audioUrl ? (
+                    ) : (currentResult.audioUrl && currentView === 'voice') ? (
                       <div className="space-y-6 py-4">
                         <div className="flex flex-col items-center gap-6">
                           <div className="w-24 h-24 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_30px_rgba(139,92,246,0.2)] border border-hw-accent/20">
@@ -4207,6 +4300,25 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     ) : (
                       <div className="space-y-12">
+                        {/* Simultaneous Audio Player if available */}
+                        {currentResult.audioUrl && (
+                          <div className="p-6 rounded-2xl bg-hw-accent/10 border border-hw-accent/20 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-[10px] font-black uppercase tracking-widest text-hw-accent flex items-center gap-2">
+                                <Volume2 size={14} /> AI Voice Over Ready
+                              </h4>
+                              <a 
+                                href={currentResult.audioUrl} 
+                                download="voice-over.wav"
+                                className="p-2 bg-hw-accent text-white rounded-lg hover:scale-110 transition-transform"
+                                title={t.downloadAudio}
+                              >
+                                <Download size={14} />
+                              </a>
+                            </div>
+                            <audio controls src={currentResult.audioUrl} className="w-full h-10" />
+                          </div>
+                        )}
                         {/* Featured Fields */}
                         {(currentResult.videoTitle || currentResult.imagePrompt || currentResult.videoPrompt) && (
                           <div className="space-y-6">

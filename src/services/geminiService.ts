@@ -237,6 +237,7 @@ export interface GenerationOptions {
   generateScript: boolean;
   generateSeoChecklist: boolean;
   generateKeywords: boolean;
+  generateVoiceOver: boolean;
   language: "bn" | "en" | "both" | "hi";
   videoDuration?: number; // in seconds
   scriptWordCount?: number; // in words
@@ -244,6 +245,11 @@ export interface GenerationOptions {
   contentType?: string;
   platform?: string;
   tone?: string;
+  voice?: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr';
+  voiceTone?: string;
+  voiceAccent?: string;
+  voiceAge?: string;
+  voiceLanguage?: 'bn' | 'en' | 'hi';
   businessType?: string;
   visualStyle?: string;
   cameraAngle?: string;
