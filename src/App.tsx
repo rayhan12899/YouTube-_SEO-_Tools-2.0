@@ -154,6 +154,69 @@ const TypewriterText = ({ text, className }: { text: string, className?: string 
   return <span className={className}>{displayedText}</span>;
 };
 
+const InteractiveChecklist = ({ data }: { data: any }) => {
+  const items = Array.isArray(data) ? data : String(data).split('\n').filter(Boolean);
+  const [completed, setCompleted] = useState<Record<number, boolean>>({});
+
+  const toggleItem = (idx: number) => {
+    setCompleted(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  return (
+    <div className="space-y-3 mt-4">
+      {items.map((item, idx) => {
+        const isChecked = completed[idx];
+        const text = String(item).replace(/^[-*✓]\s*/, '').trim();
+        if (!text) return null;
+        return (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: isChecked ? 0.6 : 1, y: 0 }}
+            className={cn(
+              "p-4 rounded-xl border cursor-pointer flex items-center gap-4 transition-all duration-500 relative overflow-hidden group",
+              isChecked ? "bg-black/20 border-green-500/30" : "bg-black/40 border-[var(--border-main)] hover:border-[var(--color-hw-accent)]/50"
+            )}
+            onClick={() => toggleItem(idx)}
+          >
+            {isChecked && (
+              <motion.div 
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent origin-left z-0"
+              />
+            )}
+            <div className={cn(
+              "w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 z-10 transition-all duration-500",
+              isChecked ? "border-green-500 bg-green-500 text-[var(--color-black)] scale-110 shadow-[0_0_15px_rgba(34,197,94,0.4)]" : "border-[var(--border-main)] text-transparent group-hover:border-[var(--color-hw-accent)]"
+            )}>
+              <AnimatePresence mode="popLayout">
+                {isChecked && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    exit={{ scale: 0, rotate: 45 }}
+                    transition={{ type: "spring", bounce: 0.5 }}
+                  >
+                    <Check size={14} strokeWidth={3} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            <p className={cn(
+              "text-sm z-10 transition-all duration-500 flex-1 leading-relaxed", 
+              isChecked ? "text-[var(--text-muted)] line-through" : "text-[var(--text-main)]"
+            )}>
+              {text}
+            </p>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
+
 interface HistoryItem {
   id: string;
   timestamp: number;
@@ -213,8 +276,8 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#ff2e93" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#ff2e93" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -222,9 +285,9 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
               <YAxis stroke="#8e9299" fontSize={12} />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#151619', border: '1px solid rgba(255,255,255,0.1)' }}
-                itemStyle={{ color: '#C5A059' }}
+                itemStyle={{ color: '#ff2e93' }}
               />
-              <Area type="monotone" dataKey="views" stroke="#C5A059" fillOpacity={1} fill="url(#colorViews)" />
+              <Area type="monotone" dataKey="views" stroke="#ff2e93" fillOpacity={1} fill="url(#colorViews)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -461,7 +524,7 @@ export default function App() {
   const [historySearch, setHistorySearch] = useState<string>('');
   const [dateRange, setDateRange] = useState<{start: string, end: string}>({start: '', end: ''});
   const [showSettings, setShowSettings] = useState(false);
-  const [theme, setTheme] = useState<'dark' | 'light' | 'scifi'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light' | 'scifi'>('scifi');
   const [showContact, setShowContact] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [aiProvider, setAiProvider] = useState<AIProvider>('gemini');
@@ -777,6 +840,7 @@ export default function App() {
 
     const savedTheme = localStorage.getItem('app_theme') as 'dark' | 'light' | 'scifi';
     if (savedTheme) setTheme(savedTheme);
+    else setTheme('scifi');
 
     // Handle extension API connection
     const params = new URLSearchParams(window.location.search);
@@ -1327,8 +1391,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             text-shadow: none !important;
           }
         </style>
-        <div style="border-bottom: 2px solid #C5A059; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
-          <h1 style="color: #C5A059 !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
+        <div style="border-bottom: 2px solid #00E5FF; padding-bottom: 20px; margin-bottom: 30px; box-sizing: border-box !important;">
+          <h1 style="color: #00E5FF !important; margin: 0; font-size: 32px; box-sizing: border-box !important;">YouTube AI Content Report</h1>
           <p style="color: #666 !important; margin: 10px 0 0 0; box-sizing: border-box !important;">Topic: ${currentTopic || "Generated Content"}</p>
           <p style="color: #666 !important; margin: 5px 0 0 0; box-sizing: border-box !important;">Date: ${format(new Date(), 'dd MMM, yyyy HH:mm')}</p>
         </div>
@@ -1352,11 +1416,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.prompts) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #00E5FF !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Unique Prompts</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.prompts.map((prompt: string, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #C5A059 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
+                  <strong style="color: #00E5FF !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Option ${i + 1}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important; white-space: pre-wrap !important;">${prompt}</p>
                 </li>
               `).join('')}
@@ -1368,11 +1432,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.ideas) {
         contentHtml += `
           <div style="margin-bottom: 30px; background-color: transparent !important; box-sizing: border-box !important;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #00E5FF !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">Viral Video Ideas</h2>
             <ul style="list-style-type: none !important; padding: 0 !important; margin: 0 !important; box-sizing: border-box !important;">
               ${currentResult.ideas.map((idea: any, i: number) => `
                 <li style="margin-bottom: 15px !important; padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
-                  <strong style="color: #C5A059 !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
+                  <strong style="color: #00E5FF !important; display: block !important; margin-bottom: 5px !important; font-size: 16px !important;">Idea ${i + 1}: ${idea.title}</strong>
                   <p style="margin: 0 !important; font-size: 14px !important; color: #444444 !important; background-color: transparent !important;">${idea.reason || idea.description}</p>
                 </li>
               `).join('')}
@@ -1397,7 +1461,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
                 <tbody>
                   ${currentResult[key].map((kw: any) => `
                     <tr>
-                      <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px; font-weight: bold; color: #C5A059;">${kw.keyword}</td>
+                      <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px; font-weight: bold; color: #00E5FF;">${kw.keyword}</td>
                       <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px;">${kw.searchVolume}</td>
                       <td style="border: 1px solid #ddd; padding: 10px; box-sizing: border-box !important; word-break: break-word !important; font-size: 12px;">${kw.competition}</td>
                     </tr>
@@ -1410,7 +1474,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
                 ${Object.entries(currentResult[key]).map(([sKey, sValue]) => `
                   <div style="padding: 15px; background: #f9f9f9; border-radius: 12px; border: 1px solid #eee;">
-                    <strong style="text-transform: uppercase; font-size: 12px; color: #C5A059;">${sKey}</strong>
+                    <strong style="text-transform: uppercase; font-size: 12px; color: #00E5FF;">${sKey}</strong>
                     <p style="margin-top: 8px; font-size: 14px; color: #444; line-height: 1.5; white-space: pre-wrap;">${String(sValue)}</p>
                   </div>
                 `).join('')}
@@ -1420,7 +1484,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const list = Array.isArray(currentResult[key]) ? currentResult[key] : String(currentResult[key]).split('\n').filter(Boolean);
             content = `
               <ul style="list-style: none; padding: 0; margin: 0;">
-                ${list.map((item: string) => `<li style="margin-bottom: 8px; padding: 10px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #C5A059; font-size: 13px; color: #333;">✓ ${item}</li>`).join('')}
+                ${list.map((item: string) => `<li style="margin-bottom: 8px; padding: 10px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #00E5FF; font-size: 13px; color: #333;">✓ ${item}</li>`).join('')}
               </ul>
             `;
           } else {
@@ -1429,7 +1493,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
 
           contentHtml += `
             <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-              <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
+              <h2 style="color: #1a1a1a !important; border-left: 4px solid #00E5FF !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${labelMap[key]}</h2>
               <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                 ${content}
               </div>
@@ -1453,7 +1517,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const displayValue = Array.isArray(mValue) ? mValue.join(', ') : String(mValue);
             contentHtml += `
               <div style="margin-bottom: 30px !important; page-break-inside: avoid !important; background-color: transparent !important; box-sizing: border-box !important;">
-                <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
+                <h2 style="color: #1a1a1a !important; border-left: 4px solid #00E5FF !important; padding-left: 15px !important; margin-bottom: 15px !important; font-size: 20px !important; box-sizing: border-box !important;">${mLabelMap[mKey] || mKey}</h2>
                 <div style="padding: 15px !important; background-color: #f9f9f9 !important; border-radius: 8px !important; border: 1px solid #eeeeee !important; white-space: pre-wrap !important; font-size: 14px !important; color: #333333 !important; box-sizing: border-box !important; overflow-wrap: break-word !important; word-break: break-word !important;">
                   ${displayValue}
                 </div>
@@ -1470,11 +1534,11 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       if (currentResult.sceneBreakdown && Array.isArray(currentResult.sceneBreakdown)) {
         contentHtml += `
           <div style="margin-top: 40px; page-break-before: always;">
-            <h2 style="color: #1a1a1a !important; border-left: 4px solid #C5A059 !important; padding-left: 15px !important; margin-bottom: 25px !important; font-size: 22px !important;">Scene-by-Scene Production Breakdown</h2>
+            <h2 style="color: #1a1a1a !important; border-left: 4px solid #00E5FF !important; padding-left: 15px !important; margin-bottom: 25px !important; font-size: 22px !important;">Scene-by-Scene Production Breakdown</h2>
             ${currentResult.sceneBreakdown.map((scene: any, i: number) => `
               <div style="margin-bottom: 25px; padding: 20px; border: 1px solid #eee; border-radius: 15px; background: #fff; page-break-inside: avoid;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
-                  <strong style="color: #C5A059; font-size: 16px;">Scene ${scene.scene || i + 1}</strong>
+                  <strong style="color: #00E5FF; font-size: 16px;">Scene ${scene.scene || i + 1}</strong>
                   <span style="color: #666; font-size: 14px; font-weight: bold;">${scene.time || "0:00"}</span>
                 </div>
                 <div style="margin-bottom: 15px;">
@@ -1722,16 +1786,16 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       margin: 0;
       font-size: 16px;
       font-weight: 800;
-      color: #C5A059;
+      color: #00E5FF;
     }
     .btn {
       display: block;
       width: 100%;
       padding: 12px;
       margin-bottom: 8px;
-      background: rgba(197, 160, 89, 0.1);
-      border: 1px solid rgba(197, 160, 89, 0.3);
-      color: #C5A059;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      color: #00E5FF;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -1739,14 +1803,14 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       text-align: center;
     }
     .btn:hover {
-      background: rgba(197, 160, 89, 0.2);
+      background: rgba(0, 229, 255, 0.2);
     }
     .btn-primary {
-      background: #C5A059;
+      background: #00E5FF;
       color: #000;
     }
     .btn-primary:hover {
-      background: #b8860b;
+      background: #00b3cc;
     }
     #result {
       margin-top: 16px;
@@ -1764,7 +1828,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       display: none;
       text-align: center;
       margin: 16px 0;
-      color: #C5A059;
+      color: #00E5FF;
       font-weight: bold;
     }
   </style>
@@ -1919,7 +1983,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.fillStyle = '#C5A059';
+          ctx.fillStyle = '#00E5FF';
           ctx.beginPath();
           ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
           ctx.fill();
@@ -2178,7 +2242,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {t.about}
                     </div>
                     <h2 className="text-5xl md:text-7xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Engineered for <span className="text-[var(--accent-main)] italic">Creators</span>
+                      Engineered for <span className="premium-gradient-text italic">Creators</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
                       {uiLang === 'en' ? "We've built the most sophisticated AI engine specifically for video content creators. Every tool is optimized for engagement and growth." : "আমরা ভিডিও কন্টেন্ট ক্রিয়েটরদের জন্য বিশেষভাবে সবচেয়ে উন্নত এআই ইঞ্জিন তৈরি করেছি। প্রতিটি টুল এনগেজমেন্ট এবং গ্রোথের জন্য অপ্টিমাইজ করা হয়েছে।"}
@@ -2307,7 +2371,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {uiLang === 'en' ? "Powerful Capabilities" : "শক্তিশালী ক্ষমতা"}
                       </div>
                       <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] leading-[0.9] tracking-tight">
-                        Our Powerful <br/> <span className="text-[var(--text-muted)] italic">Features</span>
+                        Our Powerful <br/> <span className="premium-gradient-text italic">Features</span>
                       </h2>
                       <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed max-w-lg">
                         {uiLang === 'en' ? "We provide everything you need to grow your channel and automate your content workflow with cutting-edge AI." : "আমরা আপনার চ্যানেল বড় করতে এবং অত্যাধুনিক এআই দিয়ে আপনার কন্টেন্ট ওয়ার্কফ্লো অটোমেট করতে প্রয়োজনীয় সবকিছু সরবরাহ করি।"}
@@ -2357,7 +2421,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
                     </div>
                     <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Happy <span className="text-[var(--accent-main)] italic">Creators</span> <br/> Say
+                      Happy <span className="premium-gradient-text italic">Creators</span> <br/> Say
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
                       {uiLang === 'en' ? "Join thousands of successful creators who have transformed their content with our AI tools." : "হাজার হাজার সফল ক্রিয়েটরদের সাথে যোগ দিন যারা আমাদের এআই টুলস দিয়ে তাদের কন্টেন্ট পরিবর্তন করেছেন।"}
@@ -2404,7 +2468,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
                     </div>
                     <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Scale Your <span className="text-[var(--accent-main)] italic">Growth</span>
+                      Scale Your <span className="premium-gradient-text italic">Growth</span>
                     </h2>
                     <p className="text-[var(--text-muted)] text-lg font-medium">
                       {uiLang === 'en' ? "Choose the plan that's right for your creative journey. No hidden fees." : "আপনার ক্রিয়েটিভ জার্নির জন্য সঠিক প্ল্যানটি বেছে নিন। কোনো লুকানো ফি নেই।"}
@@ -2596,11 +2660,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   className="flex items-center gap-4 cursor-pointer group" 
                   onClick={() => setCurrentView('home')}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-[#E6C58B] to-[#A68045] flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-[var(--accent-main)] to-[var(--color-brand-purple)] flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
                     <Youtube className="text-white" size={24} />
                   </div>
                   <div className="hidden sm:flex flex-col">
-                    <h1 className="text-xl font-black tracking-[0.2em] uppercase text-white group-hover:text-hw-accent transition-colors duration-300">AI Studio</h1>
+                    <h1 className="text-xl font-black tracking-[0.2em] uppercase text-white group-hover:text-hw-accent transition-colors duration-300 premium-gradient-text">AI Studio</h1>
                     <div className="flex items-center gap-2 mt-1">
                       <div className={cn("w-2 h-2 rounded-full", isApiConnected ? "bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500")} />
                       <span className="text-[9px] font-bold uppercase tracking-widest text-hw-muted">{isApiConnected ? 'System Online' : 'System Offline'}</span>
@@ -3020,7 +3084,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             {SCENE_PRESETS.map((preset, idx) => (
                               <motion.button
                                 key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(197, 160, 89, 0.2)" }}
+                                whileHover={{ scale: 1.05, backgroundColor: "rgba(0, 229, 255, 0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => {
                                   const currentText = topics[currentView];
@@ -3092,7 +3156,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           return (
                                             <motion.button
                                               key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(197, 160, 89, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
+                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(0, 229, 255, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
                                               whileTap={{ scale: 0.95 }}
                                               onClick={() => {
                                                 const currentText = topics[currentView];
@@ -3301,7 +3365,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               {topic.subs.map((sub, sIdx) => (
                                 <motion.button
                                   key={sIdx}
-                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.2)" }}
+                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.2)" }}
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
@@ -4380,7 +4444,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
                         <div className="absolute inset-0 bg-hw-accent/10" />
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-hw-accent via-[#E6C58B] to-hw-accent relative"
+                          className="h-full bg-gradient-to-r from-hw-accent via-[var(--accent-main)] to-[var(--color-brand-purple)] relative"
                           initial={{ width: 0 }}
                           animate={{ width: `${loadingProgress}%` }}
                           transition={{ type: "spring", stiffness: 40, damping: 15 }}
@@ -5088,6 +5152,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                       </tbody>
                                     </table>
                                   </div>
+                                ) : key === 'seoChecklist' ? (
+                                  <InteractiveChecklist data={value} />
                                 ) : (
                                   <TypewriterText text={String(value)} className="typewriter-text" />
                                 )}
@@ -5112,7 +5178,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         {relatedIdeas.map((idea, idx) => (
                           <motion.button
                             key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.05)" }}
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.05)" }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setTopics(prev => ({ ...prev, [currentView]: idea.title }));
@@ -5432,12 +5498,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #C5A059;
+          background: #00E5FF;
           opacity: 0.2;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #C5A059;
+          background: #00E5FF;
           opacity: 0.4;
         }
       `}} />
@@ -5565,7 +5631,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       .map((item) => (
                       <motion.div 
                         key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(197, 160, 89, 0.05)" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);

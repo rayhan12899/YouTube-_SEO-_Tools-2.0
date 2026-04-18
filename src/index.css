@@ -8,39 +8,67 @@
 
 @theme {
   --font-sans: "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Playfair Display", "Outfit", "Space Grotesk", "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Outfit", "Playfair Display", "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", serif;
-
-  --color-brand-purple: #C5A059;
-  --color-brand-purple-dark: #A68045;
-  --color-brand-purple-light: #E6C58B;
-  --color-brand-orange: #C5A059;
-  --color-brand-dark: #050505;
-  --color-brand-card: #0F0F0F;
-  --color-brand-border: rgba(197, 160, 89, 0.15);
-  --color-brand-glow: rgba(197, 160, 89, 0.15);
-  --color-brand-blue-glow: rgba(197, 160, 89, 0.1);
   
-  /* Recipe 12: Luxury / Prestige */
-  --color-hw-bg: #0A0A0A;
-  --color-hw-text: #FFFFFF;
-  --color-hw-muted: #949494;
-  --color-hw-accent: #C5A059;
-  --color-hw-border: rgba(197, 160, 89, 0.1);
-  --color-hw-glow: rgba(197, 160, 89, 0.2);
+  --color-white: var(--text-main);
+  --color-black: var(--bg-main);
+
+  --color-hw-bg: var(--color-hw-bg-theme);
+  --color-hw-text: var(--color-hw-text-theme);
+  --color-hw-muted: var(--color-hw-muted-theme);
+  --color-hw-accent: var(--color-hw-accent-theme);
+  --color-hw-border: var(--color-hw-border-theme);
+  --color-hw-glow: var(--color-hw-glow-theme);
+
+  --color-brand-purple: var(--color-brand-purple-theme);
+  --color-brand-purple-dark: var(--color-brand-purple-dark-theme);
+  --color-brand-purple-light: var(--color-brand-purple-light-theme);
+  --color-brand-orange: var(--color-brand-orange-theme);
+  --color-brand-dark: var(--color-brand-dark-theme);
+  --color-brand-card: var(--color-brand-card-theme);
+  --color-brand-border: var(--color-brand-border-theme);
+  --color-brand-glow: var(--color-brand-glow-theme);
+  --color-brand-blue-glow: var(--color-brand-blue-glow-theme);
 }
 
-:root {
-  --bg-main: #050505; /* Pure Matte Black */
-  --bg-card: #0D0D0D; /* Slightly lighter black */
+:root, .theme-dark {
+  --color-brand-purple-theme: #8B5CF6; /* Vibrant Purple */
+  --color-brand-purple-dark-theme: #6D28D9;
+  --color-brand-purple-light-theme: #A78BFA;
+  --color-brand-orange-theme: #F97316;
+  --color-brand-dark-theme: #0A0512;
+  --color-brand-card-theme: rgba(20, 10, 35, 0.6);
+  --color-brand-border-theme: rgba(139, 92, 246, 0.2);
+  --color-brand-glow-theme: rgba(139, 92, 246, 0.3);
+  --color-brand-blue-glow-theme: rgba(56, 189, 248, 0.2);
+  
+  /* Vibrant Atmospheric Theme */
+  --color-hw-bg-theme: rgba(15, 8, 25, 0.6);
+  --color-hw-text-theme: #FFFFFF;
+  --color-hw-muted-theme: #A5A1B8;
+  --color-hw-accent-theme: #00E5FF; /* Cyan */
+  --color-hw-border-theme: rgba(0, 229, 255, 0.15);
+  --color-hw-glow-theme: rgba(0, 229, 255, 0.25);
+
+  --bg-main: #0B0814; /* Deep vibrant dark */
+  --bg-card: rgba(20, 15, 35, 0.5); /* Glassy card */
   --text-main: #FFFFFF;
-  --text-muted: #A0A0A0;
-  --border-main: rgba(255, 255, 255, 0.05);
-  --accent-main: #C5A059; /* Elegant Gold */
-  --accent-main-rgb: 197, 160, 89;
-  --accent-glow: rgba(197, 160, 89, 0.12);
-  --glass-bg: rgba(20, 20, 20, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --text-muted: #B4B0C8;
+  --border-main: rgba(255, 255, 255, 0.08);
+  --accent-main: #FF2E93; /* Neon Pink */
+  --accent-main-rgb: 255, 46, 147;
+  --accent-glow: rgba(255, 46, 147, 0.25);
+  --glass-bg: rgba(30, 15, 45, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  --body-bg-image: 
+    radial-gradient(circle at 15% 10%, rgba(255, 46, 147, 0.15), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.15), transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(0, 229, 255, 0.1), transparent 50%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  --body-bg-size: auto;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -75,18 +103,83 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.theme-scifi {
+  --color-brand-purple-theme: #3B82F6;
+  --color-brand-purple-dark-theme: #1D4ED8;
+  --color-brand-purple-light-theme: #60A5FA;
+  --color-brand-orange-theme: #10B981;
+  --color-brand-dark-theme: #020617;
+  --color-brand-card-theme: rgba(15, 23, 42, 0.6);
+  --color-brand-border-theme: rgba(0, 229, 255, 0.2);
+  --color-brand-glow-theme: rgba(0, 229, 255, 0.3);
+  --color-brand-blue-glow-theme: rgba(56, 189, 248, 0.2);
+  
+  --color-hw-bg-theme: rgba(2, 6, 23, 0.8);
+  --color-hw-text-theme: #E0F2FE;
+  --color-hw-muted-theme: #7DD3FC;
+  --color-hw-accent-theme: #00E5FF;
+  --color-hw-border-theme: rgba(0, 229, 255, 0.3);
+  --color-hw-glow-theme: rgba(0, 229, 255, 0.4);
+
+  --bg-main: #020617; /* Slate 950 */
+  --bg-card: rgba(15, 23, 42, 0.5);
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border-main: rgba(56, 189, 248, 0.2);
+  --accent-main: #00FF88; /* Neon Green */
+  --accent-main-rgb: 0, 255, 136;
+  --accent-glow: rgba(0, 255, 136, 0.25);
+  --glass-bg: rgba(2, 6, 23, 0.4);
+  --glass-border: rgba(0, 255, 136, 0.15);
+  
+  --body-bg-image: 
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 15% 10%, rgba(0, 255, 136, 0.10), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(0, 229, 255, 0.10), transparent 45%),
+    radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.15), transparent 50%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  --body-bg-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.theme-light {
+  --bg-main: #F8FAFC;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border-main: rgba(0, 0, 0, 0.08);
+  --accent-main: #3B82F6;
+  --accent-main-rgb: 59, 130, 246;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  
+  --color-hw-bg-theme: rgba(255, 255, 255, 0.9);
+  --color-hw-text-theme: #0F172A;
+  --color-hw-muted-theme: #64748B;
+  --color-hw-accent-theme: #3B82F6;
+  --color-hw-border-theme: rgba(0, 0, 0, 0.1);
+  --color-hw-glow-theme: rgba(59, 130, 246, 0.15);
+
+  --body-bg-image: 
+    radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.05), transparent 45%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  --body-bg-size: auto;
+}
+
 @layer base {
   body {
-    @apply min-h-screen font-sans overflow-x-hidden selection:bg-[var(--color-hw-accent)]/30 selection:text-[var(--color-hw-accent)] bg-black text-white;
+    @apply min-h-screen font-sans overflow-x-hidden selection:bg-[var(--color-hw-accent)]/30 selection:text-[var(--color-hw-accent)] text-[var(--text-main)];
+    background-color: var(--bg-main);
     transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(197, 160, 89, 0.05) 0px, transparent 50%),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    background-image: var(--body-bg-image);
+    background-size: var(--body-bg-size);
     background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight text-white font-bold;
+    @apply font-display tracking-tight text-[var(--text-main)] font-bold;
   }
   * {
     @apply border-white/10 outline-hw-accent/50;
@@ -179,11 +272,11 @@
   }
 
   .input-field {
-    @apply bg-black/50 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-hw-accent focus:ring-4 focus:ring-hw-accent/20 transition-all duration-300 placeholder:text-white/30;
+    @apply bg-black/50 border border-[var(--border-main)] rounded-2xl px-6 py-4 text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--color-hw-accent)] focus:ring-4 focus:ring-[var(--color-hw-accent)]/20 transition-all duration-300 placeholder:text-[var(--text-muted)] opacity-80;
   }
 
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-r from-hw-accent to-[#E6C58B] text-black font-bold py-4 px-10 rounded-2xl transition-all duration-700 hover:shadow-[0_0_40px_rgba(197,160,89,0.3)] hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-widest uppercase text-xs;
+    @apply relative overflow-hidden bg-gradient-to-r from-[var(--color-brand-purple)] to-hw-accent text-white font-bold py-4 px-10 rounded-2xl transition-all duration-700 hover:shadow-[0_0_40px_rgba(0,229,255,0.4)] hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-widest uppercase text-xs;
   }
 
   .btn-secondary {
@@ -191,7 +284,7 @@
   }
 
   .premium-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-white to-hw-accent;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-hw-accent via-[var(--color-brand-purple)] to-hw-accent;
     background-size: 200% auto;
     animation: shine 6s linear infinite;
   }
@@ -248,15 +341,12 @@
   66% { transform: translateY(5px) rotate(-1deg); }
 }
 
-.mesh-gradient {
-  background-color: #050505;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(197, 160, 89, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(255, 255, 255, 0.01) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(197, 160, 89, 0.04) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
-  background-attachment: fixed;
-}
+  .mesh-gradient {
+    background-color: var(--bg-main);
+    background-image: var(--body-bg-image);
+    background-size: var(--body-bg-size);
+    background-attachment: fixed;
+  }
 
 /* Typewriter Animation */
 .typewriter-text {
