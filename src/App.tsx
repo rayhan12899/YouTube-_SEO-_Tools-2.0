@@ -162,7 +162,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo';
 
 // Constants moved to constants.ts
 
@@ -414,7 +414,8 @@ export default function App() {
     analyze: '',
     transcribe: '',
     shorts: '',
-    analytics: ''
+    analytics: '',
+    longVideo: ''
   });
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -450,7 +451,8 @@ export default function App() {
     analyze: null,
     transcribe: null,
     shorts: null,
-    analytics: null
+    analytics: null,
+    longVideo: null
   });
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -708,7 +710,8 @@ export default function App() {
     transcribe: null,
     analyze: null,
     shorts: null,
-    analytics: null
+    analytics: null,
+    longVideo: null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -716,7 +719,7 @@ export default function App() {
   const currentTopic = topics[currentView];
   const currentResult = results[currentView];
   const currentSelectedMedia = selectedMedia[currentView];
-  const acceptType = currentView === 'video' ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
+  const acceptType = (currentView === 'video' || currentView === 'longVideo') ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
 
   const filteredSuggestions = useMemo(() => {
     const query = currentTopic.trim().toLowerCase();
@@ -1096,7 +1099,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoading(false);
           return;
         }
-      } else if (activeView === 'video') {
+      } else if (activeView === 'video' || activeView === 'longVideo') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
           setLoadingProgress(40);
@@ -1213,7 +1216,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setSelectedMedia(prev => ({ ...prev, [currentView]: base64 }));
         setTopics(prev => ({ ...prev, [currentView]: '' }));
         
-        if (currentView === 'image' || currentView === 'video' || currentView === 'voiceExtractor') {
+        if (currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'voiceExtractor') {
           setLoading(true);
           const progressInterval = simulateProgress();
           try {
@@ -1592,7 +1595,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: '',
       transcribe: '',
       shorts: '',
-      analytics: ''
+      analytics: '',
+      longVideo: ''
     });
     setResults({
       landing: null,
@@ -1607,7 +1611,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: null,
       transcribe: null,
       shorts: null,
-      analytics: null
+      analytics: null,
+      longVideo: null
     });
     setSelectedMedia({
       landing: null,
@@ -1622,7 +1627,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: null,
       transcribe: null,
       shorts: null,
-      analytics: null
+      analytics: null,
+      longVideo: null
     });
     setMediaMimeType('');
     toast.success(uiLang === 'en' ? "Data Refreshed!" : "সব তথ্য রিফ্রেশ করা হয়েছে!");
@@ -2654,6 +2660,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
                     { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
                     { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
+                    { id: 'longVideo', icon: Video, label: 'Long Video Pro', desc: 'Up to 60 Mins' },
                     { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
                     { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
                     { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
@@ -2668,6 +2675,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           setCurrentView(item.id as any);
                           if (item.id === 'video') {
                             setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                          } else if (item.id === 'longVideo') {
+                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true, videoDuration: 3600, scriptWordCount: 4000, scriptCharacterCount: 20000 }));
                           } else if (item.id === 'shorts') {
                             setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
                           }
@@ -2729,6 +2738,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
                             { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
                             { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
+                            { id: 'longVideo', icon: Video, label: 'Long Video Pro', desc: 'Up to 60 Mins' },
                             { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
                             { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
                             { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
@@ -2746,6 +2756,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   setCurrentView(item.id as any);
                                   if (item.id === 'video') {
                                     setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
+                                  } else if (item.id === 'longVideo') {
+                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true, videoDuration: 3600, scriptWordCount: 4000, scriptCharacterCount: 20000 }));
                                   } else if (item.id === 'shorts') {
                                     setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
                                   }
@@ -2869,6 +2881,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
         </div>
 
         {/* Main Content Grid */}
+        {currentView !== 'analytics' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Inputs */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-8">
@@ -2879,7 +2892,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent shadow-[0_0_30px_rgba(139,92,246,0.15)] border border-hw-accent/20">
                     {currentView === 'home' && <LayoutDashboard size={28} />}
                     {currentView === 'youtube' && <Youtube size={28} />}
-                    {currentView === 'video' && <Video size={28} />}
+                    {(currentView === 'video' || currentView === 'longVideo') && <Video size={28} />}
                     {currentView === 'shorts' && <Zap size={28} />}
                     {currentView === 'idea' && <Lightbulb size={28} />}
                     {currentView === 'image' && <Palette size={28} />}
@@ -2890,6 +2903,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     {currentView === 'home' ? t.dashboard : 
                      currentView === 'youtube' ? t.youtubeToolset : 
                      currentView === 'video' ? t.videoPrompter : 
+                     currentView === 'longVideo' ? "Long Video Prompter" : 
                      currentView === 'shorts' ? t.shortsGenTitle : 
                      currentView === 'idea' ? t.viralIdeas :
                      currentView === 'image' ? t.imageGenerator : 
@@ -2920,7 +2934,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-3">
                   <label className="text-[10px] uppercase tracking-widest text-hw-muted font-bold flex items-center gap-2">
                     <FileText size={14} className="text-hw-accent" /> {
-                      currentView === 'video' ? t.videoDesc : 
+                      (currentView === 'video' || currentView === 'longVideo') ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
                       currentView === 'image' ? t.imageInput :
@@ -2931,7 +2945,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="relative w-full">
                     <textarea 
                       placeholder={
-                        currentView === 'video' ? t.videoDescPlaceholder : 
+                        (currentView === 'video' || currentView === 'longVideo') ? t.videoDescPlaceholder : 
                         currentView === 'shorts' ? (uiLang === 'en' ? "Enter your shorts topic (e.g., 'Life hacks for busy people')" : "আপনার শর্টস এর বিষয় লিখুন (যেমন, 'ব্যস্ত মানুষের জন্য লাইফ হ্যাকস')") :
                         currentView === 'idea' ? t.nichePlaceholder :
                         currentView === 'image' ? t.imagePlaceholder :
@@ -2977,7 +2991,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     )}
                   </div>
 
-                  {(currentView === 'image' || currentView === 'video') && (
+                  {(currentView === 'image' || currentView === 'video' || currentView === 'longVideo') && (
                     <div className="space-y-5 mt-6 animate-in fade-in slide-in-from-top-2 duration-500 bg-white/5 rounded-2xl p-6 border border-white/5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-hw-accent font-bold">
@@ -3738,7 +3752,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
               )}
 
-              {(currentView === 'video' || currentView === 'image' || currentView === 'voiceExtractor') && (
+              {(currentView === 'video' || currentView === 'longVideo' || currentView === 'image' || currentView === 'voiceExtractor') && (
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -3746,7 +3760,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-wider font-semibold">
                       <span className="bg-[var(--bg-card)] px-3 text-[var(--text-muted)]">
-                        {currentView === 'video' ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
+                        {(currentView === 'video' || currentView === 'longVideo') ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
                          currentView === 'voiceExtractor' ? t.uploadAudio : t.uploadImage}
                       </span>
                     </div>
@@ -3788,11 +3802,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : (
                       <>
                         <div className="w-14 h-14 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] shadow-inner">
-                          {currentView === 'video' ? <Video size={24} /> : 
+                          {(currentView === 'video' || currentView === 'longVideo') ? <Video size={24} /> : 
                            currentView === 'voiceExtractor' ? <AudioLines size={24} /> : <Upload size={24} />}
                         </div>
                         <p className="text-sm font-medium text-[var(--text-muted)] text-center max-w-xs">
-                          {currentView === 'video' ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
+                          {(currentView === 'video' || currentView === 'longVideo') ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
                            currentView === 'image' ? (uiLang === 'en' ? "Click to upload image for extraction & analysis" : "এক্সট্র্যাকশন ও বিশ্লেষণের জন্য ইমেজ আপলোড করতে ক্লিক করুন") :
                            currentView === 'voiceExtractor' ? t.uploadAudioPrompt :
                            t.uploadPrompt}
@@ -4110,7 +4124,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           {/* Advanced AI Context & Strategy */}
-          {(currentView === 'video' || currentView === 'shorts' || options.generateScript) && (
+          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'shorts' || options.generateScript) && (
             <section className="glass-card p-6 md:p-8 space-y-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-hw-accent/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-hw-accent/10" />
               
@@ -4228,7 +4242,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
                 <span className="text-lg font-black tracking-widest uppercase">
                   {
-                    currentView === 'video' ? t.genPrompt : 
+                    (currentView === 'video' || currentView === 'longVideo') ? t.genPrompt : 
                     currentView === 'idea' ? t.genIdea : 
                     currentView === 'image' ? t.genImage :
                     currentView === 'voice' ? t.genVoice :
@@ -5116,7 +5130,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </motion.div>
               </AnimatePresence>
             </div> {/* End of Right Column */}
-          </div> {/* End of Main Content Grid */}
+          </div>
+          )} {/* End of Main Content Grid */}
           {currentView === 'analytics' && <AnalyticsView uiLang={uiLang} />}
 
         {/* Collaboration Chat */}

@@ -516,9 +516,10 @@ export const generateContent = async (options: GenerationOptions) => {
                   SCALING REQUIREMENT: 
                   - For short videos (8s - 60s), provide 2-4 highly dynamic scenes.
                   - For medium videos (1m - 5m), provide 5-10 detailed scenes.
-                  - For long videos (10m - 60m), provide a highly structured and detailed narrative outline or expanded script of about 1500-2000 words. DO NOT attempt to write a word-for-word 60-minute script as it will be truncated. Focus on professional depth and high-quality storytelling for 15-20 distinct chapters/segments.
+                  - For long videos (10m - 60m), provide a highly structured and detailed narrative outline of about 1500-2500 words. 
+                  - PROMPT QUANTITY: For a 60-minute video, generate a sequence of 25-30 comprehensive 'Master Chapters'. Each chapter's 'visual' prompt MUST be a multi-sequence description that can be used to generate multiple 8-10 second AI video clips.
                   
-                  The video prompt MUST be broken down into SCENES/SEGMENTS that correspond EXACTLY to the script's scenes in the 'sceneBreakdown'. 
+                  The video prompt MUST be broken down into SCENES/SEGMENTS in the 'sceneBreakdown' that cover the entire timeline sequentially.
                   Include specific details about:
                   1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}".
                   2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}".
@@ -533,7 +534,8 @@ export const generateContent = async (options: GenerationOptions) => {
                   - Total Duration: ${options.videoDuration} seconds.
                   - Target Word Count: ${options.scriptWordCount} words.
                   - CRITICAL: For videos between 10m to 60m, you MUST generate an "EXPANDED NARRATIVE OUTLINE & STORY". Aim for about 1500-2500 words. DO NOT attempt to write every single word for a full 60 minutes as it will be truncated. Instead, provide a dense, high-quality script that covers the entire topic thoroughly.
-                  - EXPANSION REQUIREMENT: Divide the script into 12-18 detailed chapters. Each section must be substantial.
+                  - EXPANSION REQUIREMENT: Provide 25-30 detailed chapters in 'sceneBreakdown' for full duration coverage.
+                  - SCENE COVERAGE: Each visual prompt must be an 'Action Sequence' suitable for multiple 8-second AI video clips.
                   - Ensure the script covers the timeline from 0:00 to ${Math.floor(options.videoDuration / 60)}:${(options.videoDuration % 60).toString().padStart(2, '0')}.
                   
                   SCALES OF CONTENT:
@@ -553,13 +555,13 @@ export const generateContent = async (options: GenerationOptions) => {
               - videoTitle: A catchy, SEO-optimized title for the video.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
               - script: The FULL narrative script (Aim for 1500-2500 words for long videos).
-              - sceneBreakdown: An array of 12-18 objects representing chapters.
+              - sceneBreakdown: An array of 20-30 objects representing chapters or major sequences. 
                 CRITICAL: To avoid hitting token limits, the 'script' field inside 'sceneBreakdown' MUST be a 1-sentence summary only.
                 Each object MUST have:
-                - 'scene': The scene number.
-                - 'time': The timestamp range (e.g., "0:00 - 3:00").
+                - 'scene': The scene/chapter number.
+                - 'time': The timestamp range (e.g., "0:00 - 2:00").
                 - 'script': Short summary.
-                - 'visual': Detailed cinematic visual prompt.
+                - 'visual': A COMPREHENSIVE cinematic prompt (50-80 words) that describes a full visual sequence. For long videos, this prompt should be rich enough to generate several related 8-second clips for that segment.
               
               CRITICAL: The number of scenes in 'sceneBreakdown' MUST match the total duration and the complexity of the topic. Each scene's 'script' and 'visual' MUST be perfectly synchronized.
               
@@ -998,7 +1000,8 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
                    - Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
                    - Visual Style: The overall aesthetic must be strictly "${visualStyle || 'photorealistic cinematic'}". Use keywords like '8k resolution', 'hyper-realistic textures', and 'masterpiece'.
               4. A full professional YouTube 'Script' that matches the video's content. 
-                 - SCALING: For videos over 10 minutes, provide a highly detailed chapter-by-chapter story of about 1500-2200 words. DO NOT attempt to write a word-for-word 60-minute script as it will exceed token limits and be truncated.
+                 - SCALING: For videos over 10 minutes, provide a highly detailed story of 1500-2500 words. 
+                 - SCENE COVERAGE: Generate 25-30 detailed chapters in 'sceneBreakdown' for full 60-minute coverage. Each visual prompt should be designed for multiple 8-second AI clips.
               5. 'Metadata' including:
                  - 'titles': An array of 5 unique, SEO-optimized title variations (each with 'title' and 'highCtrTitle').
                  - 'thumbnailTitle': Short, punchy text to put ON the thumbnail (thermal title).
@@ -1027,8 +1030,8 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
               Return as a strictly valid JSON object with keys: summary, imagePrompt, videoPrompt, script, sceneBreakdown, metadata (object with titles, thumbnailTitle, thumbnailConcept, description, tags, hashtags), socialMedia (object with facebook, linkedin, instagram, tiktok), seoChecklist (array), keywords (array), repurposeAddons (array). 
               
               - 'script': The FULL narrative story (Aim for 1500-2200 words for long videos).
-              - 'sceneBreakdown': An array of 12-18 objects representing chapters.
-                CRITICAL: To avoid token limits and truncated responses, the 'script' field within 'sceneBreakdown' MUST only be a 1-sentence summary (10-15 words).
+              - 'sceneBreakdown': An array of 25-30 objects representing sequential chapters.
+                CRITICAL: Each 'visual' field MUST be a detailed, multi-part prompt (50-100 words) describing a cinematic sequence that can be split into 8-second clips. The summary 'script' field MUST be kept short (10-15 words).
               
               Do not include any text outside the JSON object.`,
             },
