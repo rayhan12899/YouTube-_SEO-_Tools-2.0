@@ -195,30 +195,52 @@
     background-color: var(--color-hw-bg);
     color: var(--color-hw-text);
     border: 1px solid var(--color-hw-border);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  .hw-panel:hover {
-    border-color: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.1);
-  }
-
-  .hw-panel::before {
+  .hw-panel::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-hw-accent), transparent);
-    opacity: 0.3;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
   }
 
-  .hw-label {
+  .hw-btn-industrial {
+    @apply relative px-8 py-3 bg-[#1a1c1e] border-2 border-[#2d2f31] rounded-xl overflow-hidden transition-all duration-300 active:scale-95 flex items-center justify-center gap-3;
+    box-shadow: 0 4px 0 #000, 0 8px 16px rgba(0,0,0,0.4);
+  }
+
+  .hw-btn-industrial:hover {
+    @apply border-hw-accent transform -translate-y-1;
+    box-shadow: 0 6px 0 #000, 0 12px 24px rgba(0,0,0,0.5);
+  }
+
+  .hw-btn-industrial:active {
+    @apply translate-y-0.5;
+    box-shadow: 0 1px 0 #000, 0 2px 4px rgba(0,0,0,0.6);
+  }
+
+  .hw-btn-industrial .hw-icon {
+    @apply transition-transform duration-500;
+  }
+  .hw-btn-industrial:hover .hw-icon {
+    @apply rotate-12 scale-110;
+  }
+
+  .hw-led {
+    @apply w-2 h-2 rounded-full shadow-[0_0_10px_currentColor];
+  }
+
+  .hw-text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white/80 to-white/40;
+  }
+
+  .studio-card {
     font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 1.5px;
@@ -268,7 +290,54 @@
   }
 
   .studio-card {
-    @apply bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden transition-all duration-500;
+    @apply bg-[#0a0a0a]/80 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] shadow-2xl relative overflow-hidden transition-all duration-500;
+  }
+
+  .studio-shell {
+    @apply flex h-screen overflow-hidden bg-[var(--bg-main)] text-[var(--text-main)] font-sans;
+  }
+
+  .studio-sidebar {
+    @apply w-20 hover:w-64 flex flex-col items-center py-8 border-r border-white/5 bg-black/40 backdrop-blur-3xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-50 hover:px-4;
+  }
+
+  .studio-main {
+    @apply flex-1 flex flex-col h-full overflow-hidden relative;
+  }
+
+  .studio-content {
+    @apply flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-10 relative z-10;
+  }
+
+  .studio-header {
+    @apply border-b border-white/5 bg-black/20 backdrop-blur-md z-40;
+  }
+
+  .studio-nav-item {
+    @apply w-12 h-12 flex items-center justify-center rounded-xl mb-4 transition-all duration-300 relative text-white/40 hover:text-hw-accent hover:bg-hw-accent/10 cursor-pointer;
+  }
+  .studio-sidebar:hover .studio-nav-item {
+    @apply w-full justify-start px-4;
+  }
+
+  .studio-nav-item.active {
+    @apply bg-hw-accent/15 text-hw-accent border border-hw-accent/20 shadow-[0_0_20px_rgba(0,229,255,0.1)];
+  }
+
+  .studio-nav-label {
+    @apply ml-4 text-sm font-bold tracking-tight hidden whitespace-nowrap opacity-0 transition-opacity duration-500;
+  }
+  .studio-sidebar:hover .studio-nav-label {
+    @apply block opacity-100;
+  }
+
+  .studio-grid-bg {
+    @apply absolute inset-0 pointer-events-none;
+    background-image: 
+      linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at center, black 0%, transparent 80%);
   }
 
   .input-field {
@@ -306,10 +375,15 @@
     position: relative;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 2.5rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+  @media (min-width: 768px) {
+    .bento-item {
+      padding: 2.5rem;
+    }
   }
 
   .bento-item:hover {

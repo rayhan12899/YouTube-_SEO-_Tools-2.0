@@ -252,6 +252,7 @@ export interface GenerationOptions {
   voiceAccent?: string;
   voiceAge?: string;
   voiceLanguage?: 'bn' | 'en' | 'hi';
+  voiceGender?: 'male' | 'female' | 'neutral';
   businessType?: string;
   visualStyle?: string;
   cameraAngle?: string;
@@ -512,62 +513,46 @@ export const generateContent = async (options: GenerationOptions) => {
               Generate the following sections if requested:
               - Image Prompt: ${options.generateImagePrompt} ${options.visualStyle ? `(Ensure the image prompt specifically requests a ${options.visualStyle} style with ${options.lighting || 'natural'} lighting and a ${options.cameraAngle || 'eye-level'} angle.)` : ""}
               - Video Prompt: ${options.generateVideoPrompt} ${options.videoDuration ? `(Target duration: ${options.videoDuration} seconds. 
-                  CRITICAL: Provide a highly detailed, cinematic prompt for AI video generators. 
-                  SCALING REQUIREMENT: 
-                  - For short videos (8s - 60s), provide 2-4 highly dynamic scenes.
-                  - For medium videos (1m - 5m), provide 5-10 detailed scenes.
-                  - For long videos (10m - 60m), provide a highly structured and detailed narrative outline of about 1500-2500 words. 
-                  - PROMPT QUANTITY: For a 60-minute video, generate a sequence of 25-30 comprehensive 'Master Chapters'. Each chapter's 'visual' prompt MUST be a multi-sequence description that can be used to generate multiple 8-10 second AI video clips.
-                  
-                  The video prompt MUST be broken down into SCENES/SEGMENTS in the 'sceneBreakdown' that cover the entire timeline sequentially.
-                  Include specific details about:
-                  1. Camera Angles & Movements: Incorporate "${options.cameraAngle || 'dynamic tracking shots, low-angle pans, or drone fly-throughs'}".
-                  2. Lighting & Atmosphere: Incorporate "${options.lighting || 'cinematic neon lighting'} and ${options.mood || 'golden hour, or moody and atmospheric'}".
-                  3. Specific Visual Sequences: Describe the exact action, pacing, and subject details. Ensure the motion is "${options.mood === 'Energetic' ? 'fast-paced and dynamic' : 'smooth and cinematic'}".
-                  4. Pacing: Ensure the prompt aligns with the target duration and word count.
-                  5. Visual Style: The overall aesthetic must be strictly "${options.visualStyle || 'photorealistic cinematic'}".)` : ""}
+                  CRITICAL: Provide a highly detailed, cinematic prompt for AI video generators.)` : ""}
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
               - Tags: ${options.generateTags}
-              - Script: ${options.generateScript} ${options.scriptWordCount ? `(Target length: approximately ${options.scriptWordCount} words for a ${options.videoDuration}s video. 
-                  DYNAMIC PACING & DEPTH:
-                  - Total Duration: ${options.videoDuration} seconds.
-                  - Target Word Count: ${options.scriptWordCount} words.
-                  - CRITICAL: For videos between 10m to 60m, you MUST generate an "EXPANDED NARRATIVE OUTLINE & STORY". Aim for about 1500-2500 words. DO NOT attempt to write every single word for a full 60 minutes as it will be truncated. Instead, provide a dense, high-quality script that covers the entire topic thoroughly.
-                  - EXPANSION REQUIREMENT: Provide 25-30 detailed chapters in 'sceneBreakdown' for full duration coverage.
-                  - SCENE COVERAGE: Each visual prompt must be an 'Action Sequence' suitable for multiple 8-second AI video clips.
-                  - Ensure the script covers the timeline from 0:00 to ${Math.floor(options.videoDuration / 60)}:${(options.videoDuration % 60).toString().padStart(2, '0')}.
+              - Script: ${options.generateScript} ${options.videoDuration ? `(Write a FULL, 100% UNIQUE narrative. 
+                  CRITICAL STRUCTURE FOR RETENTION:
+                  1. INTRO (The Hook): MUST start with a highly engaging, warm, and professional greeting or welcome that instantly hooks the audience. NEVER start with generic "Welcome back". Use a thought-provoking question, a bold statement, or a relatable scenario that makes the viewer WANT to stay until the end.
+                  2. BODY: Develop the content with professional insights. Use high-quality storytelling techniques. Ensure ZERO repetition.
+                  3. CONCLUSION: End with a satisfying summary and a natural, non-pushy outro.
                   
-                  SCALES OF CONTENT:
-                  - For short-form: High-energy hooks.
-                  - For long-form (10-60 min): Extensive storytelling, expert analysis, and structured chapters.
-                  - The script MUST include: 
-                  1. Vocal directions.
-                  2. Engaging dialogue/voiceover.
-                  3. Exact timestamps in the scene breakdown.)` : ""}
-              - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist including keyword research, title optimization, description best practices, tag strategy, thumbnail effectiveness, and end screen/card usage. Return as a structured list.)
-              - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords for the topic. For each keyword, include an estimated 'searchVolume' (Low, Medium, High, or a number) and 'competition' (Low, Medium, High). Return as an array of objects.)
-              
-              Special Instruction for Content Type: If the Content Type is 'shorts', focus on high-energy, fast-paced vertical content. If it's 'thumbnail', provide detailed visual descriptions for a high-CTR thumbnail. If it's 'titleIdea', provide 5 catchy, viral-style titles. If it's 'description', provide an SEO-optimized video description. If it's 'fullScript', provide a comprehensive video script with scene details.
+                  To ensure quality:
+                  - The narrative MUST be high-energy and human-like.
+                  - NEVER repeat the same segment or script pattern.
+                  - Ensure the script is cohesive and professional.
+                  - For short videos (< 5 mins): Focus on high-retention pacing.
+                  - For long videos (5-15 mins): Use structured storytelling to maintain engagement.
+                  Tone: Professional, engaging, and indistinguishable from human-written content.)` : ""}
+              - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist. Return as a structured list.)
+              - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords. Return as an array of objects with keyword, searchVolume, competition.)
               
               Return the result as a strictly valid JSON object with keys: videoTitle, seoTitles, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
               
               - videoTitle: A catchy, SEO-optimized title for the video.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
-              - script: The FULL narrative script (Aim for 1500-2500 words for long videos).
-              - sceneBreakdown: An array of 20-30 objects representing chapters or major sequences. 
-                CRITICAL: To avoid hitting token limits, the 'script' field inside 'sceneBreakdown' MUST be a 1-sentence summary only.
+              - script: The FULL connected script/narrative (must have a clear beginning, middle, and END).
+              - sceneBreakdown: An array of objects representing clips/scenes in chronological order.
+                CRITICAL SCALING: The number of scenes MUST match the video length requested.
+                - Length < 1m: 3-5 scenes.
+                - Length 2m - 5m: 8-15 scenes.
+                - Length 10m+: 20-30 scenes.
                 Each object MUST have:
-                - 'scene': The scene/chapter number.
-                - 'time': The timestamp range (e.g., "0:00 - 2:00").
-                - 'script': Short summary.
-                - 'visual': A COMPREHENSIVE cinematic prompt (50-80 words) that describes a full visual sequence. For long videos, this prompt should be rich enough to generate several related 8-second clips for that segment.
+                - 'scene': Scene sequence number.
+                - 'time': Timestamp breakdown covering the full duration (e.g., "0:00 - 2:00").
+                - 'script': The exact dialogue, voiceover, or detailed vocal summary for ONLY this specfic scene. Must be detailed.
+                - 'videoPrompt': Ensure EVERY scene has a highly detailed cinematic prompt for AI video generators (e.g. Runway, Sora).
+                - 'imagePrompt': Ensure EVERY scene has a highly detailed prompt for AI image generators (e.g. Midjourney).
               
-              CRITICAL: The number of scenes in 'sceneBreakdown' MUST match the total duration and the complexity of the topic. Each scene's 'script' and 'visual' MUST be perfectly synchronized.
+              CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products. Focus strictly on engaging social media video content.
               
-              CRITICAL: Do NOT include any e-commerce, online shop, or product sales promotion language. Avoid phrases like "Order now", "Visit our website", "100% organic", or anything related to selling products (e.g., organic rice). Focus strictly on engaging social media video content.
-              
-              Do not include any preamble, postamble, or explanation outside the JSON object. Ensure the JSON is valid and properly escaped.`;
+              Do not include any preamble, postamble, or explanation outside the JSON object. Ensure the JSON is completely valid, closed, and properly escaped.`;
 
     const text = await callAI(prompt, "application/json");
     return extractJson(text);
@@ -624,7 +609,7 @@ export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" |
 export const generateVoiceOver = async (
   text: string, 
   voiceName: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr' = 'Kore',
-  options?: { tone?: string; accent?: string; age?: string }
+  options?: { tone?: string; accent?: string; age?: string; gender?: string }
 ) => {
   let promptText = text;
   // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
@@ -634,13 +619,20 @@ export const generateVoiceOver = async (
     text = text.substring(0, MAX_TTS_CHARS) + "... [Content continues in script]";
   }
 
-  if (options && (options.tone || options.accent || options.age)) {
+  if (options && (options.tone || options.accent || options.age || options.gender)) {
     const instructions = [
-      options.tone && `${options.tone} tone`,
+      options.tone && `highly expressive, natural, and conversational ${options.tone} tone`,
       options.age && `${options.age} age`,
-      options.accent && `${options.accent} accent`
+      options.gender && `${options.gender} gender`,
+      options.accent && `with a ${options.accent} accent`
     ].filter(Boolean).join(', ');
-    promptText = `Say in a ${instructions} voice: ${text}`;
+    
+    // Explicit instructions for natural human-like delivery
+    const languageInstruction = options.voiceLanguage === 'bn' 
+      ? "Speak with a natural, expressive, and human-like Bangladeshi Bengali dialect, avoiding robotic processing. Use appropriate pauses and natural phrasing."
+      : "Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English.";
+      
+    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style: ${text}`;
   }
 
   if (isOffline) {

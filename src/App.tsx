@@ -80,7 +80,9 @@ import {
   Activity,
   MessageSquare as ChatIcon,
   Send as SendIcon,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Expand,
+  ArrowRight
 } from 'lucide-react';
 import { APP_CONFIG } from './config';
 import { motion, AnimatePresence } from 'motion/react';
@@ -739,6 +741,7 @@ export default function App() {
       voiceTone: 'Professional',
       voiceAccent: 'US',
       voiceAge: 'Adult',
+      voiceGender: 'neutral',
       voiceLanguage: 'bn' as 'bn' | 'en' | 'hi',
       videoDuration: 60,
       scriptWordCount: 500,
@@ -966,7 +969,8 @@ export default function App() {
       const audioUrl = await generateVoiceOver(text, options.voice, {
         tone: options.voiceTone,
         accent: options.voiceAccent,
-        age: options.voiceAge
+        age: options.voiceAge,
+        gender: options.voiceGender
       });
       if (audioUrl) {
         setSceneAudioUrls(prev => ({ ...prev, [`scene-${sceneIdx}`]: audioUrl }));
@@ -1141,7 +1145,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         const res = await generateVoiceOver(activeTopic, options.voice, {
           tone: options.voiceTone,
           accent: options.voiceAccent,
-          age: options.voiceAge
+          age: options.voiceAge,
+          gender: options.voiceGender
         });
         setResults(prev => ({ ...prev, [activeView]: { audioUrl: res } }));
         saveToHistory(activeTopic, { audioUrl: res }, 'voice');
@@ -1203,7 +1208,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
                 tone: options.voiceTone,
                 accent: options.voiceAccent,
-                age: options.voiceAge
+                age: options.voiceAge,
+                gender: options.voiceGender
               });
               if (audioUrl) {
                 res.audioUrl = audioUrl;
@@ -2027,70 +2033,69 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
   };
 
   return (
-    <div className={cn("min-h-screen mesh-gradient text-[var(--text-main)] font-sans selection:bg-[var(--accent-main)]/30 selection:text-white pb-24 md:pb-0", theme)}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-10">
-        <Toaster position="top-right" richColors theme={theme === 'light' ? 'light' : 'dark'} />
-        
-        <AnimatePresence mode="wait">
-          {currentView === 'landing' ? (
-            <motion.div
-              key="landing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="min-h-screen flex flex-col bg-[var(--bg-main)]"
-            >
-              {/* Navigation */}
-              <nav className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-[100] pointer-events-none">
-                <motion.div 
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="flex items-center gap-4 cursor-pointer pointer-events-auto group"
-                  onClick={() => setCurrentView('landing')}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center border border-[var(--accent-main)]/20 group-hover:scale-105 transition-transform duration-300">
-                    <Youtube className="text-[var(--accent-main)]" size={24} />
-                  </div>
-                  <span className="text-2xl font-display italic tracking-tight text-[var(--text-main)] group-hover:text-[var(--accent-main)] transition-colors">{t.title}</span>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="hidden lg:flex items-center gap-8 px-8 py-3 rounded-2xl glass-card pointer-events-auto"
-                >
-                  {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item) => (
-                    <button 
-                      key={item}
-                      className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </motion.div>
-
-                <div className="flex items-center gap-4 pointer-events-auto">
-                  <motion.div
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    className="hidden sm:block"
-                  >
-                    <button
-                      onClick={() => setCurrentView('home')}
-                      className="btn-primary py-3 px-6 text-sm"
-                    >
-                      {t.getStarted}
-                    </button>
-                  </motion.div>
-
-                  <button 
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="lg:hidden w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[var(--accent-main)] hover:text-black hover:border-[var(--accent-main)] transition-all duration-300"
-                  >
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                  </button>
+    <div className={cn("min-h-screen studio-shell bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-hw-accent/30 selection:text-white", theme)}>
+      <Toaster position="top-right" richColors theme={theme === 'light' ? 'light' : 'dark'} />
+      
+      <AnimatePresence mode="wait">
+        {currentView === 'landing' ? (
+          <motion.div
+            key="landing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex-1 overflow-y-auto overflow-x-hidden relative"
+          >
+            <div className="studio-grid-bg" />
+            
+            {/* Landing Navigation */}
+            <nav className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-[100]">
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl border-b border-white/5" />
+              <div className="absolute inset-0 studio-grid-bg opacity-10" />
+              
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="relative flex items-center gap-4 cursor-pointer group"
+                onClick={() => setCurrentView('landing')}
+              >
+                <div className="w-12 h-12 rounded-xl bg-hw-accent/10 flex items-center justify-center border border-hw-accent/20 group-hover:bg-hw-accent/20 transition-all duration-300 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+                  <Youtube className="text-hw-accent" size={24} />
                 </div>
-              </nav>
+                <span className="text-xl font-black italic tracking-tighter text-white group-hover:text-hw-accent transition-colors uppercase">AI Studio</span>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="relative hidden lg:flex items-center gap-8 px-8 py-3.5 rounded-full bg-black/40 border border-white/5 backdrop-blur-3xl shadow-2xl"
+              >
+                {['Features', 'Intelligence', 'Systems', 'Manual'].map((item) => (
+                  <button 
+                    key={item}
+                    className="text-[10px] font-black text-hw-muted hover:text-hw-accent transition-all uppercase tracking-[0.2em]"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </motion.div>
+
+              <div className="relative flex items-center gap-6">
+                <button
+                  onClick={() => setCurrentView('home')}
+                  className="hw-btn-industrial py-3 px-8 text-[10px]"
+                >
+                  <Rocket size={16} className="hw-icon text-hw-accent" />
+                  {t.getStarted}
+                </button>
+
+                <button 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="lg:hidden w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white"
+                >
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+            </nav>
 
               {/* Mobile Menu for Landing Page */}
               <AnimatePresence>
@@ -2117,7 +2122,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
 
                     <div className="flex-1 flex flex-col justify-center space-y-6">
-                      {['Features', 'About', 'Testimonials', 'Pricing', 'Contact'].map((item, i) => (
+                      {['Features', 'Intelligence', 'Systems', 'Manual'].map((item, i) => (
                         <motion.button 
                           key={item}
                           initial={{ opacity: 0, x: -20 }}
@@ -2144,507 +2149,245 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       >
                         {t.getStarted}
                       </motion.button>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center p-1 bg-white/5 rounded-full border border-white/10">
-                          <button 
-                            onClick={() => setUiLang('en')} 
-                            className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black" : "text-hw-muted")}
-                          >
-                            EN
-                          </button>
-                          <button 
-                            onClick={() => setUiLang('bn')} 
-                            className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black" : "text-hw-muted")}
-                          >
-                            BN
-                          </button>
-                        </div>
-                        <div className="flex gap-4">
-                          {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                            <Icon key={i} size={20} className="text-hw-muted hover:text-hw-accent cursor-pointer transition-colors" />
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Hero Section */}
-              <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[var(--accent-main)]/5 rounded-full blur-[100px] -z-10" />
-                
-                <div className="max-w-5xl mx-auto px-6 text-center space-y-12 relative z-10">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 text-[var(--accent-main)] text-xs font-semibold tracking-wide"
-                  >
-                    <Sparkles size={14} /> {t.subtitle}
-                  </motion.div>
+              <div className="flex-1 overflow-y-auto scrollbar-hide">
+                {/* Hero Section */}
+                <section className="relative min-h-screen flex items-center justify-center pt-40 pb-20 overflow-hidden">
+                  <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-hw-accent/5 rounded-full blur-[120px] -z-10" />
+                  <div className="absolute top-0 left-0 w-full h-full studio-grid-bg opacity-20 -z-10" />
                   
-                  <motion.h1 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] text-[var(--text-main)]"
-                  >
-                    {uiLang === 'en' ? (
-                      <>
-                        Create <span className="text-[var(--accent-main)]">Viral</span><br />
-                        Content with AI
-                      </>
-                    ) : (
-                      <>
-                        এআই দিয়ে তৈরি করুন <br />
-                        <span className="text-[var(--accent-main)]">ভাইরাল কন্টেন্ট</span>
-                      </>
-                    )}
-                  </motion.h1>
-                  
-                  <motion.p 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-lg md:text-2xl text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed"
-                  >
-                    {t.heroSubtitle}
-                  </motion.p>
-
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
-                  >
-                    <button 
-                      onClick={() => setCurrentView('home')} 
-                      className="btn-primary w-full sm:w-auto"
+                  <div className="max-w-5xl mx-auto px-6 text-center space-y-16 relative z-10">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-hw-accent/10 border border-hw-accent/30 shadow-[0_0_30px_rgba(34,197,94,0.1)]"
                     >
-                      {t.getStarted} <ChevronRight size={18} />
-                    </button>
-                    <button className="btn-secondary w-full sm:w-auto">
-                      {t.features}
-                    </button>
-                  </motion.div>
-                </div>
-              </section>
+                      <div className="hw-led bg-hw-accent animate-pulse" />
+                      <span className="hw-label text-hw-accent text-[10px] uppercase tracking-[0.3em] font-black">{t.subtitle}</span>
+                    </motion.div>
+                    
+                    <motion.h1 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.9] text-white uppercase italic overflow-visible py-4"
+                    >
+                      {uiLang === 'en' ? (
+                        <>
+                          Neural <span className="text-hw-accent hw-text-gradient">Viral</span><br />
+                          Synthesis
+                        </>
+                      ) : (
+                        <>
+                          এআই <span className="text-hw-accent hw-text-gradient">সংশ্লেষণ</span> <br />
+                          ভাইরাল কন্টেন্ট
+                        </>
+                      )}
+                    </motion.h1>
 
-              {/* About Section - Bento Style */}
-              <section className="py-32 px-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
-                
-                <div className="max-w-7xl mx-auto space-y-24">
-                  <div className="text-center space-y-6 max-w-3xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
-                      <Info size={14} />
-                      {t.about}
+                    <motion.p 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="max-w-2xl mx-auto text-sm md:text-base text-hw-muted font-black tracking-[0.2em] uppercase leading-relaxed italic"
+                    >
+                      {uiLang === 'en' 
+                        ? "The world's most advanced hardware-integrated creative engine for elite content creators."
+                        : "এলিট কন্টেন্ট ক্রিয়েটরদের জন্য বিশ্বের সবচেয়ে উন্নত হার্ডওয়্যার-ইন্টিগ্রেটেড ক্রিয়েটিভ ইঞ্জিন।"}
+                    </motion.p>
+                    
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10"
+                    >
+                      <button
+                        onClick={() => setCurrentView('home')}
+                        className="hw-btn-industrial py-5 px-14 text-sm group min-w-[240px]"
+                      >
+                        <Sparkles size={20} className="hw-icon text-hw-accent" />
+                        {t.getStarted}
+                        <ArrowRight size={20} className="hw-icon ml-auto opacity-40 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                      <button className="hw-btn-industrial py-5 px-14 text-xs bg-black/40 border-white/5 text-hw-muted hover:text-white min-w-[240px]">
+                        <Video size={18} className="hw-icon" />
+                        System Overview
+                      </button>
+                    </motion.div>
+                  </div>
+                </section>
+
+                {/* Advanced Systems Section */}
+                <section className="py-32 relative group">
+                  <div className="absolute inset-0 studio-grid-bg opacity-10" />
+                  <div className="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+                    <div className="text-center space-y-4">
+                      <h2 className="hw-label text-hw-accent text-[12px] uppercase tracking-[0.5em] font-black">Generation Modules</h2>
+                      <div className="h-px w-32 bg-hw-accent/20 mx-auto" />
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Engineered for <span className="premium-gradient-text italic">Creators</span>
-                    </h2>
-                    <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed">
-                      {uiLang === 'en' ? "We've built the most sophisticated AI engine specifically for video content creators. Every tool is optimized for engagement and growth." : "আমরা ভিডিও কন্টেন্ট ক্রিয়েটরদের জন্য বিশেষভাবে সবচেয়ে উন্নত এআই ইঞ্জিন তৈরি করেছি। প্রতিটি টুল এনগেজমেন্ট এবং গ্রোথের জন্য অপ্টিমাইজ করা হয়েছে।"}
-                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {[
+                        { icon: <Search size={32} />, title: "SEO_CORE", desc: "Advanced keyword extraction and CTR projection engine." },
+                        { icon: <Sparkles size={32} />, title: "GEN_NEURAL", desc: "Multi-layered content synthesis with ethical boundary monitoring." },
+                        { icon: <Volume2 size={32} />, title: "VOICE_SYNTH", desc: "Elite-grade neural voice extraction and transcription." },
+                        { icon: <ImageIcon size={32} />, title: "V_RENDER", desc: "Studio-quality visual prompt engineering and generation." },
+                        { icon: <Zap size={32} />, title: "RAPID_SHORTS", desc: "Viral-optimized short-form content scaling systems." },
+                        { icon: <RefreshCw size={32} />, title: "SYNC_MATRIX", desc: "Real-time collaborative production environments." }
+                      ].map((feature, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: i * 0.1 }}
+                          className="hw-panel p-10 bg-black/40 border-white/5 hover:border-hw-accent/30 transition-all space-y-8 group"
+                        >
+                           <div className="w-16 h-16 rounded-2xl bg-hw-accent/5 border border-hw-accent/10 flex items-center justify-center text-hw-accent shadow-inner group-hover:bg-hw-accent/10 transition-colors">
+                             {feature.icon}
+                           </div>
+                           <div className="space-y-4">
+                             <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">{feature.title}</h3>
+                             <p className="text-[10px] font-black text-hw-muted uppercase tracking-widest leading-loose">{feature.desc}</p>
+                           </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
+                </section>
 
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                    <motion.div 
-                      whileHover={{ y: -5 }}
-                      className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
-                    >
-                      <div className="relative z-10 space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
-                          <Zap size={28} />
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-2xl md:text-3xl font-display italic text-[var(--text-main)] tracking-tight">Lightning Fast Generation</h4>
-                          <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed max-w-xl">
-                            Our AI models are optimized for speed, delivering high-quality scripts, ideas, and images in under 5 seconds. No more waiting for inspiration.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-10 relative h-56 overflow-hidden rounded-2xl border border-[var(--border-main)]/50">
-                        <img src="https://picsum.photos/seed/speed/1200/600" className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent" />
-                        <div className="absolute bottom-6 left-6">
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold tracking-wide">
-                            <Clock size={14} /> 4.2s Avg Response
+                {/* Testimonials Section */}
+                <section className="py-32 relative">
+                  <div className="max-w-7xl mx-auto px-6 space-y-24">
+                    <div className="text-center space-y-4">
+                      <h2 className="hw-label text-hw-accent text-[12px] uppercase tracking-[0.5em] font-black">Operator Testimonials</h2>
+                      <div className="h-px w-32 bg-hw-accent/20 mx-auto" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {[
+                        { name: "Unit 742", role: "Verification Specialist", text: "Synthesis output exceeds human limits by 400%." },
+                        { name: "Node Alpha", role: "Creative Director", text: "Zero latentcy. Pure industrial-grade content production." },
+                        { name: "Core Beta", role: "Scaling Agent", text: "The most robust neural environment I've operated in." }
+                      ].map((t, i) => (
+                        <motion.div 
+                          key={i} 
+                          whileHover={{ y: -5 }}
+                          className="hw-panel p-10 bg-black/40 border-white/5 space-y-8 relative group overflow-hidden"
+                        >
+                          <Quote className="absolute top-6 right-6 text-hw-accent/10 group-hover:text-hw-accent/20 transition-colors" size={48} />
+                          <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => <Star key={i} size={12} className="fill-hw-accent text-hw-accent" />)}
                           </div>
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    <motion.div 
-                      whileHover={{ y: -5 }}
-                      className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
-                    >
-                      <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
-                          <Shield size={28} />
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">Privacy First</h4>
-                          <p className="text-[var(--text-muted)] leading-relaxed">
-                            Your API keys and content never leave your browser. We prioritize your data security and creative intellectual property.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-8 p-4 rounded-xl bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[var(--accent-main)]/20 flex items-center justify-center text-[var(--accent-main)]">
-                          <Lock size={16} />
-                        </div>
-                        <span className="text-xs font-semibold text-[var(--accent-main)]">End-to-End Encrypted</span>
-                      </div>
-                    </motion.div>
-
-                    <motion.div 
-                      whileHover={{ y: -5 }}
-                      className="md:col-span-4 p-8 md:p-10 rounded-[2.5rem] glass-card group shadow-xl flex flex-col justify-between"
-                    >
-                      <div className="space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
-                          <Users size={28} />
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">Creator Community</h4>
-                          <p className="text-[var(--text-muted)] leading-relaxed">
-                            Join thousands of creators who are scaling their channels with our AI tools. Share tips and grow together.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-8 flex -space-x-3">
-                        {[1, 2, 3, 4].map(i => (
-                          <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] object-cover" referrerPolicy="no-referrer" />
-                        ))}
-                        <div className="w-10 h-10 rounded-full border-2 border-[var(--bg-card)] bg-[var(--accent-main)] flex items-center justify-center text-white text-xs font-bold">
-                          +10k
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    <motion.div 
-                      whileHover={{ y: -5 }}
-                      className="md:col-span-8 p-8 md:p-10 rounded-[2.5rem] glass-card group relative overflow-hidden shadow-xl"
-                    >
-                      <div className="flex flex-col md:flex-row gap-10 items-center h-full">
-                        <div className="space-y-6 flex-1">
-                          <div className="w-14 h-14 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] group-hover:bg-[var(--accent-main)] group-hover:text-white transition-all duration-500">
-                            <Globe size={28} />
-                          </div>
-                          <div className="space-y-3">
-                            <h4 className="text-2xl md:text-3xl font-display italic text-[var(--text-main)] tracking-tight">Multi-Language Support</h4>
-                            <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed">
-                              Create content in English, Bengali, and Hindi with perfect cultural context and nuance. Reach a global audience effortlessly.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          {['🇺🇸', '🇧🇩', '🇮🇳'].map(f => (
-                            <motion.div 
-                              key={f} 
-                              whileHover={{ scale: 1.05, rotate: 5 }}
-                              className="w-16 h-16 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-3xl shadow-md"
-                            >
-                              {f}
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Features Section */}
-              <section className="relative py-32 bg-[var(--bg-main)] overflow-hidden">
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,var(--accent-main),transparent_70%)]" />
-                </div>
-                
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-                    <div className="space-y-10">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/10 border border-[var(--accent-main)]/20 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
-                        <Zap size={14} className="text-[var(--accent-main)]" />
-                        {uiLang === 'en' ? "Powerful Capabilities" : "শক্তিশালী ক্ষমতা"}
-                      </div>
-                      <h2 className="text-5xl md:text-7xl font-bold text-[var(--text-main)] leading-[0.9] tracking-tight">
-                        Our Powerful <br/> <span className="premium-gradient-text italic">Features</span>
-                      </h2>
-                      <p className="text-[var(--text-muted)] text-lg font-medium leading-relaxed max-w-lg">
-                        {uiLang === 'en' ? "We provide everything you need to grow your channel and automate your content workflow with cutting-edge AI." : "আমরা আপনার চ্যানেল বড় করতে এবং অত্যাধুনিক এআই দিয়ে আপনার কন্টেন্ট ওয়ার্কফ্লো অটোমেট করতে প্রয়োজনীয় সবকিছু সরবরাহ করি।"}
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {[
-                          { title: "Script Generator", desc: "Viral scripts in seconds.", icon: <FileText size={20} /> },
-                          { title: "Shorts Creator", desc: "Optimized for vertical video.", icon: <Zap size={20} /> },
-                          { title: "SEO Tools", desc: "Rank higher on search.", icon: <Search size={20} /> },
-                          { title: "Voice Over", desc: "Natural AI voices.", icon: <Mic size={20} /> }
-                        ].map((f, i) => (
-                          <motion.div 
-                            key={i} 
-                            whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-                            className="p-8 rounded-[2rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] backdrop-blur-xl group transition-all"
-                          >
-                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] mb-6 group-hover:scale-110 transition-transform">
-                              {f.icon}
+                          <p className="text-white font-black italic tracking-tighter text-lg leading-relaxed relative z-10 uppercase">"{t.text}"</p>
+                          <div className="flex items-center gap-4 pt-8 border-t border-white/5">
+                            <div className="w-12 h-12 rounded-xl bg-hw-accent/10 border border-hw-accent/20 flex items-center justify-center">
+                              <User size={20} className="text-hw-accent" />
                             </div>
-                            <h4 className="text-lg font-bold text-[var(--text-main)] mb-2 tracking-tight">{f.title}</h4>
-                            <p className="text-[var(--text-muted)] text-sm font-medium leading-relaxed">{f.desc}</p>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="relative group">
-                      <div className="absolute -inset-4 bg-[var(--accent-glow)] rounded-[4rem] blur-3xl group-hover:bg-[var(--accent-glow)]/20 transition-all duration-700" />
-                      <img 
-                        src="https://picsum.photos/seed/features/1000/1000" 
-                        alt="Features" 
-                        className="relative rounded-[3rem] shadow-2xl border border-[var(--border-main)] transform group-hover:scale-[1.02] transition-transform duration-700"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Testimonials */}
-              <section className="py-32 bg-[var(--bg-main)] relative overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
-                
-                <div className="max-w-7xl mx-auto px-6 space-y-24">
-                  <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
-                      <MessageSquare size={14} />
-                      {uiLang === 'en' ? "User Stories" : "ব্যবহারকারীর গল্প"}
-                    </div>
-                    <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Happy <span className="premium-gradient-text italic">Creators</span> <br/> Say
-                    </h2>
-                    <p className="text-[var(--text-muted)] text-lg font-medium">
-                      {uiLang === 'en' ? "Join thousands of successful creators who have transformed their content with our AI tools." : "হাজার হাজার সফল ক্রিয়েটরদের সাথে যোগ দিন যারা আমাদের এআই টুলস দিয়ে তাদের কন্টেন্ট পরিবর্তন করেছেন।"}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                      { name: "John Doe", role: "YouTuber", text: "This tool changed my life. I can now produce 3 times more content than before with half the effort.", avatar: "https://i.pravatar.cc/150?u=john" },
-                      { name: "Sarah Smith", role: "Content Creator", text: "The AI scripts are incredibly accurate and engaging. My audience retention has increased by 40%!", avatar: "https://i.pravatar.cc/150?u=sarah" },
-                      { name: "Mike Johnson", role: "Digital Marketer", text: "Best AI tool for video marketing. The SEO features are top-notch and actually work for ranking.", avatar: "https://i.pravatar.cc/150?u=mike" }
-                    ].map((t, i) => (
-                      <motion.div 
-                        key={i} 
-                        whileHover={{ y: -5 }}
-                        className="p-8 md:p-10 rounded-[2.5rem] bg-[var(--bg-card)]/40 border border-[var(--border-main)] space-y-6 relative glass-card group transition-all shadow-md hover:shadow-xl"
-                      >
-                        <Quote className="absolute top-6 right-6 text-[var(--accent-main)]/5 group-hover:text-[var(--accent-main)]/10 transition-colors" size={48} />
-                        <div className="flex gap-1">
-                          {[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-[var(--accent-main)] text-[var(--accent-main)]" />)}
-                        </div>
-                        <p className="text-[var(--text-main)] font-medium leading-relaxed text-base md:text-lg relative z-10">"{t.text}"</p>
-                        <div className="flex items-center gap-4 pt-6 border-t border-[var(--border-main)]/50">
-                          <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-[var(--accent-main)]/20" referrerPolicy="no-referrer" />
-                          <div>
-                            <h5 className="font-display italic text-[var(--text-main)] tracking-tight">{t.name}</h5>
-                            <p className="text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wide">{t.role}</p>
+                            <div>
+                              <h5 className="text-sm font-black text-white italic tracking-tighter uppercase">{t.name}</h5>
+                              <p className="text-[10px] text-hw-muted font-black uppercase tracking-widest">{t.role}</p>
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* Pricing Section */}
-              <section className="py-32 bg-[var(--bg-main)] relative overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-[var(--border-main)] to-transparent" />
-                
-                <div className="max-w-7xl mx-auto px-6 space-y-24">
-                  <div className="text-center space-y-6 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/10 text-[var(--accent-main)] text-[10px] font-bold uppercase tracking-[0.2em]">
-                      <CreditCard size={14} />
-                      {uiLang === 'en' ? "Simple Pricing" : "সহজ মূল্য নির্ধারণ"}
+                        </motion.div>
+                      ))}
                     </div>
-                    <h2 className="text-5xl md:text-6xl font-display italic text-[var(--text-main)] tracking-tight leading-none">
-                      Scale Your <span className="premium-gradient-text italic">Growth</span>
-                    </h2>
-                    <p className="text-[var(--text-muted)] text-lg font-medium">
-                      {uiLang === 'en' ? "Choose the plan that's right for your creative journey. No hidden fees." : "আপনার ক্রিয়েটিভ জার্নির জন্য সঠিক প্ল্যানটি বেছে নিন। কোনো লুকানো ফি নেই।"}
-                    </p>
                   </div>
+                </section>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                      { 
-                        name: "Starter", 
-                        price: "Free", 
-                        desc: "Perfect for new creators.", 
-                        features: ["5 Scripts / Month", "Basic SEO Tools", "Community Access", "Standard AI Models"],
-                        button: "Get Started",
-                        popular: false
-                      },
-                      { 
-                        name: "Pro", 
-                        price: "$19", 
-                        desc: "For serious content creators.", 
-                        features: ["Unlimited Scripts", "Advanced SEO Tools", "Priority Support", "Premium AI Models", "Image Generation"],
-                        button: "Go Pro",
-                        popular: true
-                      },
-                      { 
-                        name: "Business", 
-                        price: "$49", 
-                        desc: "For agencies and teams.", 
-                        features: ["Everything in Pro", "Team Collaboration", "Custom Branding", "API Access", "Dedicated Manager"],
-                        button: "Contact Sales",
-                        popular: false
-                      }
-                    ].map((plan, i) => (
-                      <motion.div 
-                        key={i} 
-                        whileHover={{ y: -5 }}
-                        className={cn(
-                          "p-8 md:p-10 rounded-[2.5rem] border space-y-8 relative glass-card group transition-all shadow-xl flex flex-col justify-between",
-                          plan.popular ? "bg-[var(--accent-main)]/5 border-[var(--accent-main)]/30 scale-105 z-10" : "bg-[var(--bg-card)]/40 border-[var(--border-main)]"
-                        )}
-                      >
-                        {plan.popular && (
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[var(--accent-main)] text-white text-[10px] font-bold uppercase tracking-widest shadow-md">
-                            Most Popular
+                {/* Pricing Systems */}
+                <section className="py-32 relative overflow-hidden bg-black/40">
+                  <div className="max-w-7xl mx-auto px-6 space-y-24">
+                    <div className="text-center space-y-4">
+                      <h2 className="hw-label text-hw-accent text-[12px] uppercase tracking-[0.5em] font-black">Subscription Modules</h2>
+                      <div className="h-px w-32 bg-hw-accent/20 mx-auto" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {[
+                        { 
+                          name: "Free_Tier", 
+                          price: "0.00", 
+                          desc: "Basic neural access.", 
+                          features: ["5 Reports / Week", "Core SEO Tools", "Community Terminal"],
+                        },
+                        { 
+                          name: "Pro_Forge", 
+                          price: "19.99", 
+                          desc: "Elite production module.", 
+                          features: ["Unlimited Synthesis", "Advanced SEO", "Priority Compute", "Visual Render Engine"],
+                          popular: true
+                        },
+                        { 
+                          name: "Enterprise", 
+                          price: "Custom", 
+                          desc: "High-scale architecture.", 
+                          features: ["Node Scaling", "Team Matrix", "API Interface", "Dedicated Agent"],
+                        }
+                      ].map((plan, i) => (
+                        <motion.div 
+                          key={i} 
+                          whileHover={{ y: -5 }}
+                          className={cn(
+                            "hw-panel p-10 border space-y-10 relative flex flex-col justify-between overflow-hidden",
+                            plan.popular ? "border-hw-accent/40 bg-hw-accent/5 scale-105 z-10 shadow-[0_0_50px_rgba(34,197,94,0.1)]" : "bg-black/60 border-white/10"
+                          )}
+                        >
+                          {plan.popular && (
+                            <div className="absolute top-0 right-0 px-4 py-1.5 bg-hw-accent text-black text-[10px] font-black uppercase tracking-widest italic rounded-bl-xl">
+                              Recommended
+                            </div>
+                          )}
+                          <div className="space-y-8">
+                            <div className="space-y-3">
+                              <h4 className="text-2xl font-black text-white italic tracking-tighter uppercase">{plan.name}</h4>
+                              <p className="text-hw-muted text-[10px] font-black uppercase tracking-widest">{plan.desc}</p>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-hw-muted text-xs uppercase font-black">$</span>
+                              <span className="text-5xl font-black text-white italic tracking-tighter">{plan.price}</span>
+                              {plan.price !== "Custom" && <span className="text-hw-muted text-[10px] font-black uppercase tracking-widest italic">/ Cycle</span>}
+                            </div>
+                            <div className="h-px bg-white/5 w-full" />
+                            <ul className="space-y-4">
+                              {plan.features.map((f, i) => (
+                                <li key={i} className="flex items-center gap-3 text-[10px] font-black text-hw-muted uppercase tracking-widest">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-hw-accent/40" />
+                                  {f}
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                        )}
-                        <div className="space-y-6">
-                          <div className="space-y-2">
-                            <h4 className="text-xl md:text-2xl font-display italic text-[var(--text-main)] tracking-tight">{plan.name}</h4>
-                            <p className="text-[var(--text-muted)] text-sm font-medium">{plan.desc}</p>
-                          </div>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl md:text-5xl font-display italic text-[var(--text-main)] tracking-tighter">{plan.price}</span>
-                            {plan.price !== "Free" && <span className="text-[var(--text-muted)] font-semibold uppercase text-xs tracking-wide">/ Month</span>}
-                          </div>
-                          <div className="h-px bg-[var(--border-main)] w-full" />
-                          <ul className="space-y-4">
-                            {plan.features.map((f, i) => (
-                              <li key={i} className="flex items-center gap-3 text-sm font-medium text-[var(--text-muted)]">
-                                <div className="w-5 h-5 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)]">
-                                  <Check size={12} />
-                                </div>
-                                {f}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <button className={cn(
-                          "w-full py-4 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-md",
-                          plan.popular 
-                            ? "bg-[var(--accent-main)] text-white hover:bg-[var(--accent-main)]/90" 
-                            : "bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-card)]"
-                        )}>
-                          {plan.button}
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* Footer */}
-              <footer className="relative bg-[var(--bg-card)] pt-32 pb-16 overflow-hidden border-t border-[var(--border-main)]">
-                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-[var(--accent-main)] via-[var(--text-main)] to-[var(--accent-main)] opacity-50" />
-                
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
-                    <div className="md:col-span-4 space-y-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[var(--bg-main)] flex items-center justify-center shadow-md border border-[var(--border-main)] group cursor-pointer">
-                          <Youtube className="text-[var(--accent-main)] group-hover:scale-110 transition-transform" size={20} />
-                        </div>
-                        <span className="text-2xl font-display italic tracking-tight text-[var(--text-main)]">{t.title}</span>
-                      </div>
-                      <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-sm">
-                        {uiLang === 'en' ? "The ultimate AI toolkit for modern content creators. Automate your workflow, grow your audience, and save time." : "আধুনিক কন্টেন্ট ক্রিয়েটরদের জন্য সেরা এআই টুলকিট। আপনার ওয়ার্কফ্লো অটোমেট করুন, অডিয়েন্স বাড়ান এবং সময় বাঁচান।"}
-                      </p>
-                      <div className="flex gap-3">
-                        {[Facebook, Twitter, Instagram, Github].map((Icon, i) => (
-                          <motion.button 
-                            key={i} 
-                            whileHover={{ y: -2, color: "var(--accent-main)" }}
-                            className="w-8 h-8 rounded-lg bg-[var(--bg-main)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
-                          >
-                            <Icon size={14} />
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="md:col-span-2 space-y-6">
-                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Quick Links</h4>
-                      <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Home
-                        </li>
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          About
-                        </li>
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Features
-                        </li>
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Contact
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="md:col-span-2 space-y-6">
-                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Support</h4>
-                      <ul className="space-y-3 text-[var(--text-muted)] text-sm font-medium">
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Help Center
-                        </li>
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Privacy Policy
-                        </li>
-                        <li className="hover:text-[var(--accent-main)] cursor-pointer transition-colors flex items-center gap-2 group">
-                          <div className="w-1 h-1 rounded-full bg-[var(--accent-main)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          Terms of Service
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="md:col-span-4 space-y-6">
-                      <h4 className="text-[var(--text-main)] font-semibold uppercase tracking-wider text-xs">Stay Updated</h4>
-                      <p className="text-[var(--text-muted)] text-sm">Subscribe to our newsletter for the latest AI tips.</p>
-                      <div className="flex gap-2 p-1 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl focus-within:border-[var(--accent-main)]/50 transition-all">
-                        <input 
-                          type="text" 
-                          placeholder="Email Address" 
-                          className="bg-transparent px-3 py-2 text-[var(--text-main)] text-sm w-full outline-none" 
-                        />
-                        <button className="bg-[var(--accent-main)] text-white px-4 py-2 rounded-lg font-semibold text-xs transition-colors shadow-md shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90">
-                          Join
-                        </button>
-                      </div>
+                          <button className={cn(
+                            "hw-btn-industrial py-4 w-full text-xs",
+                            plan.popular ? "bg-hw-accent text-black hover:bg-hw-accent/90" : "bg-white/5 border-white/10 text-white"
+                          )}>
+                            Deploy Unit
+                          </button>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
+                </section>
 
-                  <div className="mt-20 pt-8 border-t border-[var(--border-main)] flex flex-col md:flex-row justify-between items-center gap-4 text-[var(--text-muted)] text-xs font-medium">
-                    <p>© {new Date().getFullYear()} {t.title}. All Rights Reserved.</p>
-                    <div className="flex gap-8">
-                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Privacy</span>
-                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Terms</span>
-                      <span className="hover:text-[var(--text-main)] cursor-pointer transition-colors">Cookies</span>
+                {/* Final Footer */}
+                <footer className="py-20 border-t border-white/5 relative bg-black">
+                  <div className="max-w-7xl mx-auto px-6 text-center space-y-8">
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-hw-accent/10 border border-hw-accent/20 flex items-center justify-center">
+                        <Youtube className="text-hw-accent" size={20} />
+                      </div>
+                      <span className="text-lg font-black italic tracking-tighter text-white uppercase">AI Studio Systems v4.0</span>
                     </div>
+                    <p className="text-[10px] font-black text-hw-muted uppercase tracking-[0.4em]">© 2026 Neural Synthesis Labs. Hardware Integrated Design.</p>
                   </div>
-                </div>
-              </footer>
+                </footer>
+              </div>
             </motion.div>
           ) : (
           <motion.div
@@ -2652,273 +2395,243 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="studio-shell w-full"
           >
-            <header className="sticky top-0 z-50 w-full flex flex-col pointer-events-none">
-              {/* Top Branding & Settings Bar */}
-              <div className="w-full bg-black/90 backdrop-blur-2xl border-b border-white/10 px-4 md:px-8 py-4 flex items-center justify-between pointer-events-auto shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                <div 
-                  className="flex items-center gap-4 cursor-pointer group" 
-                  onClick={() => setCurrentView('home')}
+            {/* Sidebar Desktop */}
+            <aside className="studio-sidebar hidden md:flex">
+              <div 
+                className="w-14 h-14 rounded-2xl bg-hw-accent flex items-center justify-center shadow-[0_0_30px_rgba(0,229,255,0.3)] mb-12 cursor-pointer group-hover:scale-110 transition-transform duration-500"
+                onClick={() => setCurrentView('home')}
+              >
+                <Youtube size={28} className="text-black" />
+              </div>
+
+              <div className="flex-1 w-full space-y-2">
+                {[
+                  { id: 'home', icon: Home, label: t.home },
+                  { id: 'video', icon: Video, label: t.videoGen },
+                  { id: 'shorts', icon: Zap, label: t.shortsGen },
+                  { id: 'idea', icon: Lightbulb, label: t.ideaGen },
+                  { id: 'image', icon: Palette, label: t.imageGen },
+                  { id: 'longVideo', icon: Film, label: 'Long Video' },
+                  { id: 'voice', icon: Mic, label: t.voiceOver },
+                  { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
+                  { id: 'analytics', icon: BarChart3, label: 'Insights' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id as any)}
+                    className={cn(
+                      "studio-nav-item w-full",
+                      currentView === item.id && "active"
+                    )}
+                  >
+                    <item.icon size={20} className="hw-icon shrink-0" />
+                    <span className="studio-nav-label uppercase font-black tracking-widest text-[10px] ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {item.label}
+                    </span>
+                    {currentView === item.id && (
+                      <motion.div 
+                        layoutId="nav-glow"
+                        className="absolute left-[-4px] top-1/4 bottom-1/4 w-[4px] rounded-r-full bg-hw-accent shadow-[0_0_15px_rgba(0,229,255,0.6)]"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="pt-8 border-t border-white/5 w-full flex flex-col items-center group-hover:items-start">
+                <button 
+                  onClick={() => setShowSettings(true)}
+                  className="studio-nav-item"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-hw-accent via-[var(--accent-main)] to-[var(--color-brand-purple)] flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] group-hover:scale-105 transition-all duration-500">
-                    <Youtube className="text-white" size={24} />
+                  <Globe size={20} className="hw-icon" />
+                  <span className="studio-nav-label uppercase font-black tracking-widest text-[10px] ml-4">Settings</span>
+                </button>
+                <button 
+                  onClick={() => setShowHistory(true)}
+                  className="studio-nav-item"
+                >
+                  <History size={20} className="hw-icon" />
+                  <span className="studio-nav-label uppercase font-black tracking-widest text-[10px] ml-4">History</span>
+                </button>
+              </div>
+            </aside>
+
+            {/* Mobile Nav Overlay for App Layout */}
+            <AnimatePresence>
+              {isMobileMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl md:hidden flex flex-col overflow-y-auto"
+                >
+                  <div className="p-6 flex justify-between items-center border-b border-white/5 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-hw-accent flex items-center justify-center">
+                        <Youtube className="text-black" size={20} />
+                      </div>
+                      <span className="text-xl font-black italic tracking-tighter uppercase text-white">AI Studio</span>
+                    </div>
+                    <button 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white"
+                    >
+                      <X size={20} />
+                    </button>
                   </div>
-                  <div className="hidden sm:flex flex-col">
-                    <h1 className="text-xl font-black tracking-[0.2em] uppercase text-white group-hover:text-hw-accent transition-colors duration-300 premium-gradient-text">AI Studio</h1>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className={cn("w-2 h-2 rounded-full", isApiConnected ? "bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500")} />
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-hw-muted">{isApiConnected ? 'System Online' : 'System Offline'}</span>
+                  
+                  <div className="p-6 flex flex-col gap-2 flex-1">
+                    {[
+                      { id: 'home', icon: Home, label: t.home },
+                      { id: 'video', icon: Video, label: t.videoGen },
+                      { id: 'shorts', icon: Zap, label: t.shortsGen },
+                      { id: 'idea', icon: Lightbulb, label: t.ideaGen },
+                      { id: 'image', icon: Palette, label: t.imageGen },
+                      { id: 'longVideo', icon: Film, label: 'Long Video' },
+                      { id: 'voice', icon: Mic, label: t.voiceOver },
+                      { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
+                      { id: 'analytics', icon: BarChart3, label: 'Insights' },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setCurrentView(item.id as any);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={cn(
+                          "flex items-center gap-4 w-full p-4 rounded-xl transition-all",
+                          currentView === item.id ? "bg-hw-accent/15 text-hw-accent border border-hw-accent/20" : "text-white/50 hover:bg-white/5"
+                        )}
+                      >
+                        <item.icon size={20} />
+                        <span className="uppercase font-black tracking-widest text-[10px]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="p-6 border-t border-white/5 space-y-2 shrink-0">
+                    <button 
+                      onClick={() => { setShowSettings(true); setIsMobileMenuOpen(false); }}
+                      className="flex items-center gap-4 w-full p-4 rounded-xl text-white/50 hover:bg-white/5 transition-all"
+                    >
+                      <Globe size={20} />
+                      <span className="uppercase font-black tracking-widest text-[10px]">Settings</span>
+                    </button>
+                    <button 
+                      onClick={() => { setShowHistory(true); setIsMobileMenuOpen(false); }}
+                      className="flex items-center gap-4 w-full p-4 rounded-xl text-white/50 hover:bg-white/5 transition-all"
+                    >
+                      <History size={20} />
+                      <span className="uppercase font-black tracking-widest text-[10px]">History</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Main Content Area */}
+            <div className="studio-main w-full">
+              <div className="studio-grid-bg opacity-30" />
+              
+              <header className="studio-header relative p-4 md:px-10 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 min-h-[5rem] h-auto z-40 bg-black/20 backdrop-blur-md border-b border-white/5">
+                <div className="flex items-center gap-3 w-fit shrink-0">
+                  <div className="md:hidden w-10 h-10 rounded-xl shrink-0 bg-hw-accent flex items-center justify-center cursor-pointer" onClick={() => setIsMobileMenuOpen(true)}>
+                    <Menu size={20} className="text-black" />
+                  </div>
+                  <div className="flex flex-col justify-center max-w-[120px] sm:max-w-none px-1 overflow-hidden">
+                    <h2 className="text-base sm:text-xl md:text-2xl font-black italic tracking-tighter uppercase text-white leading-tight truncate">
+                      <span className="text-hw-accent">AI</span> Studio
+                    </h2>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", isApiConnected ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500")} />
+                      <span className="text-[7px] font-black uppercase tracking-[0.2em] text-hw-muted truncate hidden sm:block">Hardware Phase: Alpha v0.8</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 md:gap-6">
-                  {/* Hamburger Menu for Mobile */}
-                  <button 
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="md:hidden w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300"
-                  >
-                    {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-                  </button>
-
-                  {/* Language Toggle */}
-                  <div className="hidden md:flex items-center p-1 bg-white/5 rounded-full border border-white/10">
+                <div className="flex items-center justify-end gap-2 shrink-0">
+                  {/* Lang Switch */}
+                  <div className="flex items-center p-1 bg-white/5 rounded-xl border border-white/5 backdrop-blur-3xl shrink-0 hidden sm:flex">
                     <button 
-                      onClick={() => setUiLang('en')} 
-                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black shadow-md" : "text-hw-muted hover:text-white")}
+                      onClick={() => setUiLang('en')}
+                      className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-hw-accent text-black" : "text-hw-muted hover:text-white")}
                     >
                       EN
                     </button>
                     <button 
-                      onClick={() => setUiLang('bn')} 
-                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black shadow-md" : "text-hw-muted hover:text-white")}
+                      onClick={() => setUiLang('bn')}
+                      className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-hw-accent text-black" : "text-hw-muted hover:text-white")}
                     >
                       BN
                     </button>
                   </div>
                   
-                  <div className="w-[1px] h-8 bg-white/10 hidden md:block" />
+                  {/* Mobile Lang Button (compact) */}
+                  <button 
+                    onClick={() => setUiLang(uiLang === 'en' ? 'bn' : 'en')}
+                    className="sm:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center font-black text-[10px] text-hw-accent shrink-0 uppercase"
+                  >
+                    {uiLang}
+                  </button>
 
                   <button 
-                    onClick={handleRefresh} 
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300 group"
+                    onClick={handleRefresh}
+                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-hw-muted hover:text-hw-accent hover:border-hw-accent/30 transition-all duration-300 shrink-0"
                   >
-                    <RefreshCw size={16} className={cn(loading && "animate-spin", "group-hover:rotate-180 transition-transform duration-500")} />
+                    <RefreshCw size={16} className={cn(loading && "animate-spin")} />
                   </button>
-                  
-                  <button 
-                    onClick={() => setShowSettings(true)} 
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-hw-accent hover:text-white hover:border-hw-accent transition-all duration-300 group"
-                  >
-                    <Globe size={16} className="group-hover:animate-pulse" />
-                  </button>
+
+                  <div className="w-10 h-10 rounded-xl bg-hw-accent/20 border border-hw-accent/30 flex items-center justify-center text-hw-accent shadow-[0_0_15px_rgba(0,229,255,0.1)] shrink-0">
+                    <User size={18} />
+                  </div>
                 </div>
-              </div>
+              </header>
 
-              {/* Gorgeous Menu Bar */}
-              <div className="w-full py-4 px-4 md:px-8 pointer-events-auto bg-gradient-to-b from-black/90 via-black/50 to-transparent hidden md:block">
-                <nav className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-4 snap-x">
-                  {[
-                    { id: 'home', icon: Home, label: t.home, desc: 'Dashboard' },
-                    { id: 'video', icon: Video, label: t.videoGen, desc: 'Full Scripts' },
-                    { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
-                    { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
-                    { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
-                    { id: 'longVideo', icon: Video, label: 'Long Video Pro', desc: 'Up to 60 Mins' },
-                    { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
-                    { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
-                    { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
-                    { id: 'download', icon: Download, label: t.downloadReport, desc: 'Export PDF' },
-                  ].map((item) => (
-                    <button 
-                      key={item.id}
-                      onClick={() => {
-                        if (item.id === 'download') {
-                          downloadPdf();
-                        } else {
-                          setCurrentView(item.id as any);
-                          if (item.id === 'video') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                          } else if (item.id === 'longVideo') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true, videoDuration: 3600, scriptWordCount: 4000, scriptCharacterCount: 20000 }));
-                          } else if (item.id === 'shorts') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
-                          }
-                        }
-                      }}
-                      className={cn(
-                        "snap-start flex-shrink-0 flex items-center gap-4 p-3 pr-6 rounded-2xl border transition-all duration-500 group relative overflow-hidden min-w-[180px]",
-                        currentView === item.id 
-                          ? "bg-hw-accent/10 border-hw-accent shadow-[0_10px_20px_rgba(139,92,246,0.15)]" 
-                          : "bg-black/60 backdrop-blur-md border-white/10 hover:bg-white/10 hover:border-white/30 hover:-translate-y-1"
-                      )}
-                    >
-                      {currentView === item.id && (
-                        <motion.div 
-                          layoutId="menu-active-bg"
-                          className="absolute inset-0 bg-gradient-to-r from-hw-accent/20 to-transparent opacity-50"
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                      )}
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 relative z-10",
-                        currentView === item.id 
-                          ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.6)] scale-105" 
-                          : "bg-white/5 text-white group-hover:bg-white/20 group-hover:scale-110"
-                      )}>
-                        <item.icon size={20} />
-                      </div>
-                      <div className="flex flex-col items-start relative z-10">
-                        <span className={cn("text-sm font-black tracking-wide", currentView === item.id ? "text-hw-accent" : "text-white group-hover:text-hw-accent transition-colors")}>{item.label}</span>
-                        <span className="text-[10px] text-hw-muted font-bold uppercase tracking-widest mt-0.5">{item.desc}</span>
-                      </div>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-              {/* Mobile Menu Drawer */}
-              <AnimatePresence>
-                {isMobileMenuOpen && (
-                  <>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden pointer-events-auto"
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, y: -20, height: 0 }}
-                      animate={{ opacity: 1, y: 0, height: 'auto' }}
-                      exit={{ opacity: 0, y: -20, height: 0 }}
-                      className="w-full bg-black/95 backdrop-blur-3xl border-b border-white/10 pointer-events-auto md:hidden overflow-y-auto max-h-[85vh] z-50 relative scrollbar-hide overscroll-contain touch-pan-y"
-                    >
-                      <div className="p-6 space-y-6">
-                        <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { id: 'home', icon: Home, label: t.home, desc: 'Dashboard' },
-                            { id: 'video', icon: Video, label: t.videoGen, desc: 'Full Scripts' },
-                            { id: 'shorts', icon: Zap, label: t.shortsGen, desc: 'Vertical' },
-                            { id: 'idea', icon: Lightbulb, label: t.ideaGen, desc: 'Brainstorm' },
-                            { id: 'image', icon: Palette, label: t.imageGen, desc: 'Thumbnails' },
-                            { id: 'longVideo', icon: Video, label: 'Long Video Pro', desc: 'Up to 60 Mins' },
-                            { id: 'voice', icon: Mic, label: t.voiceOver, desc: 'AI Audio' },
-                            { id: 'voiceExtractor', icon: AudioLines, label: t.voiceExtractor, desc: 'Transcribe' },
-                            { id: 'analytics', icon: BarChart3, label: 'Analytics', desc: 'Insights' },
-                            { id: 'download', icon: Download, label: t.downloadReport, desc: 'Export PDF' },
-                          ].map((item, idx) => (
-                            <motion.button
-                              key={item.id}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: idx * 0.05 }}
-                              onClick={() => {
-                                if (item.id === 'download') {
-                                  downloadPdf();
-                                } else {
-                                  setCurrentView(item.id as any);
-                                  if (item.id === 'video') {
-                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                                  } else if (item.id === 'longVideo') {
-                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true, videoDuration: 3600, scriptWordCount: 4000, scriptCharacterCount: 20000 }));
-                                  } else if (item.id === 'shorts') {
-                                    setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: false }));
-                                  }
-                                }
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className={cn(
-                                "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all duration-300 text-center",
-                                currentView === item.id
-                                  ? "bg-hw-accent/10 border-hw-accent text-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]"
-                                  : "bg-white/5 border-white/10 text-white active:bg-white/10"
-                              )}
-                            >
-                              <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center transition-transform active:scale-90",
-                                currentView === item.id ? "bg-hw-accent text-white" : "bg-white/5"
-                              )}>
-                                <item.icon size={18} />
-                              </div>
-                              <div className="flex flex-col items-center">
-                                <span className="text-[11px] font-black tracking-tight">{item.label}</span>
-                                <span className="text-[8px] text-hw-muted uppercase tracking-widest mt-0.5">{item.desc}</span>
-                              </div>
-                            </motion.button>
-                          ))}
+              <div className="studio-content scrollbar-hide">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentView}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-10"
+                  >
+                    {/* View Header */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4">
+                      <div className="space-y-2">
+                        <div className="hw-label text-hw-accent flex items-center gap-2">
+                          <Activity size={12} /> Live Processing Studio
                         </div>
-                        
-                        <div className="pt-6 border-t border-white/10 flex items-center justify-between">
-                          <div className="flex items-center p-1 bg-white/5 rounded-full border border-white/10">
-                            <button 
-                              onClick={() => setUiLang('en')} 
-                              className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'en' ? "bg-white text-black shadow-lg" : "text-hw-muted")}
-                            >
-                              EN
-                            </button>
-                            <button 
-                              onClick={() => setUiLang('bn')} 
-                              className={cn("px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all", uiLang === 'bn' ? "bg-white text-black shadow-lg" : "text-hw-muted")}
-                            >
-                              BN
-                            </button>
-                          </div>
-                          <div className="flex gap-3">
-                            <button 
-                              onClick={handleRefresh}
-                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-white transition-colors"
-                            >
-                              <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                            </button>
-                            <button 
-                              onClick={() => {
-                                setShowSettings(true);
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-hw-accent active:text-white transition-colors"
-                            >
-                              <Globe size={18} />
-                            </button>
-                          </div>
-                        </div>
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black italic tracking-tighter text-white uppercase leading-none break-words">
+                          {currentView === 'home' ? t.dashboard : 
+                           currentView === 'youtube' ? 'YouTube Lab' : 
+                           currentView === 'video' ? 'Script Forge' : 
+                           currentView === 'longVideo' ? 'Pro Video Cinema' : 
+                           currentView === 'shorts' ? 'Vertical Viral' : 
+                           currentView === 'idea' ? 'Idea Machine' :
+                           currentView === 'image' ? 'Lens Alchemy' : 
+                           currentView === 'voice' ? 'Vocal Synthesis' :
+                           currentView === 'voiceExtractor' ? 'Frequency Extractor' : 'Core Processing'}
+                        </h1>
+                        <p className="text-[var(--text-muted)] font-bold tracking-widest uppercase text-[8px] md:text-[10px] mt-2">
+                          Status: <span className="text-hw-accent">Operational</span> • Buffer: <span className="text-hw-accent">Clear</span>
+                        </p>
                       </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </header>
 
-
-      <motion.main 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-8 pt-6 md:pt-8 max-w-7xl mx-auto px-4 md:px-8"
-      >
-        {/* Dashboard Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-hw-muted flex items-center gap-4">
-            <div className="w-12 h-[2px] bg-gradient-to-r from-hw-accent to-transparent"></div>
-            <LayoutDashboard size={14} className="text-hw-accent" /> {t.dashboardOverview}
-          </h2>
-          {deferredPrompt && (
-            <motion.button
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={installApp}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-hw-accent to-[#D4AF37] text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)] transition-all"
-            >
-              <Download size={14} />
-              {uiLang === 'en' ? "Install App" : "অ্যাপ ইনস্টল"}
-            </motion.button>
-          )}
-        </div>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => downloadPdf()}
+                          className="hw-btn-industrial py-2.5 px-6 text-[10px] whitespace-nowrap hidden sm:flex"
+                        >
+                          <Download size={14} className="hw-icon text-hw-accent" /> Export Report
+                        </button>
+                      </div>
+                    </div>
 
         {/* Dashboard Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           {[
             { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-hw-accent", bg: "bg-hw-accent/10" },
             { label: t.totalHistory, value: history.length, icon: History, color: "text-hw-accent", bg: "bg-hw-accent/10" },
@@ -2928,17 +2641,17 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             <motion.div 
               key={i}
               whileHover={{ y: -4, scale: 1.02 }}
-              className="hw-panel p-6 flex items-center gap-5 group cursor-pointer"
+              className="hw-panel p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 group cursor-pointer text-center sm:text-left"
             >
               <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
+                "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
                 stat.bg, stat.color
               )}>
-                <stat.icon size={24} />
+                <stat.icon size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6 shrink-0" />
               </div>
-              <div className="space-y-1">
-                <p className="hw-label">{stat.label}</p>
-                <p className="text-xl font-black text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors">{stat.value}</p>
+              <div className="space-y-0.5 sm:space-y-1 overflow-hidden w-full max-w-full">
+                <p className="hw-label text-[8px] sm:text-[10px] truncate">{stat.label}</p>
+                <p className="text-sm sm:text-lg md:text-xl font-black text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors truncate">{stat.value}</p>
               </div>
             </motion.div>
           ))}
@@ -2946,45 +2659,30 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
         {/* Main Content Grid */}
         {currentView !== 'analytics' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start pb-20">
           {/* Left Column: Inputs */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-            <section className="studio-card p-8 md:p-10 space-y-10">
-            <div className="flex items-center justify-between border-b border-white/10 pb-8">
-              <div className="space-y-3">
-                <h2 className="text-3xl md:text-4xl font-black tracking-tight flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent shadow-[0_0_30px_rgba(139,92,246,0.15)] border border-hw-accent/20">
-                    {currentView === 'home' && <LayoutDashboard size={28} />}
-                    {currentView === 'youtube' && <Youtube size={28} />}
-                    {(currentView === 'video' || currentView === 'longVideo') && <Video size={28} />}
-                    {currentView === 'shorts' && <Zap size={28} />}
-                    {currentView === 'idea' && <Lightbulb size={28} />}
-                    {currentView === 'image' && <Palette size={28} />}
-                    {currentView === 'voice' && <Mic size={28} />}
-                    {currentView === 'voiceExtractor' && <AudioLines size={28} />}
-                  </div>
-                  <span className="text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-                    {currentView === 'home' ? t.dashboard : 
-                     currentView === 'youtube' ? t.youtubeToolset : 
-                     currentView === 'video' ? t.videoPrompter : 
-                     currentView === 'longVideo' ? "Long Video Prompter" : 
-                     currentView === 'shorts' ? t.shortsGenTitle : 
-                     currentView === 'idea' ? t.viralIdeas :
-                     currentView === 'image' ? t.imageGenerator : 
-                     currentView === 'voice' ? t.voiceOverTitle :
-                     currentView === 'voiceExtractor' ? t.voiceExtractorTitle : t.promptGen}
-                  </span>
+          <div className="lg:col-span-12 xl:col-span-12 space-y-8 md:space-y-12">
+            <section className="hw-panel p-5 sm:p-8 md:p-14 space-y-8 md:space-y-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10">
+              <div className="space-y-3 md:space-y-4">
+                <div className="hw-label text-hw-accent flex items-center gap-2">
+                  <div className="hw-led bg-hw-accent" /> Signal Reception Path
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white flex items-center gap-6 break-words">
+                  Forge Parameters
                 </h2>
-                <p className="text-sm font-bold tracking-widest uppercase text-hw-muted ml-[76px]">
-                  {uiLang === 'en' ? "AI Powered Creative Studio" : "এআই চালিত ক্রিয়েটিভ স্টুডিও"}
+                <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-hw-muted">
+                  Input Stream: <span className="text-white">Active</span> • Analysis: <span className="text-white">Standby</span>
                 </p>
               </div>
-              <button 
-                onClick={() => setShowHistory(!showHistory)}
-                className="btn-secondary py-3 px-6 text-xs uppercase tracking-widest"
-              >
-                <History size={16} /> {t.history}
-              </button>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="hw-btn-industrial py-2.5 sm:py-3 px-6 sm:px-8 text-[10px] w-full sm:w-auto mt-2 sm:mt-0"
+                >
+                  <History size={14} className="sm:w-4 sm:h-4 hw-icon text-hw-accent" /> {t.history}
+                </button>
+              </div>
             </div>
 
             <motion.div 
@@ -3326,29 +3024,38 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </h2>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="space-y-12">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="hw-label text-hw-accent flex items-center gap-2">
+                      <Zap size={14} /> Neural Frequency Topics
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <div className="hw-led bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                      <span className="text-[8px] font-black uppercase text-hw-muted">Verified Trends</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {(showAllTopics ? POPULAR_TOPICS : POPULAR_TOPICS.slice(0, 8)).map((topic, idx) => (
-                      <div key={idx} className="space-y-2">
+                      <div key={idx} className="space-y-3">
                         <motion.button
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: idx * 0.02 }}
-                          whileHover={{ y: -2 }}
                           onClick={() => {
                             setSelectedCategory(selectedCategory === idx ? null : idx);
                             setTopics(prev => ({ ...prev, home: uiLang === 'bn' ? topic.bn : topic.en }));
                             toast.info(t.clickToUse);
                           }}
                           className={cn(
-                            "w-full p-4 rounded-xl border transition-all duration-300 text-left group",
-                            selectedCategory === idx 
-                              ? "bg-[var(--accent-main)]/10 border-[var(--accent-main)]/50 shadow-lg shadow-[var(--accent-glow)]" 
-                              : "bg-[var(--bg-card)] border-[var(--border-main)] hover:border-[var(--accent-main)]/30 hover:bg-[var(--bg-card)]/80"
+                            "hw-btn-industrial w-full py-4 text-left px-5 h-auto flex flex-col items-start gap-2",
+                            selectedCategory === idx && "active border-hw-accent shadow-[0_0_20px_rgba(0,229,255,0.2)]"
                           )}
                         >
                           <span className={cn(
-                            "text-xs font-medium transition-colors",
-                            selectedCategory === idx ? "text-[var(--text-main)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-main)]"
+                            "text-[10px] font-black uppercase tracking-widest transition-colors",
+                            selectedCategory === idx ? "text-hw-accent" : "text-hw-muted"
                           )}>
                             {uiLang === 'bn' ? topic.bn : topic.en}
                           </span>
@@ -3360,21 +3067,19 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="grid grid-cols-2 gap-1.5 overflow-hidden"
+                              className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5"
                             >
                               {topic.subs.map((sub, sIdx) => (
-                                <motion.button
+                                <button
                                   key={sIdx}
-                                  whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.2)" }}
-                                  whileTap={{ scale: 0.98 }}
                                   onClick={() => {
                                     setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
-                                    toast.success(`${sub} ${t.clickToUse}`);
+                                    toast.success(`${sub} Loaded`);
                                   }}
-                                  className="py-2 px-3 rounded-lg bg-[var(--accent-main)]/5 border border-[var(--accent-main)]/20 text-[10px] font-bold text-[var(--accent-main)] text-center"
+                                  className="py-2.5 px-4 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-hw-muted hover:text-hw-accent hover:border-hw-accent/20 transition-all text-left"
                                 >
                                   {sub}
-                                </motion.button>
+                                </button>
                               ))}
                             </motion.div>
                           )}
@@ -3383,166 +3088,113 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ))}
                   </div>
 
-                  <div className="flex justify-center pt-2">
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                  <div className="flex justify-center pt-4">
+                    <button 
                       onClick={() => setShowAllTopics(!showAllTopics)}
-                      className="px-8 py-2.5 rounded-full border border-[var(--border-main)] bg-[var(--bg-card)]/40 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] hover:border-[var(--border-main)] transition-all flex items-center gap-2"
+                      className="hw-btn-industrial py-2 px-10 text-[9px]"
                     >
                       {showAllTopics ? t.showLess : t.showMore}
-                      <span className={cn("transition-transform duration-300", showAllTopics ? "rotate-180" : "")}>
-                        ↓
-                      </span>
-                    </motion.button>
+                    </button>
+                  </div>
+                </div>
+
+                {/* YouTube Title Generator Section */}
+                <div className="pt-12 border-t border-white/5 space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
+                      <Sparkles size={14} /> CTR Projection Engine
+                    </h3>
                   </div>
 
-                  {/* YouTube Title Generator Section */}
-                  <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="title-generator-section">
-                    <div className="flex items-center justify-between px-1">
-                      <div className="flex items-center gap-2">
-                        <Zap size={20} className="text-[var(--accent-main)]" />
-                        <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
-                          {uiLang === 'en' ? 'YouTube Title Generator' : 'ইউটিউব শিরোনাম জেনারেটর'}
-                        </h2>
-                      </div>
-                      <div className="text-[10px] font-semibold text-[var(--accent-main)] uppercase tracking-widest">
-                        {uiLang === 'en' ? 'High CTR' : 'হাই সিটিআর'}
+                  <div className="hw-panel p-8 bg-hw-accent/5 border-hw-accent/10 space-y-6">
+                    <div className="space-y-3">
+                      <label className="hw-label text-white/50">{uiLang === 'en' ? 'Target Topic' : 'টার্গেট টপিক'}</label>
+                      <input 
+                        type="text" 
+                        value={options.titleTopic || ''} 
+                        onChange={(e) => setOptions(prev => ({ ...prev, titleTopic: e.target.value }))}
+                        placeholder={uiLang === 'en' ? 'ENTER DATA STREAM...' : 'ডেটা স্ট্রিম লিখুন...'}
+                        className="hw-display w-full text-base p-4"
+                      />
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!options.titleTopic) return;
+                        setLoading(true);
+                        try {
+                          const result = await generateYoutubeTitles(options.titleTopic, uiLang === 'bn' ? 'bn' : 'en');
+                          setResults(prev => ({ ...prev, [currentView]: result }));
+                        } catch (err) { console.error(err); } finally { setLoading(false); }
+                      }}
+                      className="hw-btn-industrial w-full py-4 text-xs shadow-[0_10px_30px_rgba(34,197,94,0.1)]"
+                    >
+                      {loading ? (uiLang === 'en' ? 'ANALYZING...' : 'বিশ্লেষণ হচ্ছে...') : (uiLang === 'en' ? 'EXECUTE CTR OPTIMIZATION' : 'CTR অপ্টিমাইজেশান চালান')}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-12 border-t border-white/5 space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
+                      <Sparkles size={14} /> Semantic Prompt Core
+                    </h3>
+                  </div>
+
+                  <div className="hw-panel p-10 space-y-10 group overflow-hidden">
+                    <div className="space-y-4">
+                      <label className="hw-label text-white/50">Frequency Matrix</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {['Video', 'Story', 'Image', 'Voice Over'].map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
+                            className={cn(
+                              "hw-btn-industrial py-3 text-[9px]",
+                              options.promptCategory === cat && "active"
+                            )}
+                          >
+                            {cat === 'Video' ? (uiLang === 'en' ? 'Video' : 'ভিডিও') :
+                             cat === 'Story' ? (uiLang === 'en' ? 'Story' : 'গল্প') :
+                             cat === 'Image' ? (uiLang === 'en' ? 'Image' : 'ছবি') :
+                             (uiLang === 'en' ? 'Voice Over' : 'ভয়েস ওভার')}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="glass-card p-6 space-y-4 border-[var(--accent-main)]/20 bg-[var(--accent-main)]/5">
-                      <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold">
-                          {uiLang === 'en' ? 'Video Topic' : 'ভিডিওর বিষয়'}
-                        </label>
-                        <input 
-                          type="text" 
-                          value={options.titleTopic || ''} 
-                          onChange={(e) => setOptions(prev => ({ ...prev, titleTopic: e.target.value }))}
-                          placeholder={uiLang === 'en' ? 'Enter your video topic...' : 'ভিডিওর বিষয় লিখুন...'}
-                          className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-3 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors"
-                        />
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={async () => {
-                          if (!options.titleTopic) return;
-                          setLoading(true);
-                          try {
-                            const result = await generateYoutubeTitles(options.titleTopic, uiLang === 'bn' ? 'bn' : 'en');
-                            setResults(prev => ({ ...prev, [currentView]: result }));
-                          } catch (err) {
-                            console.error(err);
-                          } finally {
-                            setLoading(false);
-                          }
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      {[
+                        { label: 'Optics', value: formOptions.visualStyle, key: 'visualStyle', options: ['Cinematic', 'Realistic', 'Anime', 'Cyberpunk', 'Minimalist'] },
+                        { label: 'Angle', value: formOptions.cameraAngle, key: 'cameraAngle', options: ['Wide', 'Close-up', 'POV', 'High Angle'] },
+                        { label: 'Photon', value: formOptions.lighting, key: 'lighting', options: ['Natural', 'Neon', 'Moody', 'Studio'] },
+                        { label: 'Phase', value: formOptions.mood, key: 'mood', options: ['Energetic', 'Epic', 'Mysterious', 'Calm'] },
+                      ].map(field => (
+                        <div key={field.key} className="space-y-3">
+                          <label className="hw-label opacity-60 text-[8px]">{field.label}</label>
+                          <select 
+                            value={field.value} 
+                            onChange={(e) => setFormOptions(prev => ({...prev, [field.key]: e.target.value}))} 
+                            className="w-full bg-black/40 border border-white/5 rounded-lg p-2.5 text-[10px] font-black uppercase text-hw-muted outline-none focus:border-hw-accent/30 transition-colors appearance-none cursor-pointer"
+                          >
+                            {field.options.map(o => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="hw-label text-white/50">{uiLang === 'en' ? 'Input Stream Core' : 'ইনপুট স্ট্রিম কোর'}</label>
+                      <textarea 
+                        placeholder={uiLang === 'en' ? "ENTER SYSTEM INSTRUCTIONS..." : "সিস্টেম ইনস্ট্রাকশন লিখুন..."}
+                        className="hw-display w-full min-h-[140px] p-5 text-sm"
+                        value={topics.promptGen}
+                        onChange={(e) => {
+                          setTopics(prev => ({ ...prev, promptGen: e.target.value, home: '' }));
                         }}
-                        className="w-full py-3 rounded-xl bg-[var(--accent-main)] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-main)]/20 hover:bg-[var(--accent-main)]/90 transition-all"
-                      >
-                        {loading ? (uiLang === 'en' ? 'Generating...' : 'জেনারেট হচ্ছে...') : (uiLang === 'en' ? 'Generate High CTR Titles' : 'হাই সিটিআর শিরোনাম জেনারেট করুন')}
-                      </motion.button>
+                      />
                     </div>
                   </div>
-
-                  {/* Unique Prompt Generator Section */}
-                  <div className="space-y-6 pt-8 border-t border-[var(--border-main)]" id="prompt-generator-section">
-                    <div className="flex items-center justify-between px-1">
-                      <div className="flex items-center gap-2">
-                        <Sparkles size={20} className="text-[var(--accent-main)]" />
-                        <h2 className="text-sm font-semibold text-[var(--text-main)] tracking-wide">
-                          {t.promptGen}
-                        </h2>
-                      </div>
-                      <div className="text-[10px] font-semibold text-[var(--accent-main)] uppercase tracking-widest">
-                        {uiLang === 'en' ? 'AI Powered' : 'এআই চালিত'}
-                      </div>
-                    </div>
-
-                    <div className="glass-card p-6 space-y-6 border-[var(--accent-main)]/20 bg-[var(--accent-main)]/5">
-                      <div className="space-y-4">
-                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                          <Sparkles size={14} className="text-[var(--accent-main)]" /> {uiLang === 'en' ? 'Prompt Category' : 'প্রম্পট ক্যাটাগরি'}
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {['Video', 'Story', 'Image', 'Voice Over'].map((cat) => (
-                            <motion.button
-                              key={cat}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
-                              className={cn(
-                                "py-2.5 rounded-xl border border-[var(--border-main)] text-xs font-semibold transition-all flex items-center justify-center gap-2",
-                                options.promptCategory === cat ? "bg-[var(--accent-main)] text-white shadow-md shadow-[var(--accent-glow)]" : "bg-[var(--bg-card)]/40 text-[var(--text-muted)] hover:bg-[var(--bg-card)]/60"
-                              )}
-                            >
-                              {options.promptCategory === cat && <Check size={14} />} 
-                              {cat === 'Video' ? (uiLang === 'en' ? 'Video' : 'ভিডিও') :
-                               cat === 'Story' ? (uiLang === 'en' ? 'Story' : 'গল্প') :
-                               cat === 'Image' ? (uiLang === 'en' ? 'Image' : 'ছবি') :
-                               (uiLang === 'en' ? 'Voice Over' : 'ভয়েস ওভার')}
-                            </motion.button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* New Dropdowns */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Palette size={14} className="text-[var(--accent-main)]" /> Visual Style
-                          </label>
-                          <select value={formOptions.visualStyle} onChange={(e) => setFormOptions(prev => ({...prev, visualStyle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
-                            {['Cinematic', 'Realistic', 'Anime', '3D Render', 'Sketch', 'Cyberpunk', 'Vintage', 'Minimalist', 'Surreal'].map(style => <option key={style} value={style}>{style}</option>)}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Camera size={14} className="text-[var(--accent-main)]" /> Camera Angle
-                          </label>
-                          <select value={formOptions.cameraAngle} onChange={(e) => setFormOptions(prev => ({...prev, cameraAngle: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
-                            {['Wide', 'Close-up', 'Medium', 'Bird\'s Eye', 'Low Angle', 'High Angle', 'Dutch Angle', 'Over the Shoulder', 'POV'].map(angle => <option key={angle} value={angle}>{angle}</option>)}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Sun size={14} className="text-[var(--accent-main)]" /> Lighting
-                          </label>
-                          <select value={formOptions.lighting} onChange={(e) => setFormOptions(prev => ({...prev, lighting: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
-                            {['Natural', 'Studio', 'Neon', 'Golden Hour', 'Moody', 'High Key', 'Low Key', 'Soft Diffused', 'Volumetric'].map(light => <option key={light} value={light}>{light}</option>)}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                            <Zap size={14} className="text-[var(--accent-main)]" /> Mood
-                          </label>
-                          <select value={formOptions.mood} onChange={(e) => setFormOptions(prev => ({...prev, mood: e.target.value}))} className="w-full bg-[var(--bg-card)]/40 border border-[var(--border-main)] rounded-xl p-2.5 text-sm text-[var(--text-main)] outline-none focus:border-[var(--accent-main)]/50 transition-colors appearance-none cursor-pointer">
-                            {['Energetic', 'Calm', 'Dark', 'Inspiring', 'Mysterious', 'Romantic', 'Tense', 'Playful', 'Epic'].map(mood => <option key={mood} value={mood}>{mood}</option>)}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-2">
-                          <FileText size={14} /> {uiLang === 'en' ? 'Topic for Prompt' : 'প্রম্পটের বিষয়'}
-                        </label>
-                        <textarea 
-                          placeholder={uiLang === 'en' ? "Enter a topic to generate unique prompts (e.g. A futuristic city)" : "ইউনিক প্রম্পট তৈরি করতে একটি বিষয় লিখুন (যেমন: একটি ভবিষ্যতের শহর)"}
-                          className="w-full input-field min-h-[100px] resize-none bg-[var(--bg-card)]/40 text-sm"
-                          value={topics.promptGen}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setTopics(prev => ({ ...prev, promptGen: val }));
-                            if (val.trim()) {
-                              // Clear home topic if typing in promptGen to avoid confusion
-                              setTopics(prev => ({ ...prev, home: '' }));
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                </div>
 
                   {/* Best Posting Time Section */}
                   <div className="space-y-6 pt-8 border-t border-[var(--border-main)]">
@@ -3580,7 +3232,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
               {currentView === 'voice' && (
                 <div className="hw-panel p-8 space-y-8">
@@ -4189,49 +3842,47 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
           {/* Advanced AI Context & Strategy */}
           {(currentView === 'video' || currentView === 'longVideo' || currentView === 'shorts' || options.generateScript) && (
-            <section className="glass-card p-6 md:p-8 space-y-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-hw-accent/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-hw-accent/10" />
+            <section className="hw-panel p-8 md:p-12 space-y-12 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-hw-accent/5 rounded-full -mr-24 -mt-24 blur-3xl" />
               
-              <div className="flex items-center justify-between">
-                <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
-                  <Rocket size={16} className="text-hw-accent" /> {uiLang === 'en' ? "Advanced AI Strategy" : "অ্যাডভান্সড এআই স্ট্র্যাটেজি"}
+              <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em] italic">
+                  <Rocket size={16} /> Advanced AI Strategy
                 </h2>
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-widest text-hw-accent font-black">{t.deepSearch}</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-hw-muted">{t.deepSearch}</span>
                   <button 
                     onClick={() => setOptions(prev => ({ ...prev, deepSearch: !prev.deepSearch }))}
                     className={cn(
-                      "w-12 h-6 rounded-full transition-all relative",
-                      options.deepSearch ? "bg-hw-accent shadow-[0_0_10px_rgba(139,92,246,0.5)]" : "bg-white/10"
+                      "w-12 h-6 rounded-full transition-all relative border border-white/10",
+                      options.deepSearch ? "bg-hw-accent shadow-[0_0_15px_rgba(34,197,94,0.4)]" : "bg-black/40"
                     )}
                   >
                     <motion.div 
                       animate={{ x: options.deepSearch ? 26 : 4 }}
-                      className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-md"
+                      className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-md shadow-black/50"
                     />
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* Target Audience */}
-                <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                <div className="space-y-6">
+                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
                     <UsersIcon size={14} className="text-hw-accent" /> {t.audience}
                   </label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2.5">
                     {AUDIENCE_TYPES.map((aud) => (
                       <button
                         key={aud.id}
                         onClick={() => setOptions(prev => ({ ...prev, audience: aud.id }))}
                         className={cn(
-                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
-                          options.audience === aud.id 
-                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
-                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
+                          options.audience === aud.id && "active bg-hw-accent/20 border-hw-accent/40"
                         )}
                       >
-                        <span className="text-lg">{aud.icon}</span>
+                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{aud.icon}</span>
                         {translations[uiLang][aud.label as keyof typeof translations['en']]}
                       </button>
                     ))}
@@ -4239,23 +3890,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
 
                 {/* Content Pacing */}
-                <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                <div className="space-y-6">
+                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
                     <Zap size={14} className="text-hw-accent" /> {t.pacing}
                   </label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2.5">
                     {PACING_TYPES.map((pace) => (
                       <button
                         key={pace.id}
                         onClick={() => setOptions(prev => ({ ...prev, pacing: pace.id }))}
                         className={cn(
-                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
-                          options.pacing === pace.id 
-                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
-                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
+                          options.pacing === pace.id && "active bg-hw-accent/20 border-hw-accent/40"
                         )}
                       >
-                        <span className="text-lg">{pace.icon}</span>
+                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{pace.icon}</span>
                         {translations[uiLang][pace.label as keyof typeof translations['en']]}
                       </button>
                     ))}
@@ -4263,23 +3912,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
 
                 {/* Narrative Strategy */}
-                <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-widest text-hw-muted font-black flex items-center gap-2">
+                <div className="space-y-6">
+                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
                     <ScrollText size={14} className="text-hw-accent" /> {t.narrativeStrategy}
                   </label>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 gap-2.5">
                     {NARRATIVE_STRATEGIES.map((strat) => (
                       <button
                         key={strat.id}
                         onClick={() => setOptions(prev => ({ ...prev, narrativeStrategy: strat.id }))}
                         className={cn(
-                          "w-full text-left p-3 rounded-xl border text-[11px] font-bold transition-all flex items-center gap-3",
-                          options.narrativeStrategy === strat.id 
-                            ? "bg-hw-accent/20 border-hw-accent text-hw-accent" 
-                            : "bg-black/40 border-white/10 text-white/50 hover:bg-white/5"
+                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
+                          options.narrativeStrategy === strat.id && "active bg-hw-accent/20 border-hw-accent/40"
                         )}
                       >
-                        <span className="text-lg">{strat.icon}</span>
+                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{strat.icon}</span>
                         {translations[uiLang][strat.label as keyof typeof translations['en']]}
                       </button>
                     ))}
@@ -4288,7 +3935,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
             </section>
           )}
-
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -4320,302 +3966,333 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           </motion.button>
         </div>
 
-        {/* Right Column: Results */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-32">
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key="result"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="studio-card p-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col relative overflow-hidden group"
-            >
-              <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent-main)] opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <div className="flex items-center justify-between mb-8">
-                <div className="space-y-1">
-                  <h2 className="text-xl font-black tracking-tight flex items-center gap-3 text-white">
-                    <Sparkles size={20} className="text-hw-accent" /> 
-                    {t.outputPreview}
-                  </h2>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-hw-muted ml-8">
-                    {uiLang === 'en' ? "AI Generated Result" : "এআই জেনারেটেড রেজাল্ট"}
-                  </p>
-                </div>
-                {currentResult && !currentResult.imageUrl && !currentResult.audioUrl && (
-                  <button 
-                    onClick={() => {
-                      let allText = "";
-                      if (currentResult.prompts) {
-                        allText = currentResult.prompts.map((p: string, idx: number) => `Option ${idx + 1}:\n${p}`).join('\n\n');
-                      } else if (currentResult.ideas) {
-                        allText = currentResult.ideas.map((i: any, idx: number) => `${idx + 1}. ${i.title}\n${i.description}`).join('\n\n');
-                      } else {
-                        // Filter out non-string values or special objects
-                        allText = Object.entries(currentResult)
-                          .filter(([k, v]) => typeof v === 'string')
-                          .map(([k, v]) => `${k.toUpperCase()}:\n${v}`)
-                          .join('\n\n');
-                      }
-                      copyToClipboard(allText, 'copy-all');
-                    }}
-                    className="text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-hw-accent/50 rounded-xl transition-all text-white/70 hover:text-hw-accent shadow-sm"
-                  >
-                    {copied === 'copy-all' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                    {t.copyAll}
-                  </button>
-                )}
-              </div>
+                <div className="pt-20 border-t border-white/5 space-y-12">
+                  <div className="flex items-center justify-between">
+                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.4em]">
+                      <Sparkles size={14} /> Neural Synthetic Result
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <div className="hw-led bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-hw-muted">Process Complete</span>
+                      </div>
+                    </div>
+                  </div>
 
-              {!currentResult && !loading && (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-8">
-                  <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-hw-accent/20 to-transparent flex items-center justify-center text-hw-accent animate-float shadow-[0_0_30px_rgba(139,92,246,0.15)] border border-hw-accent/20">
-                    <Sparkles size={48} />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-black text-white tracking-tight">{t.readyToCreate}</h3>
-                    <p className="text-sm font-medium text-white/50 max-w-xs mx-auto leading-relaxed">{t.readySubtitle}</p>
-                  </div>
-                  
-                  {/* Quick Suggestions Bento Grid */}
-                  <div className="grid grid-cols-2 gap-4 w-full pt-8">
-                    {[
-                      { label: t.viralScript, icon: ScrollText, view: 'video', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
-                      { label: t.seoTags, icon: Tag, view: 'youtube', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
-                      { label: t.thumbnail, icon: ImageIcon, view: 'image', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" },
-                      { label: t.aiVideo, icon: Video, view: 'video', color: "text-hw-accent", bg: "bg-hw-accent/10", border: "border-hw-accent/20" }
-                    ].map((item, i) => (
-                      <button 
-                        key={i}
-                        onClick={() => {
-                          setCurrentView(item.view as any);
-                          if (item.view === 'video') {
-                            setOptions(prev => ({ ...prev, generateScript: true, generateVideoPrompt: true }));
-                          }
-                        }}
-                        className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/50 transition-all duration-300 flex flex-col items-center gap-4 group relative overflow-hidden shadow-sm"
-                      >
-                        <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500", item.bg)} />
-                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-inner", item.bg, item.color, item.border)}>
-                          <item.icon size={24} />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-hw-accent transition-colors">{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {loading && (
-                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-10 bg-black/40 rounded-[2rem] border border-white/10 backdrop-blur-xl relative overflow-hidden">
-                    {/* Background glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-hw-accent/20 rounded-full blur-[100px]" />
+                  <div className="hw-panel p-10 md:p-16 min-h-[700px] flex flex-col relative group">
+                    <div className="studio-grid-bg opacity-10" />
                     
-                    <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-12 relative z-10 border-b border-white/5 pb-8">
+                      <div>
+                        <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white uppercase leading-none">
+                          System <span className="text-hw-accent">Output</span>
+                        </h2>
+                        <div className="flex items-center gap-3 mt-4">
+                          <div className="p-1 px-3 bg-hw-accent/20 border border-hw-accent/30 rounded text-[9px] font-black uppercase text-hw-accent tracking-widest">
+                            {currentView}
+                          </div>
+                          <span className="text-[8px] font-black text-hw-muted uppercase tracking-[0.3em]">Hash: AX-902-88B</span>
+                        </div>
+                      </div>
+                      
+                      {currentResult && !currentResult.imageUrl && !currentResult.audioUrl && (
+                        <button 
+                          onClick={() => {
+                            let allText = "";
+                            if (currentResult.prompts) {
+                              allText = currentResult.prompts.map((p: string, idx: number) => `Option ${idx + 1}:\n${p}`).join('\n\n');
+                            } else if (currentResult.ideas) {
+                              allText = currentResult.ideas.map((i: any, idx: number) => `${idx + 1}. ${i.title}\n${i.description}`).join('\n\n');
+                            } else {
+                              allText = Object.entries(currentResult)
+                                .filter(([k, v]) => typeof v === 'string')
+                                .map(([k, v]) => `${k.toUpperCase()}:\n${v}`)
+                                .join('\n\n');
+                            }
+                            copyToClipboard(allText, 'copy-all');
+                          }}
+                          className="hw-btn-industrial py-3 px-8 text-[10px]"
+                        >
+                          {copied === 'copy-all' ? <Check size={14} className="text-green-500" /> : <Copy size={16} className="hw-icon text-hw-accent" />}
+                          {t.copyAll}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex-1 relative z-10 overflow-y-auto scrollbar-hide pr-2">
+                      {!currentResult && !loading && (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-10">
+                          <div className="w-32 h-32 rounded-[2.5rem] bg-hw-accent/10 flex items-center justify-center text-hw-accent border border-hw-accent/20 shadow-[0_0_50px_rgba(34,197,94,0.1)] relative">
+                             <div className="absolute inset-[-10px] border border-hw-accent/10 rounded-[3rem] animate-pulse" />
+                             <Sparkles size={64} />
+                          </div>
+                          <div className="space-y-4">
+                            <h3 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">{t.readyToCreate}</h3>
+                            <p className="text-[10px] font-black text-hw-muted uppercase tracking-[0.5em]">{t.readySubtitle}</p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                            {[
+                              { label: t.viralScript, icon: ScrollText, view: 'video' },
+                              { label: t.seoTags, icon: Tag, view: 'youtube' },
+                              { label: t.thumbnail, icon: ImageIcon, view: 'image' },
+                              { label: t.aiVideo, icon: Video, view: 'video' }
+                            ].map((item, i) => (
+                              <button 
+                                key={i}
+                                onClick={() => setCurrentView(item.view as any)}
+                                className="hw-panel p-6 bg-black/40 hover:border-hw-accent/40 transition-all group"
+                              >
+                                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center mx-auto text-hw-muted group-hover:text-hw-accent group-hover:scale-110 transition-all mb-4">
+                                  <item.icon size={22} />
+                                </div>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-hw-muted">{item.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                {loading && (
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 space-y-12 bg-black/60 rounded-[2rem] border border-hw-accent/20 backdrop-blur-3xl relative overflow-hidden group">
+                    <div className="absolute inset-0 studio-grid-bg opacity-20" />
+                    
+                    <div className="relative z-10 w-48 h-48">
                       <motion.div 
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="w-32 h-32 rounded-full border border-white/10 border-t-hw-accent/80 border-r-hw-accent/40"
+                        animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+                        transition={{ rotate: { duration: 10, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity } }}
+                        className="absolute inset-0 rounded-full border-2 border-hw-accent/30 border-t-hw-accent shadow-[0_0_50px_rgba(34,197,94,0.15)]"
                       />
                       <motion.div 
                         animate={{ rotate: -360 }}
-                        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-2 rounded-full border border-white/10 border-b-yellow-500/80 border-l-yellow-500/40"
+                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-4 rounded-full border border-hw-accent/10 border-b-hw-accent/50"
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
                           <motion.div
-                            animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-hw-accent/30 to-transparent flex items-center justify-center text-hw-accent border border-hw-accent/30 shadow-[0_0_40px_rgba(139,92,246,0.3)] backdrop-blur-md"
+                            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.1, 0.9] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="text-hw-accent drop-shadow-[0_0_15px_rgba(139,92,246,0.8)]"
                           >
-                            <Sparkles size={32} />
+                            <Sparkles size={56} strokeWidth={1} />
                           </motion.div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="w-full max-w-sm space-y-6 z-10">
-                      <div className="flex justify-between items-end">
-                        <div className="text-[10px] uppercase tracking-widest font-black text-hw-accent h-4">
-                          <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="typewriter-text" />
+                    <div className="w-full max-w-sm space-y-8 z-10">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-end px-1">
+                          <div className="hw-label text-hw-accent text-[10px] h-4">
+                            <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="font-black italic uppercase italic tracking-widest" />
+                          </div>
+                          <span className="hw-display p-1 px-2 text-[10px] leading-none">{Math.round(loadingProgress)}%</span>
                         </div>
-                        <span className="text-xs font-mono font-bold text-white/50">{Math.round(loadingProgress)}%</span>
+                        <div className="h-3 w-full bg-black/80 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
+                          <motion.div 
+                            className="h-full bg-hw-accent relative"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${loadingProgress}%` }}
+                            transition={{ type: "spring", stiffness: 45, damping: 12 }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shine_1.5s_linear_infinite]" />
+                          </motion.div>
+                        </div>
                       </div>
-                      <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
-                        <div className="absolute inset-0 bg-hw-accent/10" />
-                        <motion.div 
-                          className="h-full bg-gradient-to-r from-hw-accent via-[var(--accent-main)] to-[var(--color-brand-purple)] relative"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${loadingProgress}%` }}
-                          transition={{ type: "spring", stiffness: 40, damping: 15 }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shine_2s_linear_infinite]" />
-                        </motion.div>
-                      </div>
-                      <div className="flex justify-center gap-3">
-                        {t.loadingSteps.map((_, i) => (
+                      
+                      <div className="flex justify-center gap-4">
+                        {[0, 1, 2, 3].map((i) => (
                           <div 
                             key={i} 
                             className={cn(
-                              "w-2 h-2 rounded-full transition-all duration-700",
+                              "w-1.5 h-6 rounded-sm transition-all duration-500",
                               i <= loadingStep 
-                                ? "bg-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.8)] scale-125" 
-                                : "bg-white/10"
+                                ? "bg-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.6)]" 
+                                : "bg-white/5"
                             )}
                           />
                         ))}
                       </div>
                     </div>
 
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 text-center max-w-xs leading-relaxed z-10">
-                      {uiLang === 'en' 
-                        ? "Synthesizing creative parameters..." 
-                        : "সৃজনশীল পরামিতি সংশ্লেষণ করা হচ্ছে..."}
-                    </p>
+                    <div className="hw-panel bg-black/40 p-4 border-white/5 z-10 w-full max-w-xs">
+                      <p className="text-[8px] font-black uppercase tracking-[0.4em] text-hw-muted text-center leading-loose">
+                        {uiLang === 'en' 
+                          ? "Calibrating Neural Synthesis Matrix..." 
+                          : "নিউরাল সিন্থেসিস মেট্রিক্স ক্যালিব্রেট করা হচ্ছে..."}
+                      </p>
+                    </div>
                   </div>
                 )}
 
                 {currentResult && (
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex-1 space-y-10 overflow-y-auto pr-4 scrollbar-hide"
                   >
                     {(!currentResult.imageUrl && !currentResult.audioUrl) && (
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        <motion.button
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
+                        <button
                           onClick={downloadPdf}
-                          className="py-3.5 rounded-xl bg-linear-to-r from-[var(--accent-main)] to-[var(--accent-main)]/80 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                          className="hw-btn-industrial py-4 text-[10px] bg-hw-accent/20 border-hw-accent/20 text-hw-accent"
                         >
-                          <Download size={18} />
-                          {uiLang === 'en' ? "PDF" : "পিডিএফ"}
-                        </motion.button>
-                        <motion.button
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
+                          <Download size={18} className="hw-icon" />
+                          {uiLang === 'en' ? "Export PDF" : "পিডিএফ এক্সপোর্ট"}
+                        </button>
+                        <button
                           onClick={shareContent}
-                          className="py-3.5 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 text-white font-semibold text-xs uppercase tracking-wider shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                          className="hw-btn-industrial py-4 text-[10px] bg-blue-500/10 border-blue-500/20 text-blue-400"
                         >
-                          <Share2 size={18} />
-                          {uiLang === 'en' ? "Share" : "শেয়ার"}
-                        </motion.button>
+                          <Share2 size={18} className="hw-icon" />
+                          {uiLang === 'en' ? "Direct Share" : "সরাসরি শেয়ার"}
+                        </button>
                       </div>
                     )}
-                    {currentResult.imageUrl ? (
-                      <div className="space-y-4">
-                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                          <img src={currentResult.imageUrl} alt="Generated" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                    
+                    {currentResult.imageUrl && (
+                      <div className="space-y-6">
+                        <div className="hw-panel aspect-video p-0 overflow-hidden group shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                          <img src={currentResult.imageUrl} alt="Generated" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 backdrop-blur-md">
                             <a 
                               href={currentResult.imageUrl} 
-                              download="generated-image.png"
-                              className="w-12 h-12 rounded-full bg-hw-accent flex items-center justify-center text-white hover:scale-110 transition-transform shadow-[0_0_20px_rgba(139,92,246,0.5)]"
+                              download="gen-img.png"
+                              className="w-16 h-16 rounded-full bg-hw-accent flex items-center justify-center text-white hover:scale-110 transition-transform shadow-[0_0_30px_rgba(139,92,246,0.6)]"
                             >
-                              <Download size={24} />
+                              <Download size={32} />
                             </a>
+                            <button className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-white hover:scale-110 transition-transform border border-white/20">
+                              <Expand size={32} />
+                            </button>
                           </div>
                         </div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/50 text-center font-bold">{t.generatedImage}</p>
-                      </div>
-                    ) : (currentResult.audioUrl && currentView === 'voice') ? (
-                      <div className="space-y-6 py-4">
-                        <div className="flex flex-col items-center gap-6">
-                          <div className="w-24 h-24 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_30px_rgba(139,92,246,0.2)] border border-hw-accent/20">
-                            <Volume2 size={48} />
-                          </div>
-                          <audio controls src={currentResult.audioUrl} className="w-full" />
-                          <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold text-center max-w-xs">{t.voiceNote}</p>
-                          <a 
-                            href={currentResult.audioUrl} 
-                            download="voice-over.wav"
-                            className="flex items-center gap-2 px-8 py-4 bg-hw-accent text-white rounded-xl font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all"
-                          >
-                            <Download size={20} /> {t.downloadAudio}
-                          </a>
+                        <div className="hw-panel py-3 bg-black/40 border-white/5">
+                           <p className="text-[10px] uppercase tracking-[0.3em] text-hw-muted text-center font-black">{t.generatedImage}</p>
                         </div>
                       </div>
-                    ) : (
-                      <div className="space-y-12">
-                        {/* Simultaneous Audio Player if available */}
+                    )}
+                    {(currentResult.audioUrl && currentView === 'voice') && (
+                      <div className="hw-panel p-10 md:p-16 flex flex-col items-center gap-10 bg-hw-accent/5">
+                        <div className="w-32 h-32 rounded-full bg-hw-accent/10 flex items-center justify-center text-hw-accent animate-pulse shadow-[0_0_40px_rgba(139,92,246,0.15)] border border-hw-accent/20">
+                          <Volume2 size={64} />
+                        </div>
+                        <div className="w-full space-y-6">
+                          <audio controls src={currentResult.audioUrl} className="w-full hw-audio-player" />
+                        </div>
+                        <div className="flex flex-col items-center gap-4">
+                           <a 
+                             href={currentResult.audioUrl} 
+                             download="synth-voice.wav"
+                             className="hw-btn-industrial py-5 px-12 text-sm shadow-[0_15px_40px_rgba(34,197,94,0.1)]"
+                           >
+                             <Download size={24} className="hw-icon" /> {t.downloadAudio}
+                           </a>
+                           <p className="text-[9px] uppercase tracking-[0.5em] text-hw-muted font-black">{t.voiceNote}</p>
+                        </div>
+                      </div>
+                    )}
+                    {(!currentResult.imageUrl && !(currentResult.audioUrl && currentView === 'voice')) && (
+                      <div className="space-y-16">
+                        {/* Audio Module */}
                         {currentResult.audioUrl && (
-                          <div className="p-6 rounded-2xl bg-hw-accent/10 border border-hw-accent/20 space-y-4">
+                          <div className="hw-panel p-8 bg-hw-accent/5 border-hw-accent/20 space-y-6">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-[10px] font-black uppercase tracking-widest text-hw-accent flex items-center gap-2">
-                                <Volume2 size={14} /> AI Voice Over Ready
+                              <h4 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest text-[10px]">
+                                <Volume2 size={16} /> Synthesis Module Activated
                               </h4>
-                              <a 
-                                href={currentResult.audioUrl} 
-                                download="voice-over.wav"
-                                className="p-2 bg-hw-accent text-white rounded-lg hover:scale-110 transition-transform"
-                                title={t.downloadAudio}
-                              >
-                                <Download size={14} />
+                              <a href={currentResult.audioUrl} download className="text-hw-muted hover:text-hw-accent transition-colors">
+                                <Download size={20} />
                               </a>
                             </div>
-                            <audio controls src={currentResult.audioUrl} className="w-full h-10" />
+                            <audio controls src={currentResult.audioUrl} className="w-full h-10 hw-audio-player" />
                           </div>
                         )}
-                        {/* Featured Fields */}
+
+                        {/* Top Performance Components */}
                         {(currentResult.videoTitle || currentResult.imagePrompt || currentResult.videoPrompt) && (
-                          <div className="space-y-6">
+                          <div className="space-y-8">
                             {currentResult.videoTitle && (
-                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Video Title</label>
-                                <div className="text-lg font-black text-white">{currentResult.videoTitle}</div>
-                                <button onClick={() => copyToClipboard(currentResult.videoTitle, 'videoTitle')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
-                                  {copied === 'videoTitle' ? <Check size={14} /> : <Copy size={14} />} Copy
-                                </button>
+                              <div className="hw-panel p-8 bg-hw-accent/10 border-hw-accent/30 space-y-4">
+                                <div className="flex items-center justify-between">
+                                  <label className="hw-label text-hw-accent uppercase tracking-[0.2em]">Alpha Title</label>
+                                  <button onClick={() => copyToClipboard(currentResult.videoTitle, 'videoTitle')} className="text-hw-muted hover:text-hw-accent transition-colors">
+                                    {copied === 'videoTitle' ? <Check size={18} /> : <Copy size={18} />}
+                                  </button>
+                                </div>
+                                <div className="text-2xl font-black text-white leading-tight italic">{currentResult.videoTitle}</div>
                               </div>
                             )}
+
                             {currentResult.imagePrompt && (
-                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Image Prompt</label>
-                                <div className="text-sm text-white/90 leading-relaxed font-medium">{currentResult.imagePrompt}</div>
-                                <button onClick={() => copyToClipboard(currentResult.imagePrompt, 'imagePrompt')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
-                                  {copied === 'imagePrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
-                                </button>
+                              <div className="hw-panel p-8 space-y-4">
+                                <div className="flex items-center justify-between">
+                                  <label className="hw-label text-white/40 uppercase tracking-[0.2em]">Image Render Prompt</label>
+                                  <button onClick={() => copyToClipboard(currentResult.imagePrompt, 'imagePrompt')} className="text-hw-muted hover:text-hw-accent transition-colors">
+                                    {copied === 'imagePrompt' ? <Check size={18} /> : <Copy size={18} />}
+                                  </button>
+                                </div>
+                                <div className="hw-display p-6 text-sm text-hw-muted leading-relaxed italic">{currentResult.imagePrompt}</div>
                               </div>
                             )}
+
                             {currentResult.videoPrompt && (
-                              <div className="p-6 rounded-2xl bg-hw-accent/5 border border-hw-accent/20 space-y-3">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black">Video Prompt</label>
-                                <div className="text-sm text-white/90 leading-relaxed font-medium">{currentResult.videoPrompt}</div>
-                                <button onClick={() => copyToClipboard(currentResult.videoPrompt, 'videoPrompt')} className="text-[10px] uppercase tracking-widest font-bold text-hw-accent hover:text-hw-accent/80 flex items-center gap-1.5 pt-2">
-                                  {copied === 'videoPrompt' ? <Check size={14} /> : <Copy size={14} />} Copy
-                                </button>
+                              <div className="hw-panel p-8 space-y-4">
+                                <div className="flex items-center justify-between">
+                                  <label className="hw-label text-white/40 uppercase tracking-[0.2em]">Video Render Prompt</label>
+                                  <button onClick={() => copyToClipboard(currentResult.videoPrompt, 'videoPrompt')} className="text-hw-muted hover:text-hw-accent transition-colors">
+                                    {copied === 'videoPrompt' ? <Check size={18} /> : <Copy size={18} />}
+                                  </button>
+                                </div>
+                                <div className="hw-display p-6 text-sm text-hw-muted leading-relaxed italic">{currentResult.videoPrompt}</div>
                               </div>
                             )}
                           </div>
                         )}
+
+                        {/* Iterative Result Set */}
                         {Object.entries(currentResult).map(([key, value]) => {
-                          if (!value || ['videoTitle', 'imagePrompt', 'videoPrompt'].includes(key)) return null;
+                          if (!value || ['videoTitle', 'imagePrompt', 'videoPrompt', 'imageUrl', 'audioUrl'].includes(key)) return null;
                           
-                          // Handle prompts array
                           if (key === 'prompts' && Array.isArray(value)) {
                             return (
-                              <div key="prompts-section" className="space-y-4">
-                                <label className="text-[10px] uppercase tracking-widest text-hw-accent font-black flex items-center gap-2 px-2">
-                                  <Sparkles size={14} /> {uiLang === 'en' ? 'AI Prompts' : 'এআই প্রম্পট'}
-                                </label>
-                                <div className="grid grid-cols-1 gap-4">
+                              <div key="p-sec" className="space-y-8">
+                                <h3 className="hw-label text-white/50 flex items-center gap-3 uppercase tracking-[0.5em] text-[10px]">
+                                  <div className="w-2 h-2 rounded-full bg-hw-accent animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+                                  Neural Prompt Variations
+                                </h3>
+                                <div className="grid grid-cols-1 gap-6">
                                   {value.map((prompt: string, idx: number) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-4 group shadow-sm hover:border-hw-accent/30 transition-all">
-                                      <div className="flex justify-between items-start">
-                                        <h3 className="text-hw-accent font-black text-[10px] uppercase tracking-widest">Option {idx + 1}</h3>
-                                        <button 
-                                          onClick={() => copyToClipboard(prompt, `prompt-${idx}`)}
-                                          className="text-white/50 hover:text-hw-accent transition-colors"
-                                        >
-                                          {copied === `prompt-${idx}` ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                    <div key={idx} className="hw-panel p-8 bg-black/40 border-white/5 hover:border-hw-accent/20 transition-all group">
+                                      <div className="flex justify-between items-center mb-6">
+                                        <div className="hw-label text-hw-accent/60 text-[9px]">Iteration_{idx + 1}</div>
+                                        <button onClick={() => copyToClipboard(prompt, `p-${idx}`)} className="text-hw-muted hover:text-hw-accent">
+                                          {copied === `p-${idx}` ? <Check size={20} className="text-hw-accent" /> : <Copy size={20} />}
                                         </button>
                                       </div>
-                                      <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap font-medium">
-                                        <TypewriterText text={prompt} className="typewriter-text" />
+                                      <div className="hw-display p-6 text-sm text-hw-muted leading-relaxed italic">
+                                        <TypewriterText text={prompt} />
                                       </div>
                                     </div>
                                   ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          
+                          // Handle checklists specifically
+                          if (key === 'seoChecklist' || key === 'contentChecklist') {
+                            return (
+                              <div key={key} className="space-y-8">
+                                <h3 className="hw-label text-white/50 flex items-center gap-3 uppercase tracking-[0.5em] text-[10px]">
+                                  <div className="hw-led bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                                  Optimization Protocol
+                                </h3>
+                                <div className="hw-panel p-10 bg-hw-accent/5 overflow-hidden">
+                                  <InteractiveChecklist
+                                    data={Array.isArray(value) ? value : String(value).split('\n').filter(l => l.trim())}
+                                  />
                                 </div>
                               </div>
                             );
@@ -4974,7 +4651,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                         </button>
                                       </div>
                                       
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      <div className="grid grid-cols-1 gap-6">
                                         <div className="space-y-4">
                                           <div className="flex items-center justify-between">
                                             <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
@@ -5010,13 +4687,27 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                             {scene.script}
                                           </p>
                                         </div>
-                                        <div className="space-y-4">
-                                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
-                                            <Eye size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Visual Prompt" : "ভিজ্যুয়াল প্রম্পট"}
-                                          </label>
-                                          <p className="text-sm text-white/70 italic leading-relaxed bg-hw-accent/5 p-5 rounded-2xl border border-hw-accent/10 font-medium">
-                                            {scene.visual}
-                                          </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                          {(scene.visual || scene.videoPrompt) && (
+                                            <div className="space-y-4">
+                                              <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
+                                                <Video size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Video Prompt" : "ভিডিও প্রম্পট"}
+                                              </label>
+                                              <p className="text-sm text-white/70 italic leading-relaxed bg-hw-accent/5 p-5 rounded-2xl border border-hw-accent/10 font-medium">
+                                                {scene.videoPrompt || scene.visual}
+                                              </p>
+                                            </div>
+                                          )}
+                                          {scene.imagePrompt && (
+                                            <div className="space-y-4">
+                                              <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2">
+                                                <ImageIcon size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Image Prompt" : "ইমেজ প্রম্পট"}
+                                              </label>
+                                              <p className="text-sm text-white/70 italic leading-relaxed bg-hw-accent/5 p-5 rounded-2xl border border-hw-accent/10 font-medium">
+                                                {scene.imagePrompt}
+                                              </p>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -5026,7 +4717,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             );
                           }
 
-                          if (['imageUrl', 'audioUrl', 'prompts', 'ideas', 'scenes'].includes(key)) {
+                          if (['videoTitle', 'imagePrompt', 'imageUrl', 'audioUrl', 'prompts', 'ideas', 'scenes', 'titles', 'seoTitles', 'subtitles', 'metadata', 'socialMedia', 'repurposeAddons', 'sceneBreakdown', 'seoChecklist', 'contentChecklist'].includes(key)) {
                             return null;
                           }
 
@@ -5163,54 +4854,64 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         })}
                       </div>
                     )}
-          </motion.div>
-        )}
-                
-                {relatedIdeas.length > 0 && (
-                    <div className="mt-12 p-8 rounded-[2.5rem] bg-black/40 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                      <h3 className="text-xl font-black tracking-tight flex items-center gap-3 mb-8 text-white">
-                        <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent">
-                          <Sparkles size={24} />
-                        </div>
-                        {uiLang === 'en' ? "Related Video Ideas" : "সম্পর্কিত ভিডিও আইডিয়া"}
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {relatedIdeas.map((idea, idx) => (
-                          <motion.button
-                            key={idx}
-                            whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.05)" }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => {
-                              setTopics(prev => ({ ...prev, [currentView]: idea.title }));
-                              handleGenerate();
-                            }}
-                            className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/30 transition-all text-left shadow-sm group"
-                          >
-                            <h4 className="text-sm font-black text-white group-hover:text-hw-accent transition-colors">{idea.title}</h4>
-                            <p className="text-xs text-white/50 mt-3 leading-relaxed font-medium">{idea.description}</p>
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div> {/* End of Right Column */}
-          </div>
-          )} {/* End of Main Content Grid */}
-          {currentView === 'analytics' && <AnalyticsView uiLang={uiLang} />}
+                  </motion.div>
+                )}
 
-        {/* Collaboration Chat */}
-        <CollaborationChat 
-          messages={messages}
-          onSendMessage={sendMessage}
-          roomId={roomId}
-          onJoinRoom={setRoomId}
-          isJoined={isJoined}
-          isOpen={chatOpen}
-          onToggle={() => setChatOpen(!chatOpen)}
-        />
-      </motion.main>
+                    {relatedIdeas.length > 0 && (
+                      <div className="mt-20 space-y-8">
+                        <div className="flex items-center justify-between">
+                          <h3 className="hw-label text-hw-accent flex items-center gap-3 uppercase tracking-[0.4em]">
+                            <Sparkles size={16} /> Synthetic Expansion
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {relatedIdeas.map((idea, idx) => (
+                            <motion.button
+                              key={idx}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => {
+                                setTopics(prev => ({ ...prev, [currentView]: idea.title }));
+                                handleGenerate();
+                              }}
+                              className="hw-panel p-8 text-left bg-black/40 border-white/5 hover:border-hw-accent/30 transition-all group shadow-sm"
+                            >
+                              <div className="flex flex-col gap-4">
+                                <h4 className="text-sm font-black text-white italic group-hover:text-hw-accent transition-colors uppercase tracking-tight">{idea.title}</h4>
+                                <p className="text-[10px] font-black text-hw-muted leading-relaxed uppercase tracking-wider">{idea.description}</p>
+                              </div>
+                              <div className="mt-6 flex justify-end">
+                                <Zap size={14} className="text-hw-muted group-hover:text-hw-accent transition-colors" />
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+        )}
+        
+        {currentView === 'analytics' && <AnalyticsView uiLang={uiLang} />}
+      </motion.div>
+    </AnimatePresence>
+
+    <CollaborationChat 
+      messages={messages}
+      onSendMessage={sendMessage}
+      roomId={roomId}
+      onJoinRoom={setRoomId}
+      isJoined={isJoined}
+      isOpen={chatOpen}
+      onToggle={() => setChatOpen(!chatOpen)}
+    />
+  </div>
+</div>
+</motion.div>
+)}
+</AnimatePresence>
 
       {/* Settings Modal */}
           <AnimatePresence>
@@ -5457,25 +5158,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             )}
           </AnimatePresence>
 
-      <footer className="mt-12 text-center text-white/50 text-xs pb-8 space-y-4">
-        <div className="flex items-center justify-center gap-6">
-          <div className="flex items-center gap-2 text-green-500/60 font-mono font-bold">
-            <div className="w-1.5 h-1.5 rounded-full bg-hw-accent animate-pulse" />
-            SYSTEM LIVE
-          </div>
-          <a 
-            href={APP_CONFIG.githubRepo} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-white transition-colors font-bold"
-          >
-            <Github size={14} />
-            GitHub
-          </a>
-        </div>
-        <p className="font-medium">© {new Date().getFullYear()} YouTube AI Creator Studio. All Rights Reserved.</p>
-      </footer>
-
       <style dangerouslySetInnerHTML={{ __html: `
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -5507,9 +5189,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           opacity: 0.4;
         }
       `}} />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* History Modal */}
       <AnimatePresence>
@@ -5753,7 +5432,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           </div>
         )}
       </AnimatePresence>
-      </div>
     </div>
   );
 }
