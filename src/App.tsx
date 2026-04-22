@@ -1063,7 +1063,9 @@ export default function App() {
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
               tone: options.voiceTone,
               accent: options.voiceAccent,
-              age: options.voiceAge
+              age: options.voiceAge,
+              gender: options.voiceGender,
+              voiceLanguage: options.voiceLanguage
             });
             if (audioUrl) {
               res.audioUrl = audioUrl;
@@ -1209,7 +1211,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
                 tone: options.voiceTone,
                 accent: options.voiceAccent,
                 age: options.voiceAge,
-                gender: options.voiceGender
+                gender: options.voiceGender,
+                voiceLanguage: options.voiceLanguage
               });
               if (audioUrl) {
                 res.audioUrl = audioUrl;
@@ -1238,7 +1241,9 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
               tone: options.voiceTone,
               accent: options.voiceAccent,
-              age: options.voiceAge
+              age: options.voiceAge,
+              gender: options.voiceGender,
+              voiceLanguage: options.voiceLanguage
             });
             if (audioUrl) {
               res.audioUrl = audioUrl;
@@ -2397,8 +2402,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             exit={{ opacity: 0 }}
             className="studio-shell w-full"
           >
-            {/* Sidebar Desktop */}
-            <aside className="studio-sidebar hidden md:flex">
+            {/* Sidebar Desktop (Hidden since nav is now in header) */}
+            <aside className="studio-sidebar hidden">
               <div 
                 className="w-14 h-14 rounded-2xl bg-hw-accent flex items-center justify-center shadow-[0_0_30px_rgba(0,229,255,0.3)] mb-12 cursor-pointer group-hover:scale-110 transition-transform duration-500"
                 onClick={() => setCurrentView('home')}
@@ -2551,6 +2556,33 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
                 </div>
 
+                {/* Desktop Header Navigation */}
+                <div className="hidden md:flex flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar px-4 max-w-full">
+                  {[
+                    { id: 'home', icon: Home, label: t.home },
+                    { id: 'video', icon: Video, label: t.videoGen },
+                    { id: 'shorts', icon: Zap, label: t.shortsGen },
+                    { id: 'idea', icon: Lightbulb, label: t.ideaGen },
+                    { id: 'image', icon: Palette, label: t.imageGen },
+                    { id: 'longVideo', icon: Film, label: 'Long Video' },
+                    { id: 'voice', icon: Mic, label: t.voiceOver },
+                    { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
+                    { id: 'analytics', icon: BarChart3, label: 'Insights' },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setCurrentView(item.id as any)}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-xl transition-all whitespace-nowrap shrink-0",
+                        currentView === item.id ? "bg-hw-accent/20 text-hw-accent border border-hw-accent/30" : "text-white/50 hover:bg-white/10 hover:text-white"
+                      )}
+                    >
+                      <item.icon size={16} />
+                      <span className="uppercase font-black tracking-widest text-[9px] hidden xl:block">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+
                 <div className="flex items-center justify-end gap-2 shrink-0">
                   {/* Lang Switch */}
                   <div className="flex items-center p-1 bg-white/5 rounded-xl border border-white/5 backdrop-blur-3xl shrink-0 hidden sm:flex">
@@ -2574,6 +2606,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     className="sm:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center font-black text-[10px] text-hw-accent shrink-0 uppercase"
                   >
                     {uiLang}
+                  </button>
+
+                  <button 
+                    onClick={() => setShowSettings(true)}
+                    className="hidden lg:flex w-10 h-10 rounded-xl bg-white/5 border border-white/5 items-center justify-center text-hw-muted hover:text-hw-accent hover:border-hw-accent/30 transition-all duration-300 shrink-0"
+                    title="Settings"
+                  >
+                    <Globe size={16} />
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowHistory(true)}
+                    className="hidden lg:flex w-10 h-10 rounded-xl bg-white/5 border border-white/5 items-center justify-center text-hw-muted hover:text-hw-accent hover:border-hw-accent/30 transition-all duration-300 shrink-0"
+                    title="History"
+                  >
+                    <History size={16} />
                   </button>
 
                   <button 
@@ -3966,7 +4014,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           </motion.button>
         </div>
 
-                <div className="pt-20 border-t border-white/5 space-y-12">
+                <div className="lg:col-span-12 xl:col-span-12 w-full max-w-7xl mx-auto pt-20 border-t border-white/5 space-y-12 pb-32">
                   <div className="flex items-center justify-between">
                     <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.4em]">
                       <Sparkles size={14} /> Neural Synthetic Result

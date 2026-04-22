@@ -609,7 +609,7 @@ export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" |
 export const generateVoiceOver = async (
   text: string, 
   voiceName: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr' = 'Kore',
-  options?: { tone?: string; accent?: string; age?: string; gender?: string }
+  options?: { tone?: string; accent?: string; age?: string; gender?: string; voiceLanguage?: string }
 ) => {
   let promptText = text;
   // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
