@@ -263,6 +263,7 @@ export interface GenerationOptions {
   pacing?: string;
   narrativeStrategy?: string;
   deepSearch?: boolean;
+  isMegaScript?: boolean;
 }
 
 // Helper to extract JSON from model response
@@ -517,7 +518,14 @@ export const generateContent = async (options: GenerationOptions) => {
               - Thumbnail Idea: ${options.generateThumbnail}
               - Description: ${options.generateDescription}
               - Tags: ${options.generateTags}
-              - Script: ${options.generateScript} ${options.videoDuration ? `(Write a FULL, 100% UNIQUE narrative. 
+              - Script: ${options.generateScript} ${options.isMegaScript ? `(ULTIMATE PRIORITY: Write a MASSIVE, 100% UNIQUE narrative precisely calculated to be spoken for exactly 60 MINUTES (approx 9,000 to 11,000 words). This MUST be your absolute longest, most comprehensive output. 
+                  STRICT RULES FOR 60-MINUTE SCRIPTS:
+                  1. ZERO REPETITION: Do not repeat any facts, ideas, stories, or phrases. Every minute must provide fresh, unique content. Use structural entropy to ensure non-patterned delivery.
+                  2. HIGH ENGAGEMENT: Use advanced narrative hooks, cliffhangers, and transitions every 2-3 minutes to maintain extreme audience retention.
+                  3. HUMAN-LIKE DEPTH: It must sound like a professional, high-budget documentary or a masterclass by a top-tier human expert. Use natural human-like transitions, nuanced emotional intonation, and intellectual depth.
+                  4. FORBIDDEN: NEVER loop segments, never use placeholder text, and never reuse parts from earlier in the script. 
+                  5. STRUCTURE: Break it down into 10-12 rich, logical chapters with smooth segues.
+                  6. QUALITY: The script must be indistinguishable from a script written by a world-class professional content creator or a best-selling author.)` : options.videoDuration ? `(Write a FULL, 100% UNIQUE narrative. 
                   CRITICAL STRUCTURE FOR RETENTION:
                   1. INTRO (The Hook): MUST start with a highly engaging, warm, and professional greeting or welcome that instantly hooks the audience. NEVER start with generic "Welcome back". Use a thought-provoking question, a bold statement, or a relatable scenario that makes the viewer WANT to stay until the end.
                   2. BODY: Develop the content with professional insights. Use high-quality storytelling techniques. Ensure ZERO repetition.
@@ -543,6 +551,7 @@ export const generateContent = async (options: GenerationOptions) => {
                 - Length < 1m: 3-5 scenes.
                 - Length 2m - 5m: 8-15 scenes.
                 - Length 10m+: 20-30 scenes.
+                - Mega Script (60m): Create 60-100 incredibly detailed scene breakdown chunks.
                 Each object MUST have:
                 - 'scene': Scene sequence number.
                 - 'time': Timestamp breakdown covering the full duration (e.g., "0:00 - 2:00").
@@ -629,6 +638,7 @@ export const generateVoiceOver = async (
   if (text.length > MAX_TTS_CHARS) {
     console.warn(`Voiceover text too long (${text.length} chars). Truncating to ${MAX_TTS_CHARS} for API safety.`);
     text = text.substring(0, MAX_TTS_CHARS) + "... [Content continues in script]";
+    promptText = text;
   }
 
   if (options && (options.tone || options.accent || options.age || options.gender)) {
@@ -644,7 +654,7 @@ export const generateVoiceOver = async (
       ? "Speak with a natural, expressive, and high-quality human-like Bangladeshi Bengali dialect. Avoid robotic tones or flat delivery. Incorporate natural breathing, pauses between sentences, and appropriate emotional intonation (human-like). Focus on clear pronunciation and a warm, engaging Bangladeshi accent."
       : "Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
       
-    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style: ${text}`;
+    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style: ${promptText}`;
   }
 
   if (isOffline) {

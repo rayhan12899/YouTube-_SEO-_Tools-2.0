@@ -91,6 +91,8 @@ import { jsPDF } from 'jspdf';
 import { cn } from './lib/utils';
 import { translations } from './translations';
 import { io, Socket } from 'socket.io-client';
+import SettingsModal from './components/SettingsModal';
+import HistoryModal from './components/HistoryModal';
 import { 
   LineChart, 
   Line, 
@@ -136,7 +138,7 @@ import {
   callAI
 } from './services/geminiService';
 
-const TypewriterText = ({ text, className }: { text: string, className?: string }) => {
+const TypewriterText = React.memo(({ text, className }: { text: string, className?: string }) => {
   const [displayedText, setDisplayedText] = useState('');
   
   useEffect(() => {
@@ -154,15 +156,16 @@ const TypewriterText = ({ text, className }: { text: string, className?: string 
   }, [text]);
 
   return <span className={className}>{displayedText}</span>;
-};
+});
+TypewriterText.displayName = 'TypewriterText';
 
-const InteractiveChecklist = ({ data }: { data: any }) => {
-  const items = Array.isArray(data) ? data : String(data).split('\n').filter(Boolean);
+const InteractiveChecklist = React.memo(({ data }: { data: any }) => {
+  const items = useMemo(() => Array.isArray(data) ? data : String(data).split('\n').filter(Boolean), [data]);
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
 
-  const toggleItem = (idx: number) => {
+  const toggleItem = useCallback((idx: number) => {
     setCompleted(prev => ({ ...prev, [idx]: !prev[idx] }));
-  };
+  }, []);
 
   return (
     <div className="space-y-3 mt-4">
@@ -217,7 +220,8 @@ const InteractiveChecklist = ({ data }: { data: any }) => {
       })}
     </div>
   );
-};
+});
+InteractiveChecklist.displayName = 'InteractiveChecklist';
 
 interface HistoryItem {
   id: string;
@@ -227,12 +231,12 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics';
 
 // Constants moved to constants.ts
 
-const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
-  const data = [
+const AnalyticsView = React.memo(({ uiLang }: { uiLang: 'en' | 'bn' }) => {
+  const data = useMemo(() => [
     { name: 'Mon', views: 4000, viral: 2400 },
     { name: 'Tue', views: 3000, viral: 1398 },
     { name: 'Wed', views: 2000, viral: 9800 },
@@ -240,7 +244,7 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
     { name: 'Fri', views: 1890, viral: 4800 },
     { name: 'Sat', views: 2390, viral: 3800 },
     { name: 'Sun', views: 3490, viral: 4300 },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">
@@ -296,9 +300,9 @@ const AnalyticsView = ({ uiLang }: { uiLang: 'en' | 'bn' }) => {
       </div>
     </div>
   );
-};
+});
 
-const CollaborationChat = ({ 
+const CollaborationChat = React.memo(({ 
   messages, 
   onSendMessage, 
   roomId, 
@@ -323,6 +327,13 @@ const CollaborationChat = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleSend = useCallback(() => {
+    if (inputText.trim()) {
+      onSendMessage(inputText);
+      setInputText('');
+    }
+  }, [inputText, onSendMessage]);
 
   return (
     <div className={cn(
@@ -392,16 +403,12 @@ const CollaborationChat = ({
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      onSendMessage(inputText);
-                      setInputText('');
+                      handleSend();
                     }
                   }}
                 />
                 <button 
-                  onClick={() => {
-                    onSendMessage(inputText);
-                    setInputText('');
-                  }}
+                  onClick={handleSend}
                   className="text-hw-accent hover:scale-110 transition-transform"
                 >
                   <SendIcon className="w-4 h-4" />
@@ -413,7 +420,27 @@ const CollaborationChat = ({
       )}
     </div>
   );
+});
+CollaborationChat.displayName = 'CollaborationChat';
+
+const MENU_VARIANTS = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
 };
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, x: -20 },
+  show: { opacity: 1, x: 0 }
+};
+
+import { useDebounce } from './hooks/useDebounce';
+
+const HistoryModal = React.memo(HistoryModalImport);
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -480,7 +507,8 @@ export default function App() {
     transcribe: '',
     shorts: '',
     analytics: '',
-    longVideo: ''
+    longVideo: '',
+    megaScript: ''
   });
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -516,14 +544,27 @@ export default function App() {
     analyze: null,
     transcribe: null,
     shorts: null,
-    analytics: null,
-    longVideo: null
+    longVideo: null,
+    megaScript: null
   });
+
+  const filteredHistory = useMemo(() => {
+    return history
+      .filter(item => {
+        if (historyFilter !== 'all' && item.type !== historyFilter) return false;
+        if (debouncedHistorySearch && !item.topic.toLowerCase().includes(debouncedHistorySearch.toLowerCase())) return false;
+        if (dateRange.start && new Date(item.timestamp) < new Date(dateRange.start)) return false;
+        if (dateRange.end && new Date(item.timestamp) > new Date(dateRange.end)) return false;
+        return true;
+      })
+      .sort((a, b) => historySort === 'newest' ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
+  }, [history, historyFilter, debouncedHistorySearch, historySort, dateRange]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<string>('all');
   const [historySort, setHistorySort] = useState<'newest' | 'oldest'>('newest');
   const [historySearch, setHistorySearch] = useState<string>('');
+  const debouncedHistorySearch = useDebounce(historySearch, 300);
   const [dateRange, setDateRange] = useState<{start: string, end: string}>({start: '', end: ''});
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light' | 'scifi'>('scifi');
@@ -777,7 +818,8 @@ export default function App() {
     analyze: null,
     shorts: null,
     analytics: null,
-    longVideo: null
+    longVideo: null,
+    megaScript: null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -785,7 +827,7 @@ export default function App() {
   const currentTopic = topics[currentView];
   const currentResult = results[currentView];
   const currentSelectedMedia = selectedMedia[currentView];
-  const acceptType = (currentView === 'video' || currentView === 'longVideo') ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
+  const acceptType = (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
 
   const filteredSuggestions = useMemo(() => {
     const query = currentTopic.trim().toLowerCase();
@@ -1170,7 +1212,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoading(false);
           return;
         }
-      } else if (activeView === 'video' || activeView === 'longVideo') {
+      } else if (activeView === 'video' || activeView === 'longVideo' || activeView === 'megaScript') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
           setLoadingProgress(40);
@@ -1200,7 +1242,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             generateThumbnail: false,
             generateDescription: false,
             generateTags: false,
-            generateScript: true
+            generateScript: true,
+            isMegaScript: activeView === 'megaScript'
           });
 
           // Auto-generate Voice Over if enabled
@@ -1291,7 +1334,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setSelectedMedia(prev => ({ ...prev, [currentView]: base64 }));
         setTopics(prev => ({ ...prev, [currentView]: '' }));
         
-        if (currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'voiceExtractor') {
+        if (currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'voiceExtractor') {
           setLoading(true);
           const progressInterval = simulateProgress();
           try {
@@ -1671,7 +1714,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: '',
       shorts: '',
       analytics: '',
-      longVideo: ''
+      longVideo: '',
+      megaScript: ''
     });
     setResults({
       landing: null,
@@ -1687,7 +1731,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: null,
       shorts: null,
       analytics: null,
-      longVideo: null
+      longVideo: null,
+      megaScript: null
     });
     setSelectedMedia({
       landing: null,
@@ -1703,7 +1748,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: null,
       shorts: null,
       analytics: null,
-      longVideo: null
+      longVideo: null,
+      megaScript: null
     });
     setMediaMimeType('');
     toast.success(uiLang === 'en' ? "Data Refreshed!" : "সব তথ্য রিফ্রেশ করা হয়েছে!");
@@ -2238,7 +2284,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {[
-                        { icon: <Search size={32} />, title: "SEO_CORE", desc: "Advanced keyword extraction and CTR projection engine." },
                         { icon: <Sparkles size={32} />, title: "GEN_NEURAL", desc: "Multi-layered content synthesis with ethical boundary monitoring." },
                         { icon: <Volume2 size={32} />, title: "VOICE_SYNTH", desc: "Elite-grade neural voice extraction and transcription." },
                         { icon: <ImageIcon size={32} />, title: "V_RENDER", desc: "Studio-quality visual prompt engineering and generation." },
@@ -2319,7 +2364,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           name: "Free_Tier", 
                           price: "0.00", 
                           desc: "Basic neural access.", 
-                          features: ["5 Reports / Week", "Core SEO Tools", "Community Terminal"],
+                          features: ["5 Reports / Week", "Advanced SEO Tools", "Community Terminal"],
                         },
                         { 
                           name: "Pro_Forge", 
@@ -2416,12 +2461,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   { id: 'home', icon: Home, label: t.home },
                   { id: 'video', icon: Video, label: t.videoGen },
                   { id: 'shorts', icon: Zap, label: t.shortsGen },
-                  { id: 'idea', icon: Lightbulb, label: t.ideaGen },
                   { id: 'image', icon: Palette, label: t.imageGen },
                   { id: 'longVideo', icon: Film, label: 'Long Video' },
+                  { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                   { id: 'voice', icon: Mic, label: t.voiceOver },
                   { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
-                  { id: 'analytics', icon: BarChart3, label: 'Insights' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -2492,12 +2536,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       { id: 'home', icon: Home, label: t.home },
                       { id: 'video', icon: Video, label: t.videoGen },
                       { id: 'shorts', icon: Zap, label: t.shortsGen },
-                      { id: 'idea', icon: Lightbulb, label: t.ideaGen },
                       { id: 'image', icon: Palette, label: t.imageGen },
                       { id: 'longVideo', icon: Film, label: 'Long Video' },
+                      { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                       { id: 'voice', icon: Mic, label: t.voiceOver },
                       { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
-                      { id: 'analytics', icon: BarChart3, label: 'Insights' },
                     ].map((item) => (
                       <button
                         key={item.id}
@@ -2562,12 +2605,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     { id: 'home', icon: Home, label: t.home },
                     { id: 'video', icon: Video, label: t.videoGen },
                     { id: 'shorts', icon: Zap, label: t.shortsGen },
-                    { id: 'idea', icon: Lightbulb, label: t.ideaGen },
                     { id: 'image', icon: Palette, label: t.imageGen },
                     { id: 'longVideo', icon: Film, label: 'Long Video' },
+                    { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                     { id: 'voice', icon: Mic, label: t.voiceOver },
                     { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
-                    { id: 'analytics', icon: BarChart3, label: 'Insights' },
                   ].map((item) => (
                     <button
                       key={item.id}
@@ -2657,11 +2699,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                            currentView === 'youtube' ? 'YouTube Lab' : 
                            currentView === 'video' ? 'Script Forge' : 
                            currentView === 'longVideo' ? 'Pro Video Cinema' : 
+                           currentView === 'megaScript' ? 'Mega Script (60m)' : 
                            currentView === 'shorts' ? 'Vertical Viral' : 
                            currentView === 'idea' ? 'Idea Machine' :
                            currentView === 'image' ? 'Lens Alchemy' : 
                            currentView === 'voice' ? 'Vocal Synthesis' :
-                           currentView === 'voiceExtractor' ? 'Frequency Extractor' : 'Core Processing'}
+                           currentView === 'voiceExtractor' ? 'Frequency Extractor' : 'AI Studio Workspace'}
                         </h1>
                         <p className="text-[var(--text-muted)] font-bold tracking-widest uppercase text-[8px] md:text-[10px] mt-2">
                           Status: <span className="text-hw-accent">Operational</span> • Buffer: <span className="text-hw-accent">Clear</span>
@@ -2744,7 +2787,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-3">
                   <label className="text-[10px] uppercase tracking-widest text-hw-muted font-bold flex items-center gap-2">
                     <FileText size={14} className="text-hw-accent" /> {
-                      (currentView === 'video' || currentView === 'longVideo') ? t.videoDesc : 
+                      (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
                       currentView === 'image' ? t.imageInput :
@@ -2755,7 +2798,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="relative w-full">
                     <textarea 
                       placeholder={
-                        (currentView === 'video' || currentView === 'longVideo') ? t.videoDescPlaceholder : 
+                        (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.videoDescPlaceholder : 
                         currentView === 'shorts' ? (uiLang === 'en' ? "Enter your shorts topic (e.g., 'Life hacks for busy people')" : "আপনার শর্টস এর বিষয় লিখুন (যেমন, 'ব্যস্ত মানুষের জন্য লাইফ হ্যাকস')") :
                         currentView === 'idea' ? t.nichePlaceholder :
                         currentView === 'image' ? t.imagePlaceholder :
@@ -2820,131 +2863,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         )}
                       </div>
                       
-                      <div className="space-y-6">
-                        {/* Scene Presets */}
-                        <div className="space-y-3">
-                          <span className="text-[9px] uppercase tracking-widest text-hw-accent/80 font-bold px-1 flex items-center gap-1.5">
-                            <Zap size={12} /> {uiLang === 'en' ? "Scene Presets" : "সিন প্রিসেট"}
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {SCENE_PRESETS.map((preset, idx) => (
-                              <motion.button
-                                key={idx}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(0, 229, 255, 0.2)" }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => {
-                                  const currentText = topics[currentView];
-                                  const elementsToAdd = preset.elements.filter(el => !currentText.includes(el));
-                                  if (elementsToAdd.length === 0) {
-                                    toast.info(uiLang === 'en' ? "Preset already applied" : "প্রিসেট ইতিমধ্যে যুক্ত আছে");
-                                    return;
-                                  }
-                                  const separator = currentText.trim() ? ", " : "";
-                                  setTopics(prev => ({ 
-                                    ...prev, 
-                                    [currentView]: currentText + separator + elementsToAdd.join(', ') 
-                                  }));
-                                  toast.success(`${preset[uiLang]} ${uiLang === 'en' ? "applied!" : "যুক্ত হয়েছে!"}`);
-                                }}
-                                className="text-[11px] px-3 py-2 rounded-xl bg-hw-accent/10 border border-hw-accent/20 hover:border-hw-accent/50 transition-all flex items-center gap-2 text-hw-accent font-bold shadow-sm"
-                              >
-                                <span>{preset.icon}</span>
-                                {preset[uiLang]}
-                              </motion.button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Granular Categories */}
-                        {Object.entries(PROMPT_ELEMENTS)
-                          .filter(([category]) => {
-                            if (currentView === 'image' && category === 'movement') return false;
-                            return true;
-                          })
-                          .map(([category, elements]) => {
-                            const isExpanded = expandedCategories.includes(category);
-                            return (
-                              <div key={category} className="space-y-2 border-t border-white/5 pt-4 first:border-0 first:pt-0">
-                                <button 
-                                  onClick={() => setExpandedCategories(prev => 
-                                    prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-                                  )}
-                                  className="w-full flex items-center justify-between text-[10px] uppercase tracking-widest text-hw-muted font-bold px-1 hover:text-white transition-colors"
-                                >
-                                  <span>
-                                    {category === 'subject' ? (uiLang === 'en' ? "Subjects" : "বিষয়") :
-                                     category === 'camera' ? (uiLang === 'en' ? "Camera Angles" : "ক্যামেরা অ্যাঙ্গেল") :
-                                     category === 'lighting' ? (uiLang === 'en' ? "Lighting Styles" : "লাইটিং স্টাইল") :
-                                     category === 'style' ? (uiLang === 'en' ? "Artistic Styles" : "আর্টিস্টিক স্টাইল") :
-                                     category === 'mood' ? (uiLang === 'en' ? "Mood & Atmosphere" : "মুড ও পরিবেশ") :
-                                     category === 'environment' ? (uiLang === 'en' ? "Environments" : "পরিবেশ") :
-                                     category === 'composition' ? (uiLang === 'en' ? "Composition" : "কম্পোজিশন") :
-                                     category === 'colors' ? (uiLang === 'en' ? "Color Palettes" : "রঙের প্যালেট") :
-                                     category === 'weather' ? (uiLang === 'en' ? "Weather" : "আবহাওয়া") :
-                                     category === 'time' ? (uiLang === 'en' ? "Time of Day" : "দিনের সময়") :
-                                     category === 'texture' ? (uiLang === 'en' ? "Textures" : "টেক্সচার") :
-                                     (uiLang === 'en' ? "Movements" : "মুভমেন্ট")}
-                                  </span>
-                                  {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                                </button>
-                                
-                                <AnimatePresence>
-                                  {isExpanded && (
-                                    <motion.div 
-                                      initial={{ height: 0, opacity: 0 }}
-                                      animate={{ height: 'auto', opacity: 1 }}
-                                      exit={{ height: 0, opacity: 0 }}
-                                      className="overflow-hidden"
-                                    >
-                                      <div className="flex flex-wrap gap-2 py-2">
-                                        {elements.map((el, idx) => {
-                                          const isSelected = topics[currentView].split(',').map(s => s.trim()).includes(el.en);
-                                          return (
-                                            <motion.button
-                                              key={idx}
-                                              whileHover={{ scale: 1.05, backgroundColor: isSelected ? "rgba(0, 229, 255, 0.3)" : "rgba(255, 255, 255, 0.1)" }}
-                                              whileTap={{ scale: 0.95 }}
-                                              onClick={() => {
-                                                const currentText = topics[currentView];
-                                                const promptValue = el.en;
-                                                
-                                                if (isSelected) {
-                                                  const newText = currentText
-                                                    .split(',')
-                                                    .map(s => s.trim())
-                                                    .filter(s => s !== promptValue)
-                                                    .join(', ');
-                                                  setTopics(prev => ({ ...prev, [currentView]: newText }));
-                                                  toast.info(`${el[uiLang]} ${uiLang === 'en' ? "removed!" : "মুছে ফেলা হয়েছে!"}`);
-                                                } else {
-                                                  const separator = currentText.trim() ? ", " : "";
-                                                  setTopics(prev => ({ 
-                                                    ...prev, 
-                                                    [currentView]: currentText + separator + promptValue 
-                                                  }));
-                                                  toast.success(`${el[uiLang]} ${uiLang === 'en' ? "added!" : "যুক্ত হয়েছে!"}`);
-                                                }
-                                              }}
-                                              className={cn(
-                                                "text-[11px] px-3 py-2 rounded-xl border transition-all flex items-center gap-2 font-medium",
-                                                isSelected 
-                                                  ? "bg-hw-accent/20 border-hw-accent text-white shadow-[0_0_15px_rgba(139,92,246,0.2)]" 
-                                                  : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white"
-                                              )}
-                                            >
-                                              <span>{el.icon}</span>
-                                              {el[uiLang]}
-                                            </motion.button>
-                                          );
-                                        })}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            );
-                          })}
-                      </div>
+                    <div className="space-y-6">
+                      {/* Form options would go here */}
+                    </div>
                     </div>
                   )}
                 </div>
@@ -3181,69 +3102,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
                 </div>
 
-                <div className="pt-12 border-t border-white/5 space-y-8">
-                  <div className="flex items-center justify-between">
-                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
-                      <Sparkles size={14} /> Semantic Prompt Core
-                    </h3>
-                  </div>
-
-                  <div className="hw-panel p-10 space-y-10 group overflow-hidden">
-                    <div className="space-y-4">
-                      <label className="hw-label text-white/50">Frequency Matrix</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {['Video', 'Story', 'Image', 'Voice Over'].map((cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => setOptions(prev => ({ ...prev, promptCategory: cat as any }))}
-                            className={cn(
-                              "hw-btn-industrial py-3 text-[9px]",
-                              options.promptCategory === cat && "active"
-                            )}
-                          >
-                            {cat === 'Video' ? (uiLang === 'en' ? 'Video' : 'ভিডিও') :
-                             cat === 'Story' ? (uiLang === 'en' ? 'Story' : 'গল্প') :
-                             cat === 'Image' ? (uiLang === 'en' ? 'Image' : 'ছবি') :
-                             (uiLang === 'en' ? 'Voice Over' : 'ভয়েস ওভার')}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      {[
-                        { label: 'Optics', value: formOptions.visualStyle, key: 'visualStyle', options: ['Cinematic', 'Realistic', 'Anime', 'Cyberpunk', 'Minimalist'] },
-                        { label: 'Angle', value: formOptions.cameraAngle, key: 'cameraAngle', options: ['Wide', 'Close-up', 'POV', 'High Angle'] },
-                        { label: 'Photon', value: formOptions.lighting, key: 'lighting', options: ['Natural', 'Neon', 'Moody', 'Studio'] },
-                        { label: 'Phase', value: formOptions.mood, key: 'mood', options: ['Energetic', 'Epic', 'Mysterious', 'Calm'] },
-                      ].map(field => (
-                        <div key={field.key} className="space-y-3">
-                          <label className="hw-label opacity-60 text-[8px]">{field.label}</label>
-                          <select 
-                            value={field.value} 
-                            onChange={(e) => setFormOptions(prev => ({...prev, [field.key]: e.target.value}))} 
-                            className="w-full bg-black/40 border border-white/5 rounded-lg p-2.5 text-[10px] font-black uppercase text-hw-muted outline-none focus:border-hw-accent/30 transition-colors appearance-none cursor-pointer"
-                          >
-                            {field.options.map(o => <option key={o} value={o}>{o}</option>)}
-                          </select>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="hw-label text-white/50">{uiLang === 'en' ? 'Input Stream Core' : 'ইনপুট স্ট্রিম কোর'}</label>
-                      <textarea 
-                        placeholder={uiLang === 'en' ? "ENTER SYSTEM INSTRUCTIONS..." : "সিস্টেম ইনস্ট্রাকশন লিখুন..."}
-                        className="hw-display w-full min-h-[140px] p-5 text-sm"
-                        value={topics.promptGen}
-                        onChange={(e) => {
-                          setTopics(prev => ({ ...prev, promptGen: e.target.value, home: '' }));
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
+                <div className="pt-12 border-t border-white/5 space-y-12">
                   {/* Best Posting Time Section */}
                   <div className="space-y-6 pt-8 border-t border-[var(--border-main)]">
                     <div className="flex items-center gap-2 px-1">
@@ -3281,7 +3140,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
               {currentView === 'voice' && (
                 <div className="hw-panel p-8 space-y-8">
@@ -3555,7 +3415,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 </div>
               )}
 
-              {(currentView === 'video' || currentView === 'longVideo' || currentView === 'image' || currentView === 'voiceExtractor') && (
+              {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'image' || currentView === 'voiceExtractor') && (
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -3563,7 +3423,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-wider font-semibold">
                       <span className="bg-[var(--bg-card)] px-3 text-[var(--text-muted)]">
-                        {(currentView === 'video' || currentView === 'longVideo') ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
+                        {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
                          currentView === 'voiceExtractor' ? t.uploadAudio : t.uploadImage}
                       </span>
                     </div>
@@ -3605,11 +3465,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : (
                       <>
                         <div className="w-14 h-14 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] shadow-inner">
-                          {(currentView === 'video' || currentView === 'longVideo') ? <Video size={24} /> : 
+                          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? <Video size={24} /> : 
                            currentView === 'voiceExtractor' ? <AudioLines size={24} /> : <Upload size={24} />}
                         </div>
                         <p className="text-sm font-medium text-[var(--text-muted)] text-center max-w-xs">
-                          {(currentView === 'video' || currentView === 'longVideo') ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
+                          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
                            currentView === 'image' ? (uiLang === 'en' ? "Click to upload image for extraction & analysis" : "এক্সট্র্যাকশন ও বিশ্লেষণের জন্য ইমেজ আপলোড করতে ক্লিক করুন") :
                            currentView === 'voiceExtractor' ? t.uploadAudioPrompt :
                            t.uploadPrompt}
@@ -3927,7 +3787,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           {/* Advanced AI Context & Strategy */}
-          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'shorts' || options.generateScript) && (
+          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'shorts' || options.generateScript) && (
             <section className="hw-panel p-8 md:p-12 space-y-12 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-hw-accent/5 rounded-full -mr-24 -mt-24 blur-3xl" />
               
@@ -4038,7 +3898,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
                 <span className="text-lg font-bold tracking-wider uppercase">
                   {
-                    (currentView === 'video' || currentView === 'longVideo') ? t.genPrompt : 
+                    (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.genPrompt : 
                     currentView === 'idea' ? t.genIdea : 
                     currentView === 'image' ? t.genImage :
                     currentView === 'voice' ? t.genVoice :
@@ -4999,455 +4859,57 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 )}
 </AnimatePresence>
 
-      {/* Settings Modal */}
-          <AnimatePresence>
-            {showSettings && (
-              <div className="fixed inset-0 z-[100] overflow-y-auto">
-                {/* Backdrop */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setShowSettings(false)}
-                  className="fixed inset-0 bg-black/90 backdrop-blur-md"
-                />
-                
-                {/* Centering Container */}
-                <div className="min-h-screen flex items-center justify-center p-4">
-                  {/* Modal Container */}
-                  <motion.div 
-                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-lg bg-black/80 border border-white/10 rounded-[2rem] p-6 sm:p-8 space-y-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-hw-accent to-transparent" />
-                  
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
-                      <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-                        <Globe size={24} />
-                      </div>
-                      <span>{t.settings}</span>
-                    </h2>
-                    <button 
-                      onClick={() => setShowSettings(false)}
-                      className="p-3 text-white/50 hover:text-hw-accent transition-colors rounded-full hover:bg-white/5"
-                    >
-                      <X size={24} />
-                    </button>
-                  </div>
+<SettingsModal
+  isOpen={showSettings}
+  onClose={() => setShowSettings(false)}
+  uiLang={uiLang}
+  theme={theme}
+  setTheme={setTheme}
+  aiProvider={aiProvider}
+  setAiProvider={setAiProvider}
+  connectionStatus={connectionStatus}
+  testingConnection={testingConnection}
+  testConnection={testConnection}
+  customGeminiKey={customGeminiKey}
+  setCustomGeminiKey={setCustomGeminiKey}
+  customOpenaiKey={customOpenaiKey}
+  setCustomOpenaiKey={setCustomOpenaiKey}
+  customGroqKey={customGroqKey}
+  setCustomGroqKey={setCustomGroqKey}
+  customDeepseekKey={customDeepseekKey}
+  setCustomDeepseekKey={setCustomDeepseekKey}
+  customPerplexityKey={customPerplexityKey}
+  setCustomPerplexityKey={setCustomPerplexityKey}
+  customGemmaKey={customGemmaKey}
+  setCustomGemmaKey={setCustomGemmaKey}
+  customOpenrouterKey={customOpenrouterKey}
+  setCustomOpenrouterKey={setCustomOpenrouterKey}
+  setConnectionStatus={setConnectionStatus}
+  saveAIConfig={saveAIConfig}
+  resetAIConfig={resetAIConfig}
+  downloadHistory={downloadHistory}
+  deferredPrompt={deferredPrompt}
+  installApp={installApp}
+  clearHistory={clearHistory}
+  t={t}
+/>
 
-                  <div className="space-y-8">
-                    {/* Theme Selection */}
-                    <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2 px-1">
-                        <Palette size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Appearance Theme" : "অ্যাপিয়ারেন্স থিম"}
-                      </label>
-                      <div className="grid grid-cols-3 gap-4 p-2 bg-black/40 rounded-[1.5rem] border border-white/10 shadow-inner">
-                        {[
-                          { id: 'dark', label: uiLang === 'en' ? 'Dark' : 'ডার্ক', icon: Moon },
-                          { id: 'light', label: uiLang === 'en' ? 'Light' : 'লাইট', icon: Sun },
-                          { id: 'scifi', label: uiLang === 'en' ? 'Sci-Fi' : 'সাই-ফাই', icon: Rocket }
-                        ].map((t) => (
-                          <motion.button
-                            key={t.id}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => setTheme(t.id as any)}
-                            className={cn(
-                              "relative py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-3 z-10",
-                              theme === t.id ? "text-black" : "text-white/50 hover:text-white"
-                            )}
-                          >
-                            {theme === t.id && (
-                              <motion.div
-                                layoutId="activeTheme"
-                                className="absolute inset-0 bg-hw-accent rounded-2xl -z-10 shadow-[0_0_20px_rgba(139,92,246,0.4)]"
-                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                              />
-                            )}
-                            <t.icon size={20} className={cn(
-                              "transition-all duration-500",
-                              theme === t.id ? "scale-110" : "scale-100"
-                            )} />
-                            {t.label}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* API Keys List */}
-                      <div className="space-y-4">
-                        <label className="text-[10px] uppercase tracking-widest text-white/50 font-black flex items-center gap-2 px-1">
-                          <Zap size={14} className="text-hw-accent" /> {uiLang === 'en' ? "Manage API Keys" : "এপিআই কী ম্যানেজমেন্ট"}
-                        </label>
-                        
-                        <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma', 'openrouter'] as AIProvider[]).map((p) => (
-                            <div key={p} className="p-6 rounded-[1.5rem] bg-black/40 border border-white/10 space-y-5 group hover:border-hw-accent/30 transition-all shadow-sm">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                  <div className={cn(
-                                    "w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black uppercase tracking-widest shadow-inner",
-                                    aiProvider === p ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]" : "bg-white/5 text-white/50"
-                                  )}>
-                                    {p.charAt(0)}
-                                  </div>
-                                  <div>
-                                    <h4 className="text-xs font-black text-white uppercase tracking-widest">{p === 'groq' ? 'Groq' : p === 'perplexity' ? 'Perplexity' : p === 'gemma' ? 'Gemma' : p === 'openrouter' ? 'OpenRouter' : p}</h4>
-                                    <div className="flex items-center gap-2 mt-2">
-                                      <div className={cn(
-                                        "w-2 h-2 rounded-full",
-                                        connectionStatus[p] === 'connected' ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : 
-                                        connectionStatus[p] === 'testing' ? "bg-blue-500 animate-pulse" :
-                                        connectionStatus[p] === 'error' ? "bg-red-500" : "bg-white/20"
-                                      )} />
-                                      <span className={cn(
-                                        "text-[9px] font-bold uppercase tracking-widest",
-                                        connectionStatus[p] === 'connected' ? "text-green-500" : 
-                                        connectionStatus[p] === 'testing' ? "text-blue-500" :
-                                        connectionStatus[p] === 'error' ? "text-red-500" : "text-white/50"
-                                      )}>
-                                        {connectionStatus[p]}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => testConnection(p)}
-                                    disabled={testingConnection[p]}
-                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/50 hover:text-hw-accent hover:border-hw-accent/30 transition-all disabled:opacity-50"
-                                  >
-                                    {testingConnection[p] ? <RefreshCw size={14} className="animate-spin" /> : "Test"}
-                                  </button>
-                                  <button
-                                    onClick={() => setAiProvider(p)}
-                                    className={cn(
-                                      "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                      aiProvider === p ? "bg-hw-accent text-white shadow-[0_0_20px_rgba(139,92,246,0.4)]" : "bg-white/5 text-white/50 hover:text-white"
-                                    )}
-                                  >
-                                    {aiProvider === p ? "Active" : "Select"}
-                                  </button>
-                                </div>
-                              </div>
-
-                              <div className="relative">
-                                <input 
-                                  type="password" 
-                                  placeholder={`${p.toUpperCase()} API Key...`}
-                                  className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-xs font-medium focus:outline-none focus:border-hw-accent/50 transition-all text-white placeholder:text-white/30 shadow-inner"
-                                  value={
-                                    p === 'gemini' ? customGeminiKey : 
-                                    p === 'openai' ? customOpenaiKey : 
-                                    p === 'groq' ? customGroqKey :
-                                    p === 'deepseek' ? customDeepseekKey :
-                                    p === 'perplexity' ? customPerplexityKey :
-                                    p === 'gemma' ? customGemmaKey :
-                                    customOpenrouterKey
-                                  }
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (p === 'gemini') setCustomGeminiKey(val);
-                                    else if (p === 'openai') setCustomOpenaiKey(val);
-                                    else if (p === 'groq') setCustomGroqKey(val);
-                                    else if (p === 'deepseek') setCustomDeepseekKey(val);
-                                    else if (p === 'perplexity') setCustomPerplexityKey(val);
-                                    else if (p === 'gemma') setCustomGemmaKey(val);
-                                    else if (p === 'openrouter') setCustomOpenrouterKey(val);
-                                    
-                                    // Reset status when key changes
-                                    setConnectionStatus(prev => ({ ...prev, [p]: val ? 'connected' : 'disconnected' }));
-                                  }}
-                                />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]/40">
-                                  <Key size={14} />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <p className="text-[10px] text-[var(--text-muted)] italic leading-relaxed px-1">
-                          {t.apiNote}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-4 pt-8 border-t border-white/10">
-                      <button 
-                        onClick={saveAIConfig}
-                        className="w-full py-5 rounded-[1.5rem] bg-hw-accent text-white font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
-                      >
-                        <Save size={20} />
-                        {uiLang === 'en' ? "Save Configuration" : "কনফিগারেশন সেভ করুন"}
-                      </button>
-                      <button 
-                        onClick={() => setShowSettings(false)}
-                        className="w-full py-5 rounded-[1.5rem] bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all active:scale-[0.98]"
-                      >
-                        {uiLang === 'en' ? "Close Settings" : "সেটিংস বন্ধ করুন"}
-                      </button>
-                    </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button 
-                          onClick={() => {
-                            resetAIConfig();
-                            setAiProvider('gemini');
-                            setCustomGeminiKey('');
-                            setCustomOpenaiKey('');
-                            setCustomGroqKey('');
-                            setCustomDeepseekKey('');
-                            setCustomPerplexityKey('');
-                            toast.success(uiLang === 'en' ? "AI Configuration Reset!" : "AI কনফিগারেশন রিসেট করা হয়েছে!");
-                            setTimeout(() => window.location.reload(), 1000);
-                          }}
-                          className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/50 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all flex items-center justify-center gap-3"
-                        >
-                          <RefreshCw size={16} /> {uiLang === 'en' ? "Reset Default" : "ডিফল্ট রিসেট"}
-                        </button>
-
-                        <button 
-                          onClick={downloadHistory}
-                          className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/50 font-black text-[10px] uppercase tracking-widest hover:bg-hw-accent/10 hover:text-hw-accent hover:border-hw-accent/30 transition-all flex items-center justify-center gap-3"
-                        >
-                          <Download size={16} /> {uiLang === 'en' ? "Export Data" : "ডেটা এক্সপোর্ট"}
-                        </button>
-                      </div>
-
-                      {deferredPrompt && (
-                        <button 
-                          onClick={installApp}
-                          className="w-full py-5 rounded-[1.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
-                        >
-                          <Download size={22} /> {uiLang === 'en' ? "Install as Android App" : "অ্যান্ড্রয়েড অ্যাপ হিসেবে ইনস্টল করুন"}
-                        </button>
-                      )}
-
-                      <button 
-                        onClick={clearHistory}
-                        className="w-full py-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-500/70 font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-3"
-                      >
-                        <Trash2 size={16} /> {t.clearHistory}
-                      </button>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            )}
-          </AnimatePresence>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #00E5FF;
-          opacity: 0.2;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #00E5FF;
-          opacity: 0.4;
-        }
-      `}} />
-
-      {/* History Modal */}
-      <AnimatePresence>
-        {showHistory && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowHistory(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-3xl bg-black/80 border border-white/10 rounded-[2rem] p-6 sm:p-8 h-[85vh] flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
-            >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-hw-accent to-transparent" />
-              
-              <div className="flex flex-col gap-6 w-full mb-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-white">
-                    <div className="w-12 h-12 rounded-2xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-                      <History size={24} />
-                    </div>
-                    <span>{uiLang === 'en' ? "Generation History" : "জেনারেশন হিস্ট্রি"}</span>
-                  </h2>
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={downloadHistory} 
-                      className="p-3 rounded-xl text-white/50 hover:text-hw-accent hover:bg-white/5 transition-colors"
-                      title="Download History"
-                    >
-                      <Download size={20} />
-                    </button>
-                    <button 
-                      onClick={clearHistory} 
-                      className="p-3 rounded-xl text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                      title="Clear History"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                    <button 
-                      onClick={() => setShowHistory(false)}
-                      className="p-3 rounded-xl text-white/50 hover:text-hw-accent hover:bg-white/5 transition-colors"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <select 
-                    value={historyFilter} 
-                    onChange={(e) => setHistoryFilter(e.target.value)}
-                    className="bg-black/50 text-[10px] uppercase font-black text-white/50 px-5 py-3 rounded-full border border-white/10 outline-none focus:border-hw-accent/50 transition-all cursor-pointer hover:bg-white/5 shadow-inner"
-                  >
-                    <option value="all">All Categories</option>
-                    <option value="idea">Idea Gen</option>
-                    <option value="image">Image Gen</option>
-                    <option value="voice">Voice Gen</option>
-                    <option value="shorts">Shorts Gen</option>
-                    <option value="youtube">YouTube AI</option>
-                  </select>
-                  <button 
-                    onClick={() => setHistorySort(s => s === 'newest' ? 'oldest' : 'newest')}
-                    className="bg-black/50 text-[10px] uppercase font-black text-white/50 px-5 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-all flex items-center gap-2 shadow-inner"
-                  >
-                    {historySort === 'newest' ? <ArrowDownWideNarrow size={12} /> : <ArrowUpWideNarrow size={12} />}
-                    {historySort === 'newest' ? 'Newest First' : 'Oldest First'}
-                  </button>
-                  <div className="flex-1 min-w-[200px] relative">
-                    <input 
-                      type="text"
-                      placeholder="Search keywords..."
-                      value={historySearch}
-                      onChange={(e) => setHistorySearch(e.target.value)}
-                      className="w-full bg-black/50 text-[10px] font-black text-white px-10 py-3 rounded-full border border-white/10 outline-none focus:border-hw-accent/50 transition-all placeholder:text-white/30 shadow-inner"
-                    />
-                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 px-1">
-                  <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 shadow-inner">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-white/50 px-3">Date Range:</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))} className="bg-transparent text-[10px] font-black text-white px-2 py-1 outline-none cursor-pointer" />
-                    <span className="text-white/30 text-[10px]">→</span>
-                    <input type="date" onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))} className="bg-transparent text-[10px] font-black text-white px-2 py-1 outline-none cursor-pointer" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                {history
-                  .filter(item => 
-                    (historyFilter === 'all' || item.type === historyFilter) &&
-                    (historySearch === '' || item.topic.toLowerCase().includes(historySearch.toLowerCase())) &&
-                    (dateRange.start === '' || new Date(item.id) >= new Date(dateRange.start)) &&
-                    (dateRange.end === '' || new Date(item.id) <= new Date(dateRange.end))
-                  )
-                  .sort((a, b) => historySort === 'newest' ? Number(new Date(b.id)) - Number(new Date(a.id)) : Number(new Date(a.id)) - Number(new Date(b.id)))
-                  .length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-white/30">
-                    <Clock size={64} className="mb-4 opacity-10" />
-                    <p className="font-medium">{t.noHistory}</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {history
-                      .filter(item => 
-                        (historyFilter === 'all' || item.type === historyFilter) &&
-                        (historySearch === '' || item.topic.toLowerCase().includes(historySearch.toLowerCase())) &&
-                        (dateRange.start === '' || new Date(item.id) >= new Date(dateRange.start)) &&
-                        (dateRange.end === '' || new Date(item.id) <= new Date(dateRange.end))
-                      )
-                      .sort((a, b) => historySort === 'newest' ? Number(new Date(b.id)) - Number(new Date(a.id)) : Number(new Date(a.id)) - Number(new Date(b.id)))
-                      .map((item) => (
-                      <motion.div 
-                        key={item.id}
-                        whileHover={{ scale: 1.02, backgroundColor: "rgba(0, 229, 255, 0.05)" }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => {
-                          const targetView = item.type === 'youtube' ? 'home' : (item.type === 'image-to-prompt' ? 'image' : item.type as ViewType);
-                          setCurrentView(targetView);
-                          setResults(prev => ({ ...prev, [targetView]: item.result }));
-                          setShowHistory(false);
-                        }}
-                        className="p-6 rounded-2xl bg-black/40 border border-white/10 hover:border-hw-accent/30 transition-all cursor-pointer group shadow-sm"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-hw-accent/10 flex items-center justify-center text-hw-accent shadow-inner">
-                              {item.type === 'idea' && <Lightbulb size={18} />}
-                              {item.type === 'image' && <ImageIcon size={18} />}
-                              {item.type === 'voice' && <Mic size={18} />}
-                              {item.type === 'voiceExtractor' && <AudioLines size={18} />}
-                              {item.type === 'promptGen' && <Sparkles size={18} />}
-                              {item.type === 'shorts' && <Zap size={18} />}
-                              {item.type === 'image-to-prompt' && <Search size={18} />}
-                              {item.type === 'youtube' && <Video size={18} />}
-                            </div>
-                            <span className="text-[10px] uppercase tracking-widest text-hw-accent font-black">
-                              {
-                                item.type === 'youtube' ? (uiLang === 'en' ? 'YouTube AI' : 'ইউটিউব এআই') : 
-                                item.type === 'idea' ? t.ideaGenHistory : 
-                                item.type === 'image' ? t.imageGenHistory :
-                                item.type === 'voice' ? t.voiceGenHistory :
-                                item.type === 'voiceExtractor' ? (uiLang === 'en' ? 'Voice Extractor' : 'ভয়েস এক্সট্র্যাক্টর') :
-                                item.type === 'shorts' ? (uiLang === 'en' ? 'Shorts Gen' : 'শর্টস জেন') :
-                                item.type === 'promptGen' ? t.promptGen :
-                                t.imageAnalysis
-                              }
-                            </span>
-                          </div>
-                          <span className="text-[9px] text-white/50 font-black uppercase tracking-widest flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
-                            <Clock size={10} />
-                            {format(item.timestamp, 'MMM d, HH:mm')}
-                          </span>
-                        </div>
-                        <p className="text-sm font-black line-clamp-2 group-hover:text-hw-accent transition-colors text-white leading-relaxed">
-                          {item.topic}
-                        </p>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+<HistoryModal
+  isOpen={showHistory}
+  onClose={() => setShowHistory(false)}
+  history={filteredHistory}
+  onClear={clearHistory}
+  onCopy={(text) => {
+    navigator.clipboard.writeText(text);
+    toast.success(uiLang === 'en' ? "Copied to clipboard!" : "ক্লিপবোর্ডে কপি হয়েছে!");
+  }}
+  onDownload={downloadItem}
+  uiLang={uiLang}
+  searchQuery={historySearch}
+  onSearchChange={setHistorySearch}
+  filterType={historyFilter}
+  onFilterChange={setHistoryFilter}
+/>
 
       {/* Contact Modal */}
       <AnimatePresence>
