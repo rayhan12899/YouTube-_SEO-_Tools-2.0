@@ -247,7 +247,7 @@ export interface GenerationOptions {
   contentType?: string;
   platform?: string;
   tone?: string;
-  voice?: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr';
+  voice?: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr' | 'Aoide' | 'Mila' | 'Arif' | 'Sumi' | 'Rahat' | 'Rashed';
   voiceTone?: string;
   voiceAccent?: string;
   voiceAge?: string;
@@ -608,9 +608,21 @@ export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" |
 
 export const generateVoiceOver = async (
   text: string, 
-  voiceName: 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr' = 'Kore',
+  voiceName: string = 'Kore',
   options?: { tone?: string; accent?: string; age?: string; gender?: string; voiceLanguage?: string }
 ) => {
+  // Map custom voice names to prebuilt ones if needed
+  const voiceMap: Record<string, string> = {
+    'Mila': 'Zephyr',
+    'Arif': 'Puck',
+    'Sumi': 'Kore',
+    'Rahat': 'Charon',
+    'Rashed': 'Fenrir',
+    'Aoide': 'Aoide' // Adding Aoide as it's a common gemini voice
+  };
+
+  const actualVoiceName = voiceMap[voiceName] || voiceName;
+
   let promptText = text;
   // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
   const MAX_TTS_CHARS = 4000;
@@ -629,8 +641,8 @@ export const generateVoiceOver = async (
     
     // Explicit instructions for natural human-like delivery
     const languageInstruction = options.voiceLanguage === 'bn' 
-      ? "Speak with a natural, expressive, and human-like Bangladeshi Bengali dialect, avoiding robotic processing. Use appropriate pauses and natural phrasing."
-      : "Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English.";
+      ? "Speak with a natural, expressive, and high-quality human-like Bangladeshi Bengali dialect. Avoid robotic tones or flat delivery. Incorporate natural breathing, pauses between sentences, and appropriate emotional intonation (human-like). Focus on clear pronunciation and a warm, engaging Bangladeshi accent."
+      : "Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
       
     promptText = `${languageInstruction} Deliver the following text in a ${instructions} style: ${text}`;
   }
@@ -641,13 +653,13 @@ export const generateVoiceOver = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
+      model: "gemini-3.1-flash-tts-preview",
       contents: [{ parts: [{ text: promptText }] }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName },
+            prebuiltVoiceConfig: { voiceName: actualVoiceName as any },
           },
         },
       },

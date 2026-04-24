@@ -737,7 +737,7 @@ export default function App() {
       generateKeywords: true,
       generateVoiceOver: true,
       language: 'bn' as 'bn' | 'en' | 'both' | 'hi',
-      voice: 'Kore' as 'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr',
+      voice: 'Sumi' as any,
       voiceTone: 'Professional',
       voiceAccent: 'US',
       voiceAge: 'Adult',
@@ -2066,7 +2066,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="w-12 h-12 rounded-xl bg-hw-accent/10 flex items-center justify-center border border-hw-accent/20 group-hover:bg-hw-accent/20 transition-all duration-300 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
                   <Youtube className="text-hw-accent" size={24} />
                 </div>
-                <span className="text-xl font-black italic tracking-tighter text-white group-hover:text-hw-accent transition-colors uppercase">AI Studio</span>
+                <span className="text-xl font-bold tracking-tight text-white group-hover:text-hw-accent transition-colors uppercase">AI Studio</span>
               </motion.div>
               
               <motion.div 
@@ -2077,7 +2077,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 {['Features', 'Intelligence', 'Systems', 'Manual'].map((item) => (
                   <button 
                     key={item}
-                    className="text-[10px] font-black text-hw-muted hover:text-hw-accent transition-all uppercase tracking-[0.2em]"
+                    className="text-[10px] font-bold text-hw-muted hover:text-hw-accent transition-all uppercase tracking-[0.2em]"
                   >
                     {item}
                   </button>
@@ -2652,7 +2652,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <div className="hw-label text-hw-accent flex items-center gap-2">
                           <Activity size={12} /> Live Processing Studio
                         </div>
-                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black italic tracking-tighter text-white uppercase leading-none break-words">
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white uppercase leading-tight break-words">
                           {currentView === 'home' ? t.dashboard : 
                            currentView === 'youtube' ? 'YouTube Lab' : 
                            currentView === 'video' ? 'Script Forge' : 
@@ -2699,7 +2699,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
               <div className="space-y-0.5 sm:space-y-1 overflow-hidden w-full max-w-full">
                 <p className="hw-label text-[8px] sm:text-[10px] truncate">{stat.label}</p>
-                <p className="text-sm sm:text-lg md:text-xl font-black text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors truncate">{stat.value}</p>
+                <p className="text-sm sm:text-lg md:text-xl font-bold text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors truncate">{stat.value}</p>
               </div>
             </motion.div>
           ))}
@@ -2716,7 +2716,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="hw-label text-hw-accent flex items-center gap-2">
                   <div className="hw-led bg-hw-accent" /> Signal Reception Path
                 </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white flex items-center gap-6 break-words">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight uppercase text-white flex items-center gap-6 break-words">
                   Forge Parameters
                 </h2>
                 <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-hw-muted">
@@ -3381,7 +3381,26 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <div className="space-y-2">
                             <p className="hw-label opacity-50">{t.femaleVoices}</p>
                             <div className="grid grid-cols-2 gap-2">
-                              {[
+                              {options.voiceLanguage === 'bn' ? [
+                                { id: 'Mila', label: 'Mila (Pro)', desc: 'Clear & Professional' },
+                                { id: 'Sumi', label: 'Sumi (Sweet)', desc: 'Natural & Warm' },
+                                { id: 'Aoide', label: 'Aoide (Calm)', desc: 'Smooth & Steady' },
+                                { id: 'Kore', label: 'Kore', desc: 'Default Female' }
+                              ].map((v) => (
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  key={v.id}
+                                  onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
+                                  className={cn(
+                                    "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                  )}
+                                >
+                                  <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
+                                  <span className="text-[9px] opacity-60">{v.desc}</span>
+                                </motion.button>
+                              )) : [
                                 { id: 'Kore', label: 'Kore (Warm)', desc: 'Natural & Soft' },
                                 { id: 'Zephyr', label: 'Zephyr (Pro)', desc: 'Clear & Crisp' }
                               ].map((v) => (
@@ -3405,7 +3424,26 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <div className="space-y-2">
                             <p className="hw-label opacity-50">{t.maleVoices}</p>
                             <div className="grid grid-cols-2 gap-2">
-                              {[
+                              {options.voiceLanguage === 'bn' ? [
+                                { id: 'Arif', label: 'Arif (Vlog)', desc: 'Friendly & Casual' },
+                                { id: 'Rahat', label: 'Rahat (News)', desc: 'Deep & Formal' },
+                                { id: 'Rashed', label: 'Rashed (Action)', desc: 'High Energy' },
+                                { id: 'Puck', label: 'Puck', desc: 'Default Male' }
+                              ].map((v) => (
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  key={v.id}
+                                  onClick={() => setOptions(prev => ({ ...prev, voice: v.id as any }))}
+                                  className={cn(
+                                    "p-3 rounded-lg border transition-all text-left flex flex-col gap-1",
+                                    options.voice === v.id ? "bg-hw-accent/10 border-hw-accent shadow-[0_0_15px_rgba(139,92,246,0.1)]" : "bg-black/40 border-hw-border text-hw-muted hover:border-hw-accent/30"
+                                  )}
+                                >
+                                  <span className={cn("text-xs font-bold", options.voice === v.id ? "text-hw-accent" : "text-white")}>{v.label}</span>
+                                  <span className="text-[9px] opacity-60">{v.desc}</span>
+                                </motion.button>
+                              )) : [
                                 { id: 'Puck', label: 'Puck', desc: 'Friendly' },
                                 { id: 'Charon', label: 'Charon', desc: 'Deep' },
                                 { id: 'Fenrir', label: 'Fenrir', desc: 'Strong' }
@@ -3894,7 +3932,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               <div className="absolute top-0 right-0 w-48 h-48 bg-hw-accent/5 rounded-full -mr-24 -mt-24 blur-3xl" />
               
               <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em] italic">
+                <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
                   <Rocket size={16} /> Advanced AI Strategy
                 </h2>
                 <div className="flex items-center gap-4">
@@ -3993,12 +4031,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             {loading ? (
               <>
                 <Loader2 className="animate-spin text-black" size={24} /> 
-                <span className="text-lg font-black tracking-widest uppercase">{t.processing}</span>
+                <span className="text-lg font-bold tracking-wider uppercase">{t.processing}</span>
               </>
             ) : (
               <>
                 <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
-                <span className="text-lg font-black tracking-widest uppercase">
+                <span className="text-lg font-bold tracking-wider uppercase">
                   {
                     (currentView === 'video' || currentView === 'longVideo') ? t.genPrompt : 
                     currentView === 'idea' ? t.genIdea : 
@@ -4016,7 +4054,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
                 <div className="lg:col-span-12 xl:col-span-12 w-full max-w-7xl mx-auto pt-20 border-t border-white/5 space-y-12 pb-32">
                   <div className="flex items-center justify-between">
-                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.4em]">
+                    <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.2em]">
                       <Sparkles size={14} /> Neural Synthetic Result
                     </h3>
                     <div className="flex items-center gap-4">
@@ -4032,7 +4070,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     
                     <div className="flex items-center justify-between mb-12 relative z-10 border-b border-white/5 pb-8">
                       <div>
-                        <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-white uppercase leading-none">
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white uppercase leading-tight">
                           System <span className="text-hw-accent">Output</span>
                         </h2>
                         <div className="flex items-center gap-3 mt-4">
@@ -4075,8 +4113,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                              <Sparkles size={64} />
                           </div>
                           <div className="space-y-4">
-                            <h3 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">{t.readyToCreate}</h3>
-                            <p className="text-[10px] font-black text-hw-muted uppercase tracking-[0.5em]">{t.readySubtitle}</p>
+                            <h3 className="text-4xl font-bold text-white tracking-tight uppercase leading-tight">{t.readyToCreate}</h3>
+                            <p className="text-[10px] font-bold text-hw-muted uppercase tracking-[0.2em]">{t.readySubtitle}</p>
                           </div>
                           
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
@@ -4269,7 +4307,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     {copied === 'videoTitle' ? <Check size={18} /> : <Copy size={18} />}
                                   </button>
                                 </div>
-                                <div className="text-2xl font-black text-white leading-tight italic">{currentResult.videoTitle}</div>
+                                <div className="text-2xl font-bold text-white leading-tight italic">{currentResult.videoTitle}</div>
                               </div>
                             )}
 
