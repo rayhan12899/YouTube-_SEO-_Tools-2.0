@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { History, X, Trash2, Copy, Download, Clock } from 'lucide-react';
+import { History, X, Trash2, Copy, Download, Clock, Search } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
 

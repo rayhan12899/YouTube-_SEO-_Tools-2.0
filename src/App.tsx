@@ -5,7 +5,7 @@
  * AI Creator Studio - Viral YouTube Content Generator
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Youtube, 
@@ -92,7 +92,7 @@ import { cn } from './lib/utils';
 import { translations } from './translations';
 import { io, Socket } from 'socket.io-client';
 import SettingsModal from './components/SettingsModal';
-import HistoryModal from './components/HistoryModal';
+import HistoryModalImport from './components/HistoryModal';
 import { 
   LineChart, 
   Line, 
@@ -231,7 +231,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript';
 
 // Constants moved to constants.ts
 
@@ -544,9 +544,18 @@ export default function App() {
     analyze: null,
     transcribe: null,
     shorts: null,
+    analytics: null,
     longVideo: null,
     megaScript: null
   });
+
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<string>('all');
+  const [historySort, setHistorySort] = useState<'newest' | 'oldest'>('newest');
+  const [historySearch, setHistorySearch] = useState<string>('');
+  const debouncedHistorySearch = useDebounce(historySearch, 300);
+  const [dateRange, setDateRange] = useState<{start: string, end: string}>({start: '', end: ''});
 
   const filteredHistory = useMemo(() => {
     return history
@@ -559,13 +568,6 @@ export default function App() {
       })
       .sort((a, b) => historySort === 'newest' ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
   }, [history, historyFilter, debouncedHistorySearch, historySort, dateRange]);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [historyFilter, setHistoryFilter] = useState<string>('all');
-  const [historySort, setHistorySort] = useState<'newest' | 'oldest'>('newest');
-  const [historySearch, setHistorySearch] = useState<string>('');
-  const debouncedHistorySearch = useDebounce(historySearch, 300);
-  const [dateRange, setDateRange] = useState<{start: string, end: string}>({start: '', end: ''});
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light' | 'scifi'>('scifi');
   const [showContact, setShowContact] = useState(false);
@@ -2065,6 +2067,21 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
       console.error("Failed to generate extension:", error);
       toast.error(uiLang === 'en' ? "Failed to generate extension" : "এক্সটেনশন তৈরি করতে ব্যর্থ হয়েছে");
     }
+  };
+
+  const downloadItem = (item: HistoryItem) => {
+    const blob = new Blob([JSON.stringify(item.result, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const fileName = `yt_gen_${item.type}_${format(item.timestamp, 'yyyyMMdd_HHmmss')}.json`;
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast.success(uiLang === 'en' ? "Item Downloaded!" : "আইটেম ডাউনলোড করা হয়েছে!");
   };
 
   const downloadHistory = () => {
