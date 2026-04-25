@@ -2534,7 +2534,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 {[
                   { id: 'home', icon: Home, label: t.home },
                   { id: 'video', icon: Video, label: t.videoGen },
-                  { id: 'shorts', icon: Zap, label: t.shortsGen },
                   { id: 'image', icon: Palette, label: t.imageGen },
                   { id: 'longVideo', icon: Film, label: 'Long Video' },
                   { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
@@ -2609,7 +2608,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     {[
                       { id: 'home', icon: Home, label: t.home },
                       { id: 'video', icon: Video, label: t.videoGen },
-                      { id: 'shorts', icon: Zap, label: t.shortsGen },
                       { id: 'image', icon: Palette, label: t.imageGen },
                       { id: 'longVideo', icon: Film, label: 'Long Video' },
                       { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
@@ -2678,7 +2676,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   {[
                     { id: 'home', icon: Home, label: t.home },
                     { id: 'video', icon: Video, label: t.videoGen },
-                    { id: 'shorts', icon: Zap, label: t.shortsGen },
                     { id: 'image', icon: Palette, label: t.imageGen },
                     { id: 'longVideo', icon: Film, label: 'Long Video' },
                     { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
