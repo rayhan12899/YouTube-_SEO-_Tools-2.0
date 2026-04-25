@@ -231,7 +231,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript' | 'universal';
 
 // Constants moved to constants.ts
 
@@ -508,7 +508,8 @@ export default function App() {
     shorts: '',
     analytics: '',
     longVideo: '',
-    megaScript: ''
+    megaScript: '',
+    universal: ''
   });
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -546,7 +547,8 @@ export default function App() {
     shorts: null,
     analytics: null,
     longVideo: null,
-    megaScript: null
+    megaScript: null,
+    universal: null
   });
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -821,7 +823,8 @@ export default function App() {
     shorts: null,
     analytics: null,
     longVideo: null,
-    megaScript: null
+    megaScript: null,
+    universal: null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1042,11 +1045,16 @@ export default function App() {
     let activeView = currentView;
     let activeTopic = currentTopic;
 
-    // If on home page and promptGen topic is filled, switch to promptGen logic
-    if (currentView === 'home' && topics.promptGen.trim()) {
-      activeView = 'promptGen';
-      activeTopic = topics.promptGen;
-      setCurrentView('promptGen');
+    // If on home page and topic is provided, set logic to universal if nothing else specific is selected
+    if (currentView === 'home' && (topics.home.trim() || topics.promptGen.trim())) {
+      if (topics.promptGen.trim()) {
+        activeView = 'promptGen';
+        activeTopic = topics.promptGen;
+        setCurrentView('promptGen');
+      } else {
+        activeView = 'universal';
+        activeTopic = topics.home;
+      }
     }
 
     if (!activeTopic && !currentSelectedMedia) {
@@ -1214,6 +1222,52 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoading(false);
           return;
         }
+      } else if (activeView === 'universal') {
+        setLoadingStep(2); // Generating...
+        setLoadingProgress(30);
+        const res = await generateContent({
+          topic: activeTopic,
+          ...options,
+          ...formOptions,
+          generateVideoPrompt: true,
+          generateImagePrompt: true,
+          generateThumbnail: true, // Also generate thumbnail idea
+          generateDescription: true,
+          generateTags: true,
+          generateScript: true,
+          generateKeywords: true,
+          generateSeoChecklist: true
+        });
+
+        // Auto-generate Voice Over
+        setLoadingStep(4); // Narrating...
+        setLoadingProgress(80);
+        try {
+          const cleanScript = res.script?.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim() || "";
+          if (cleanScript) {
+            const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
+              tone: options.voiceTone,
+              accent: options.voiceAccent,
+              age: options.voiceAge,
+              gender: options.voiceGender,
+              voiceLanguage: options.voiceLanguage
+            });
+            if (audioUrl) {
+              res.audioUrl = audioUrl;
+            }
+          }
+        } catch (vError) {
+          console.error("Universal Studio Voice Over Failed:", vError);
+        }
+
+        setResults(prev => ({ ...prev, [activeView]: res }));
+        saveToHistory(activeTopic, res, 'youtube');
+        toast.success(uiLang === 'en' ? "Universal Content Generated!" : "ইউনিভার্সাল কন্টেন্ট তৈরি হয়েছে!");
+        playNotificationSound();
+        
+        // Fetch related ideas
+        const ideasRes = await generateVideoIdeas(activeTopic, options.language);
+        setRelatedIdeas(ideasRes.ideas || []);
       } else if (activeView === 'video' || activeView === 'longVideo' || activeView === 'megaScript') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
@@ -1336,23 +1390,23 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setSelectedMedia(prev => ({ ...prev, [currentView]: base64 }));
         setTopics(prev => ({ ...prev, [currentView]: '' }));
         
-        if (currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'voiceExtractor') {
+        if (currentView === 'home' || currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'voiceExtractor') {
           setLoading(true);
           const progressInterval = simulateProgress();
           try {
             let res;
-            if (currentView === 'voiceExtractor') {
-              res = await generateVoiceExtractor(base64, file.type, options.language as 'en' | 'bn' | 'hi');
-              const msg = file.type.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
-              toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-            } else if (file.type.startsWith('video/')) {
-              res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
-              toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-            } else {
-              res = await analyzeImage(base64, file.type, options.language);
-              toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-            }
-            setResults(prev => ({ ...prev, [currentView]: res }));
+        if (currentView === 'voiceExtractor' || currentView === 'home') {
+          res = await generateVoiceExtractor(base64, file.type, options.language as 'en' | 'bn' | 'hi');
+          const msg = file.type.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
+          toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        } else if (file.type.startsWith('video/')) {
+          res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
+          toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        } else {
+          res = await analyzeImage(base64, file.type, options.language);
+          toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+        }
+        setResults(prev => ({ ...prev, [currentView === 'home' ? 'universal' : currentView]: res }));
           } catch (error) {
             console.error(error);
             toast.error(t.failed);
@@ -1717,7 +1771,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       shorts: '',
       analytics: '',
       longVideo: '',
-      megaScript: ''
+      megaScript: '',
+      universal: ''
     });
     setResults({
       landing: null,
@@ -1734,7 +1789,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       shorts: null,
       analytics: null,
       longVideo: null,
-      megaScript: null
+      megaScript: null,
+      universal: null
     });
     setSelectedMedia({
       landing: null,
@@ -1751,7 +1807,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       shorts: null,
       analytics: null,
       longVideo: null,
-      megaScript: null
+      megaScript: null,
+      universal: null
     });
     setMediaMimeType('');
     toast.success(uiLang === 'en' ? "Data Refreshed!" : "সব তথ্য রিফ্রেশ করা হয়েছে!");
@@ -2834,6 +2891,20 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         }
                       }}
                     />
+                    
+                    {currentView === 'home' && (
+                       <div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2">
+                        <label className="cursor-pointer text-hw-muted hover:text-hw-accent transition-colors p-2 bg-white/5 rounded-lg hover:bg-hw-accent/10">
+                          <Upload size={18} />
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*,video/*,audio/*"
+                            onChange={handleFileUpload}
+                          />
+                        </label>
+                      </div>
+                    )}
                     {showAllTopics && filteredSuggestions.length > 0 && (
                       <div className="absolute z-10 w-full mt-2 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] overflow-hidden max-h-[280px] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
                         <div className="p-3 text-[10px] uppercase tracking-widest text-hw-muted font-bold border-b border-white/10 bg-white/5">
@@ -3427,6 +3498,29 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           </div>
                         </div>
                       </div>
+
+                      <div className="space-y-3">
+                        <label className="hw-label flex items-center gap-2">
+                          <Users size={14} className="text-hw-accent" /> {uiLang === 'en' ? 'Voice Gender' : 'ভয়েজ জেন্ডার'}
+                        </label>
+                        <div className="flex gap-2">
+                          {[
+                            { id: 'male', label: uiLang === 'en' ? 'Male' : 'পুরুষ' },
+                            { id: 'female', label: uiLang === 'en' ? 'Female' : 'মহিলা' }
+                          ].map((gender) => (
+                            <button
+                              key={gender.id}
+                              onClick={() => setOptions(prev => ({ ...prev, voiceGender: gender.id as any }))}
+                              className={cn(
+                                "flex-1 py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
+                                options.voiceGender === gender.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
+                              )}
+                            >
+                              {gender.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3915,6 +4009,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
                 <span className="text-lg font-bold tracking-wider uppercase">
                   {
+                    currentView === 'universal' ? (uiLang === 'en' ? "Universal Generate" : "ইউনিভার্সাল জেনারেট") :
                     (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.genPrompt : 
                     currentView === 'idea' ? t.genIdea : 
                     currentView === 'image' ? t.genImage :
