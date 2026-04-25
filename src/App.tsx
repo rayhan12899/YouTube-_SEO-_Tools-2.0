@@ -3090,8 +3090,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {(showAllTopics ? POPULAR_TOPICS : POPULAR_TOPICS.slice(0, 8)).map((topic, idx) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {POPULAR_TOPICS.map((topic, idx) => (
                       <div key={idx} className="space-y-3">
                         <motion.button
                           initial={{ opacity: 0, y: 10 }}
@@ -3140,15 +3140,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         </AnimatePresence>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="flex justify-center pt-4">
-                    <button 
-                      onClick={() => setShowAllTopics(!showAllTopics)}
-                      className="hw-btn-industrial py-2 px-10 text-[9px]"
-                    >
-                      {showAllTopics ? t.showLess : t.showMore}
-                    </button>
                   </div>
                 </div>
 
