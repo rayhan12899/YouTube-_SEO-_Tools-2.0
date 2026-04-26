@@ -1121,3 +1121,32 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
     throw error;
   }
 };
+
+export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Promise<string[]> => {
+  if (isOffline) {
+    return [
+      "AI is changing the way we create content in 2026.",
+      "Shorts engagement is at an all-time high this week.",
+      "Vertical video is dominating social media platforms."
+    ];
+  }
+  try {
+    const prompt = `You are a viral content analyst. Provide 3 extremely short, high-value, and trending "Live Creator Insights" for a YouTube dashboard. Each insight should be a single punchy sentence about what's working NOW on social media. 
+    Language: ${language === 'bn' ? 'Bengali' : 'English'}
+    Format: Return as a simple JSON array of 3 strings.`;
+    const text = await callAI(prompt, "application/json");
+    const result = extractJson(text);
+    return Array.isArray(result) ? result : [
+      language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
+      language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
+      language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
+    ];
+  } catch (err) {
+    console.error("Live Insights Error:", err);
+    return [
+      language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
+      language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
+      language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
+    ];
+  }
+};

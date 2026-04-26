@@ -131,6 +131,7 @@ import {
   generateVoiceOver, 
   generateVoiceExtractor,
   getTrendingTopics,
+  getLiveInsights,
   GenerationOptions,
   AIProvider,
   updateAIConfig,
@@ -158,6 +159,90 @@ const TypewriterText = React.memo(({ text, className }: { text: string, classNam
   return <span className={className}>{displayedText}</span>;
 });
 TypewriterText.displayName = 'TypewriterText';
+
+const SystemMetrics = React.memo(({ t }: { t: any }) => {
+  const [metrics, setMetrics] = useState({
+    cpu: 45,
+    memory: 62,
+    noise: 12,
+    uptime: "24:00:00"
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        cpu: Math.floor(35 + Math.random() * 30),
+        memory: Math.floor(55 + Math.random() * 20),
+        noise: Math.floor(2 + Math.random() * 10),
+        uptime: new Date().toLocaleTimeString('en-GB', { hour12: false })
+      }));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {[
+        { label: t.processingPower || "AI Compute Power", value: `${metrics.cpu}%`, icon: Zap, color: "text-hw-accent" },
+        { label: "Memory Usage", value: `${metrics.memory}%`, icon: Activity, color: "text-blue-400" },
+        { label: t.threatLevel || "Noise interference", value: `${metrics.noise}dB`, icon: Shield, color: "text-orange-400" },
+        { label: t.uptime || "System Uptime", value: metrics.uptime, icon: Clock, color: "text-purple-400" }
+      ].map((m, i) => (
+        <div key={i} className="hw-panel p-4 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700" />
+          <div className="flex items-center gap-3">
+             <m.icon size={14} className={m.color} />
+             <span className="hw-label text-[8px] truncate">{m.label}</span>
+          </div>
+          <div className="text-xl font-black text-white">{m.value}</div>
+          <div className="w-full h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
+            <motion.div 
+               animate={{ width: m.value.includes('%') ? m.value : '100%' }}
+               className={cn("h-full", m.color.replace('text-', 'bg-'))} 
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+});
+SystemMetrics.displayName = 'SystemMetrics';
+
+const LiveInsights = React.memo(({ insights, loading, t }: { insights: string[], loading: boolean, t: any }) => {
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
+        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
+        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!insights || insights.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      {insights.map((insight, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className="p-4 rounded-xl bg-hw-accent/5 border border-hw-accent/10 flex items-start gap-4 group hover:bg-hw-accent/10 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-lg bg-hw-accent/20 flex items-center justify-center shrink-0 mt-0.5">
+             <Lightbulb size={16} className="text-hw-accent" />
+          </div>
+          <p className="text-sm text-white/90 font-medium leading-relaxed group-hover:text-hw-accent transition-colors">
+            {insight}
+          </p>
+        </motion.div>
+      ))}
+    </div>
+  );
+});
+LiveInsights.displayName = 'LiveInsights';
 
 const InteractiveChecklist = React.memo(({ data }: { data: any }) => {
   const items = useMemo(() => Array.isArray(data) ? data : String(data).split('\n').filter(Boolean), [data]);
@@ -231,7 +316,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript' | 'universal';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript' | 'universal' | 'image-to-prompt';
 
 // Constants moved to constants.ts
 
@@ -509,7 +594,8 @@ export default function App() {
     analytics: '',
     longVideo: '',
     megaScript: '',
-    universal: ''
+    universal: '',
+    'image-to-prompt': ''
   });
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -548,7 +634,8 @@ export default function App() {
     analytics: null,
     longVideo: null,
     megaScript: null,
-    universal: null
+    universal: null,
+    'image-to-prompt': null
   });
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -760,6 +847,8 @@ export default function App() {
   const [copied, setCopied] = useState<string | null>(null);
   const [trendingTopics, setTrendingTopics] = useState<{topic: string, reason: string}[]>([]);
   const [loadingTrends, setLoadingTrends] = useState(false);
+  const [liveInsights, setLiveInsights] = useState<string[]>([]);
+  const [loadingInsights, setLoadingInsights] = useState(false);
   
   // Generation Toggles
   const [options, setOptions] = useState(() => {
@@ -824,7 +913,8 @@ export default function App() {
     analytics: null,
     longVideo: null,
     megaScript: null,
-    universal: null
+    universal: null,
+    'image-to-prompt': null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -995,7 +1085,22 @@ export default function App() {
       };
       fetchTrends();
     }
-  }, [uiLang]);
+
+    if (liveInsights.length === 0) {
+      const fetchInsights = async () => {
+        setLoadingInsights(true);
+        try {
+          const res = await getLiveInsights(uiLang === 'bn' ? 'bn' : 'en');
+          setLiveInsights(res);
+        } catch (err) {
+          console.error("Failed to fetch insights:", err);
+        } finally {
+          setLoadingInsights(false);
+        }
+      };
+      fetchInsights();
+    }
+  }, [uiLang, trendingTopics.length, liveInsights.length]);
 
   const saveToHistory = (topic: string, result: any, type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts') => {
     const newItem: HistoryItem = {
@@ -1772,7 +1877,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analytics: '',
       longVideo: '',
       megaScript: '',
-      universal: ''
+      universal: '',
+      'image-to-prompt': ''
     });
     setResults({
       landing: null,
@@ -1790,7 +1896,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analytics: null,
       longVideo: null,
       megaScript: null,
-      universal: null
+      universal: null,
+      'image-to-prompt': null
     });
     setSelectedMedia({
       landing: null,
@@ -1808,7 +1915,8 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analytics: null,
       longVideo: null,
       megaScript: null,
-      universal: null
+      universal: null,
+      'image-to-prompt': null
     });
     setMediaMimeType('');
     toast.success(uiLang === 'en' ? "Data Refreshed!" : "সব তথ্য রিফ্রেশ করা হয়েছে!");
@@ -3070,82 +3178,147 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               )}
 
               {currentView === 'home' && (
-                <div className="space-y-6 pt-4">
-                  <div className="flex items-center gap-2 px-1">
-                    <LayoutDashboard size={16} className="text-[var(--text-muted)]" />
-                    <h2 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                      {t.popularCategories}
-                    </h2>
-                  </div>
-
-              <div className="space-y-12">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="hw-label text-hw-accent flex items-center gap-2">
-                      <Zap size={14} /> Neural Frequency Topics
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <div className="hw-led bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                      <span className="text-[8px] font-black uppercase text-hw-muted">Verified Trends</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {POPULAR_TOPICS.map((topic, idx) => (
-                      <div key={idx} className="space-y-3">
-                        <motion.button
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.02 }}
-                          onClick={() => {
-                            setSelectedCategory(selectedCategory === idx ? null : idx);
-                            setTopics(prev => ({ ...prev, home: uiLang === 'bn' ? topic.bn : topic.en }));
-                            toast.info(t.clickToUse);
-                          }}
-                          className={cn(
-                            "hw-btn-industrial w-full py-4 text-left px-5 h-auto flex flex-col items-start gap-2",
-                            selectedCategory === idx && "active border-hw-accent shadow-[0_0_20px_rgba(0,229,255,0.2)]"
-                          )}
-                        >
-                          <span className={cn(
-                            "text-[10px] font-black uppercase tracking-widest transition-colors",
-                            selectedCategory === idx ? "text-hw-accent" : "text-hw-muted"
-                          )}>
-                            {uiLang === 'bn' ? topic.bn : topic.en}
-                          </span>
-                        </motion.button>
-                        
-                        <AnimatePresence>
-                          {selectedCategory === idx && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5"
-                            >
-                              {topic.subs.map((sub, sIdx) => (
-                                <button
-                                  key={sIdx}
-                                  onClick={() => {
-                                    setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
-                                    toast.success(`${sub} Loaded`);
-                                  }}
-                                  className="py-2.5 px-4 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-hw-muted hover:text-hw-accent hover:border-hw-accent/20 transition-all text-left"
-                                >
-                                  {sub}
-                                </button>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                <div className="space-y-12 pt-4">
+                  {/* Performance Monitor */}
+                  <section className="space-y-6">
+                    <div className="flex items-center justify-between px-1">
+                      <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
+                        <Activity size={14} /> {t.systemMonitor}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <div className="hw-led bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                        <span className="text-[8px] font-black uppercase text-hw-muted">MODE: DYNAMIC PROCESSING</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                    <SystemMetrics t={t} />
+                  </section>
 
-              </div>
-            </div>
-          )}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    {/* Live Insights */}
+                    <section className="lg:col-span-12 xl:col-span-7 space-y-6">
+                      <div className="flex items-center justify-between px-1">
+                        <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
+                          <Sparkles size={14} /> {t.liveInsights}
+                        </h3>
+                        {loadingInsights && <Loader2 size={14} className="animate-spin text-hw-accent" />}
+                      </div>
+                      <LiveInsights insights={liveInsights} loading={loadingInsights} t={t} />
+                    </section>
+
+                    {/* Recent Activity */}
+                    <section className="lg:col-span-12 xl:col-span-5 space-y-6">
+                      <div className="flex items-center justify-between px-1">
+                        <h3 className="hw-label text-white/40 flex items-center gap-2 uppercase tracking-widest font-black">
+                          <History size={14} /> {t.recentActivity}
+                        </h3>
+                        <button 
+                          onClick={() => setShowHistory(true)} 
+                          className="text-[9px] text-hw-accent hover:underline uppercase font-bold tracking-widest"
+                        >
+                          VIEW ALL
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {history.length > 0 ? (
+                          history.slice(0, 4).map((item, idx) => (
+                            <motion.div 
+                              key={idx} 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.05 }}
+                              className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group" 
+                              onClick={() => { 
+                                setCurrentView(item.type); 
+                                setResults(prev => ({ ...prev, [item.type]: item.result })); 
+                                setTopics(prev => ({ ...prev, [item.type]: item.topic }));
+                              }}
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-hw-accent/10 flex items-center justify-center shrink-0 group-hover:bg-hw-accent/20 transition-colors">
+                                 {item.type === 'image' ? <ImageIcon size={18} className="text-hw-accent" /> : 
+                                  item.type === 'youtube' ? <Video size={18} className="text-hw-accent" /> : 
+                                  item.type === 'shorts' ? <Zap size={18} className="text-hw-accent" /> :
+                                  <FileText size={18} className="text-hw-accent" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-white font-bold truncate group-hover:text-hw-accent transition-colors">{item.topic}</p>
+                                <p className="text-[9px] text-hw-muted uppercase font-black tracking-tight mt-0.5">{format(item.timestamp, 'HH:mm • MMM d, yyyy')}</p>
+                              </div>
+                              <ArrowRight size={14} className="text-hw-muted opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="h-40 rounded-2xl border border-dashed border-white/5 flex flex-col items-center justify-center text-hw-muted gap-3 bg-white/[0.02]">
+                            <History size={24} className="opacity-20" />
+                            <span className="text-[10px] uppercase font-black tracking-[0.2em]">{t.noHistory || "No History"}</span>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Popular Categories */}
+                  <section className="space-y-8 pt-10 border-t border-white/5">
+                    <div className="flex items-center justify-between px-1">
+                      <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
+                        <LayoutDashboard size={14} /> {t.popularCategories}
+                      </h2>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                      {POPULAR_TOPICS.map((topic, idx) => (
+                        <div key={idx} className="space-y-3">
+                          <motion.button
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            whileHover={{ y: -4, backgroundColor: "rgba(255,255,255,0.05)" }}
+                            onClick={() => {
+                              setSelectedCategory(selectedCategory === idx ? null : idx);
+                              setTopics(prev => ({ ...prev, home: uiLang === 'bn' ? topic.bn : topic.en }));
+                              toast.info(t.clickToUse);
+                            }}
+                            className={cn(
+                              "hw-btn-industrial w-full py-4 text-left px-5 h-auto flex flex-col items-start gap-2",
+                              selectedCategory === idx && "active border-hw-accent shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+                            )}
+                          >
+                            <span className={cn(
+                              "text-[10px] font-black uppercase tracking-widest transition-colors",
+                              selectedCategory === idx ? "text-hw-accent" : "text-hw-muted"
+                            )}>
+                              {uiLang === 'bn' ? topic.bn : topic.en}
+                            </span>
+                          </motion.button>
+                          
+                          <AnimatePresence>
+                            {selectedCategory === idx && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5"
+                              >
+                                {topic.subs.map((sub, sIdx) => (
+                                  <button
+                                    key={sIdx}
+                                    onClick={() => {
+                                      setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
+                                      toast.success(`${sub} Loaded`);
+                                    }}
+                                    className="py-2.5 px-4 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-hw-muted hover:text-hw-accent hover:border-hw-accent/20 transition-all text-left"
+                                  >
+                                    {sub}
+                                  </button>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
 
               {currentView === 'voice' && (
                 <div className="hw-panel p-8 space-y-8">
