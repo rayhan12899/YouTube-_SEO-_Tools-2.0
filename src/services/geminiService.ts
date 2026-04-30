@@ -525,25 +525,27 @@ export const generateContent = async (options: GenerationOptions) => {
                   3. HUMAN-LIKE DEPTH: It must sound like a professional, high-budget documentary or a masterclass by a top-tier human expert. Use natural human-like transitions, nuanced emotional intonation, and intellectual depth.
                   4. FORBIDDEN: NEVER loop segments, never use placeholder text, and never reuse parts from earlier in the script. 
                   5. STRUCTURE: Break it down into 10-12 rich, logical chapters with smooth segues.
-                  6. QUALITY: The script must be indistinguishable from a script written by a world-class professional content creator or a best-selling author.)` : options.videoDuration ? `(Write a FULL, 100% UNIQUE narrative. 
-                  CRITICAL STRUCTURE FOR RETENTION:
-                  1. INTRO (The Hook): MUST start with a highly engaging, warm, and professional greeting or welcome that instantly hooks the audience. NEVER start with generic "Welcome back". Use a thought-provoking question, a bold statement, or a relatable scenario that makes the viewer WANT to stay until the end.
-                  2. BODY: Develop the content with professional insights. Use high-quality storytelling techniques. Ensure ZERO repetition.
-                  3. CONCLUSION: End with a satisfying summary and a natural, non-pushy outro.
+                  6. QUALITY: The script must be indistinguishable from a script written by a world-class professional content creator or a best-selling author.)` : options.videoDuration ? `(Write a FULL, 100% UNIQUE human-style narrative. 
+                  CRITICAL STRUCTURE FOR 100% RETENTION:
+                  1. THE VIRAL HOOK (0-5s): Start with a MIND-BLOWING hook. Use a curiosity gap, a bold challenge, or a shocking fact that makes scrolling past impossible. 
+                  2. THE WARM WELCOME (5-15s): Give a very warm, professional, yet friendly welcome. Make the viewer feel like they are part of an exclusive group.
+                  3. NARRATIVE JOURNEY (Body): Tell a STORY. Humans connect through stories, not just facts. Use conversational language, unexpected twists, and "100% real human" phrasing. Avoid robotic listicles. Use emotional triggers to keep 100% attention throughout.
+                  4. THE LOOPER ENDING (Outro): End with a powerful, attractive closing statement. Create a "loop" or a strong curiosity for your NEXT video so they SUBSCRIBE immediately and wait for your next content.
                   
                   To ensure quality:
-                  - The narrative MUST be high-energy and human-like.
-                  - NEVER repeat the same segment or script pattern.
-                  - Ensure the script is cohesive and professional.
-                  - For short videos (< 5 mins): Focus on high-retention pacing.
-                  - For long videos (5-15 mins): Use structured storytelling to maintain engagement.
-                  Tone: Professional, engaging, and indistinguishable from human-written content.)` : ""}
+                  - The narrative MUST be high-energy, empathetic, and indistinguishable from a top-tier human creator.
+                  - NEVER repeat patterns or use generic template language.
+                  - Ensure the script is cohesive, professional, and emotionally resonant.
+                  - For short videos (< 5 mins): Use rapid-fire storytelling with high-impact hooks.
+                  - For long videos (5-15 mins): Use deep-dive storytelling with multiple "mini-hooks" to reset attention span.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords. Return as an array of objects with keyword, searchVolume, competition.)
+              - SEO Hashtags: (Provide 10-15 trending and relevant hashtags starting with #)
               
-              Return the result as a strictly valid JSON object with keys: videoTitle, seoTitles, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown. If a section is not requested, return null for that key. 
+              Return the result as a strictly valid JSON object with keys: videoTitle, seoTitles, imagePrompt, videoPrompt, thumbnailIdea, description, tags, script, seoChecklist, keywords, sceneBreakdown, hashtags. If a section is not requested, return null for that key. 
               
               - videoTitle: A catchy, SEO-optimized title for the video.
+              - hashtags: A string containing 10-15 SEO optimized hashtags starting with #.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
               - script: The FULL connected script/narrative (must have a clear beginning, middle, and END).
               - sceneBreakdown: An array of objects representing clips/scenes in chronological order.
@@ -754,6 +756,12 @@ export const generateVoiceExtractor = async (
               Then, based on the translated text, generate:
               1. A comprehensive 'Summary' of the content.
               2. A complete professional YouTube 'Script'.
+                 STRICT RULES FOR SCRIPTS:
+                 - Must sound 100% human-like, conversational, and natural.
+                 - START with a magnetic viral hook that resets the audience's attention.
+                 - Warmly welcome the audience early on.
+                 - Maintain 100% attention using high-retention storytelling techniques throughout the body.
+                 - END with an attractive, curiosity-driven closing that makes viewers watch your future videos.
               3. An 'Image Prompt' for a YouTube thumbnail generator.
               4. A 'Video Prompt' for an AI video generator (optimized for Sora/Kling/Runway/Veo 3).
               5. 'Subtitles' in standard SRT format translated into English, Bengali, Hindi, Spanish, and French.

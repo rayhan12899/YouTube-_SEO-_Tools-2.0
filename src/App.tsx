@@ -833,6 +833,7 @@ export default function App() {
       } else {
         activeView = 'universal';
         activeTopic = topics.home;
+        setCurrentView('universal');
       }
     }
 
@@ -2416,6 +2417,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="p-6 flex flex-col gap-2 flex-1">
                     {[
                       { id: 'home', icon: Home, label: t.home },
+                      { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? "Complete Studio" : "সম্পূর্ণ স্টুডিও" },
                       { id: 'video', icon: Video, label: t.videoGen },
                       { id: 'image', icon: Palette, label: t.imageGen },
                       { id: 'longVideo', icon: Film, label: 'Long Video' },
@@ -2484,6 +2486,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="hidden md:flex flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar px-4 max-w-full">
                   {[
                     { id: 'home', icon: Home, label: t.home },
+                    { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? "Complete Studio" : "সম্পূর্ণ স্টুডিও" },
                     { id: 'video', icon: Video, label: t.videoGen },
                     { id: 'image', icon: Palette, label: t.imageGen },
                     { id: 'longVideo', icon: Film, label: 'Long Video' },
@@ -4331,6 +4334,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     description: { label: t.seoDescription, icon: FileText },
                                     tags: { label: t.tagsLabel, icon: Tag },
                                     hashtags: { label: t.hashtags, icon: Hash },
+                                    thumbnailIdea: { label: uiLang === 'en' ? "Thumbnail Idea" : "থাম্বনেইল আইডিয়া", icon: ImageIcon },
                                   };
                                   const mConfig = mLabelMap[mKey] || { label: mKey, icon: Sparkles };
                                   
