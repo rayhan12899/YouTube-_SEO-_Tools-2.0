@@ -5,7 +5,7 @@
  * AI Creator Studio - Viral YouTube Content Generator
  */
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Youtube, 
@@ -90,9 +90,18 @@ import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import { cn } from './lib/utils';
 import { translations } from './translations';
-import { io, Socket } from 'socket.io-client';
+import { socket } from './lib/socket';
+import { Socket } from 'socket.io-client';
 import SettingsModal from './components/SettingsModal';
 import HistoryModalImport from './components/HistoryModal';
+import TypewriterText from './components/TypewriterText';
+import SystemMetrics from './components/SystemMetrics';
+import InteractiveChecklist from './components/InteractiveChecklist';
+import OnboardingTutorial from './components/OnboardingTutorial';
+import LiveInsights from './components/LiveInsights';
+import AnalyticsView from './components/AnalyticsView';
+import CollaborationChat from './components/CollaborationChat';
+import { useDebounce } from './hooks/useDebounce';
 import { 
   LineChart, 
   Line, 
@@ -105,8 +114,6 @@ import {
   Area
 } from 'recharts';
 
-// Initialize Socket.io
-const socket: Socket = io();
 import { 
   POPULAR_TOPICS,
   BEST_POSTING_TIMES, 
@@ -139,175 +146,6 @@ import {
   callAI
 } from './services/geminiService';
 
-const TypewriterText = React.memo(({ text, className }: { text: string, className?: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  
-  useEffect(() => {
-    let i = 0;
-    setDisplayedText('');
-    const interval = setInterval(() => {
-      setDisplayedText(text.slice(0, i));
-      i++;
-      if (i > text.length) {
-        clearInterval(interval);
-      }
-    }, 10); // Adjust speed here
-    
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return <span className={className}>{displayedText}</span>;
-});
-TypewriterText.displayName = 'TypewriterText';
-
-const SystemMetrics = React.memo(({ t }: { t: any }) => {
-  const [metrics, setMetrics] = useState({
-    cpu: 45,
-    memory: 62,
-    noise: 12,
-    uptime: "24:00:00"
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics(prev => ({
-        cpu: Math.floor(35 + Math.random() * 30),
-        memory: Math.floor(55 + Math.random() * 20),
-        noise: Math.floor(2 + Math.random() * 10),
-        uptime: new Date().toLocaleTimeString('en-GB', { hour12: false })
-      }));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {[
-        { label: t.processingPower || "AI Compute Power", value: `${metrics.cpu}%`, icon: Zap, color: "text-hw-accent" },
-        { label: "Memory Usage", value: `${metrics.memory}%`, icon: Activity, color: "text-blue-400" },
-        { label: t.threatLevel || "Noise interference", value: `${metrics.noise}dB`, icon: Shield, color: "text-orange-400" },
-        { label: t.uptime || "System Uptime", value: metrics.uptime, icon: Clock, color: "text-purple-400" }
-      ].map((m, i) => (
-        <div key={i} className="hw-panel p-4 flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700" />
-          <div className="flex items-center gap-3">
-             <m.icon size={14} className={m.color} />
-             <span className="hw-label text-[8px] truncate">{m.label}</span>
-          </div>
-          <div className="text-xl font-black text-white">{m.value}</div>
-          <div className="w-full h-1 bg-white/5 rounded-full mt-1 overflow-hidden">
-            <motion.div 
-               animate={{ width: m.value.includes('%') ? m.value : '100%' }}
-               className={cn("h-full", m.color.replace('text-', 'bg-'))} 
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-});
-SystemMetrics.displayName = 'SystemMetrics';
-
-const LiveInsights = React.memo(({ insights, loading, t }: { insights: string[], loading: boolean, t: any }) => {
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
-        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
-        <div className="h-10 rounded-xl bg-white/5 animate-pulse" />
-      </div>
-    );
-  }
-
-  if (!insights || insights.length === 0) return null;
-
-  return (
-    <div className="space-y-3">
-      {insights.map((insight, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: idx * 0.1 }}
-          className="p-4 rounded-xl bg-hw-accent/5 border border-hw-accent/10 flex items-start gap-4 group hover:bg-hw-accent/10 transition-colors"
-        >
-          <div className="w-8 h-8 rounded-lg bg-hw-accent/20 flex items-center justify-center shrink-0 mt-0.5">
-             <Lightbulb size={16} className="text-hw-accent" />
-          </div>
-          <p className="text-sm text-white/90 font-medium leading-relaxed group-hover:text-hw-accent transition-colors">
-            {insight}
-          </p>
-        </motion.div>
-      ))}
-    </div>
-  );
-});
-LiveInsights.displayName = 'LiveInsights';
-
-const InteractiveChecklist = React.memo(({ data }: { data: any }) => {
-  const items = useMemo(() => Array.isArray(data) ? data : String(data).split('\n').filter(Boolean), [data]);
-  const [completed, setCompleted] = useState<Record<number, boolean>>({});
-
-  const toggleItem = useCallback((idx: number) => {
-    setCompleted(prev => ({ ...prev, [idx]: !prev[idx] }));
-  }, []);
-
-  return (
-    <div className="space-y-3 mt-4">
-      {items.map((item, idx) => {
-        const isChecked = completed[idx];
-        const text = String(item).replace(/^[-*✓]\s*/, '').trim();
-        if (!text) return null;
-        return (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: isChecked ? 0.6 : 1, y: 0 }}
-            className={cn(
-              "p-4 rounded-xl border cursor-pointer flex items-center gap-4 transition-all duration-500 relative overflow-hidden group",
-              isChecked ? "bg-black/20 border-green-500/30" : "bg-black/40 border-[var(--border-main)] hover:border-[var(--color-hw-accent)]/50"
-            )}
-            onClick={() => toggleItem(idx)}
-          >
-            {isChecked && (
-              <motion.div 
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent origin-left z-0"
-              />
-            )}
-            <div className={cn(
-              "w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 z-10 transition-all duration-500",
-              isChecked ? "border-green-500 bg-green-500 text-[var(--color-black)] scale-110 shadow-[0_0_15px_rgba(34,197,94,0.4)]" : "border-[var(--border-main)] text-transparent group-hover:border-[var(--color-hw-accent)]"
-            )}>
-              <AnimatePresence mode="popLayout">
-                {isChecked && (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -45 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: 45 }}
-                    transition={{ type: "spring", bounce: 0.5 }}
-                  >
-                    <Check size={14} strokeWidth={3} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <p className={cn(
-              "text-sm z-10 transition-all duration-500 flex-1 leading-relaxed", 
-              isChecked ? "text-[var(--text-muted)] line-through" : "text-[var(--text-main)]"
-            )}>
-              {text}
-            </p>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-});
-InteractiveChecklist.displayName = 'InteractiveChecklist';
-
 interface HistoryItem {
   id: string;
   timestamp: number;
@@ -319,194 +157,6 @@ interface HistoryItem {
 type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript' | 'universal' | 'image-to-prompt';
 
 // Constants moved to constants.ts
-
-const AnalyticsView = React.memo(({ uiLang }: { uiLang: 'en' | 'bn' }) => {
-  const data = useMemo(() => [
-    { name: 'Mon', views: 4000, viral: 2400 },
-    { name: 'Tue', views: 3000, viral: 1398 },
-    { name: 'Wed', views: 2000, viral: 9800 },
-    { name: 'Thu', views: 2780, viral: 3908 },
-    { name: 'Fri', views: 1890, viral: 4800 },
-    { name: 'Sat', views: 2390, viral: 3800 },
-    { name: 'Sun', views: 3490, viral: 4300 },
-  ], []);
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="hw-panel p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="hw-label">Total Reach</span>
-            <Activity className="w-4 h-4 text-hw-accent" />
-          </div>
-          <div className="hw-display text-2xl">1.2M</div>
-          <div className="text-[10px] text-green-500 mt-2">+12.5% from last week</div>
-        </div>
-        <div className="hw-panel p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="hw-label">Viral Potential</span>
-            <TrendingUp className="w-4 h-4 text-hw-accent" />
-          </div>
-          <div className="hw-display text-2xl">84%</div>
-          <div className="text-[10px] text-hw-muted mt-2">Based on current trends</div>
-        </div>
-        <div className="hw-panel p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="hw-label">Active Creators</span>
-            <UsersIcon className="w-4 h-4 text-hw-accent" />
-          </div>
-          <div className="hw-display text-2xl">24</div>
-          <div className="text-[10px] text-hw-muted mt-2">Connected to your studio</div>
-        </div>
-      </div>
-
-      <div className="hw-panel p-6">
-        <h3 className="hw-label mb-6">Content Performance Trends</h3>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
-              <defs>
-                <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ff2e93" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#ff2e93" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="name" stroke="#8e9299" fontSize={12} />
-              <YAxis stroke="#8e9299" fontSize={12} />
-              <RechartsTooltip 
-                contentStyle={{ backgroundColor: '#151619', border: '1px solid rgba(255,255,255,0.1)' }}
-                itemStyle={{ color: '#ff2e93' }}
-              />
-              <Area type="monotone" dataKey="views" stroke="#ff2e93" fillOpacity={1} fill="url(#colorViews)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-const CollaborationChat = React.memo(({ 
-  messages, 
-  onSendMessage, 
-  roomId, 
-  onJoinRoom, 
-  isJoined,
-  isOpen,
-  onToggle
-}: { 
-  messages: any[], 
-  onSendMessage: (text: string) => void, 
-  roomId: string, 
-  onJoinRoom: (id: string) => void,
-  isJoined: boolean,
-  isOpen: boolean,
-  onToggle: () => void
-}) => {
-  const [inputText, setInputText] = useState('');
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const handleSend = useCallback(() => {
-    if (inputText.trim()) {
-      onSendMessage(inputText);
-      setInputText('');
-    }
-  }, [inputText, onSendMessage]);
-
-  return (
-    <div className={cn(
-      "fixed bottom-4 right-4 z-50 transition-all duration-300",
-      isOpen ? "w-80 h-[450px]" : "w-12 h-12"
-    )}>
-      {!isOpen ? (
-        <button 
-          onClick={onToggle}
-          className="w-full h-full rounded-full bg-hw-accent flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-        >
-          <ChatIcon className="w-6 h-6 text-black" />
-        </button>
-      ) : (
-        <div className="hw-panel w-full h-full flex flex-col">
-          <div className="p-3 border-b border-hw-border flex items-center justify-between bg-black/20">
-            <div className="flex items-center gap-2">
-              <UsersIcon className="w-4 h-4 text-hw-accent" />
-              <span className="hw-label">Studio Collaboration</span>
-            </div>
-            <button onClick={onToggle} className="text-hw-muted hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {!isJoined ? (
-            <div className="flex-1 p-4 flex flex-col items-center justify-center space-y-4">
-              <p className="text-xs text-hw-muted text-center">Enter a Room ID to start collaborating with other creators in real-time.</p>
-              <input 
-                type="text" 
-                placeholder="Room ID (e.g. viral-video-1)" 
-                className="hw-display w-full text-center"
-                value={roomId}
-                onChange={(e) => onJoinRoom(e.target.value)}
-              />
-              <button 
-                onClick={() => onJoinRoom(roomId)}
-                className="w-full py-2 bg-hw-accent text-white font-bold rounded-lg hover:opacity-90 transition-opacity"
-              >
-                Join Studio
-              </button>
-            </div>
-          ) : (
-            <>
-              <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-3 scrollbar-hide">
-                {messages.map((msg, i) => (
-                  <div key={i} className={cn(
-                    "flex flex-col max-w-[80%]",
-                    msg.user === 'You' ? "ml-auto items-end" : "items-start"
-                  )}>
-                    <span className="text-[10px] text-hw-muted mb-1">{msg.user} • {msg.time}</span>
-                    <div className={cn(
-                      "p-2 rounded-lg text-sm",
-                      msg.user === 'You' ? "bg-hw-accent text-white" : "bg-white/5 text-white"
-                    )}>
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="p-3 border-t border-hw-border flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Type a message..." 
-                  className="flex-1 bg-transparent border-none outline-none text-sm"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSend();
-                    }
-                  }}
-                />
-                <button 
-                  onClick={handleSend}
-                  className="text-hw-accent hover:scale-110 transition-transform"
-                >
-                  <SendIcon className="w-4 h-4" />
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-});
-CollaborationChat.displayName = 'CollaborationChat';
 
 const MENU_VARIANTS = {
   hidden: { opacity: 0 },
@@ -523,9 +173,7 @@ const ITEM_VARIANTS = {
   show: { opacity: 1, x: 0 }
 };
 
-import { useDebounce } from './hooks/useDebounce';
-
-const HistoryModal = React.memo(HistoryModalImport);
+const HistoryModal = HistoryModalImport;
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -608,34 +256,40 @@ export default function App() {
     setLoadingProgress(0);
     setLoadingStep(0);
     setLoadingStatus("");
+    
+    // We use a local variable to track progress for side effects
+    let currentProgress = 0;
+    
     const interval = setInterval(() => {
-      setLoadingProgress(prev => {
-        if (prev >= 95) {
-          clearInterval(interval);
-          return 95;
-        }
-        const next = prev + Math.random() * 5;
-        const step = Math.floor((next / 100) * t.loadingSteps.length);
-        setLoadingStep(step);
-        
-        // Add dynamic granular messages based on the progress
-        if (next > 15 && next < 30) {
-          setLoadingStatus(uiLang === 'en' ? "Initializing Neural Processing Unit..." : "নিউরাল প্রসেসিং ইউনিট ইনিশিয়ালাইজ করা হচ্ছে...");
-        } else if (next > 30 && next < 45) {
-          setLoadingStatus(uiLang === 'en' ? "Syncing with Global Viral Databases..." : "গ্লোবাল ভাইরাল ডাটাবেসের সাথে সিংকিং করা হচ্ছে...");
-        } else if (next > 45 && next < 60) {
-          setLoadingStatus(uiLang === 'en' ? "Applying Content Optimization Algorithms..." : "কন্টেন্ট অপ্টিমাইজেশন অ্যালগরিদম প্রয়োগ করা হচ্ছে...");
-        } else if (next > 60 && next < 75) {
-          setLoadingStatus(uiLang === 'en' ? "Synthesizing Viral Hooks & Retention Metrics..." : "ভাইরাল হুক এবং রিটেনশন মেট্রিক্স সিন্থেসাইজ করা হচ্ছে...");
-        } else if (next > 75 && next < 90) {
-          setLoadingStatus(uiLang === 'en' ? "Calibrating SEO Meta-Signal Matrix..." : "এসইও মেটা-সিগন্যাল মেট্রিক্স ক্যালিব্রেট করা হচ্ছে...");
-        } else if (next > 90) {
-          setLoadingStatus(uiLang === 'en' ? "Finalizing Content Stream..." : "কন্টেন্ট স্ট্রিম চূড়ান্ত করা হচ্ছে...");
-        }
+      currentProgress += Math.random() * 5;
+      
+      if (currentProgress >= 95) {
+        currentProgress = 95;
+        setLoadingProgress(95);
+        setLoadingStep(t.loadingSteps.length - 1);
+        setLoadingStatus(uiLang === 'en' ? "Finalizing Content Stream..." : "কন্টেন্ট স্ট্রিম চূড়ান্ত করা হচ্ছে...");
+        clearInterval(interval);
+        return;
+      }
 
-        return next;
-      });
+      setLoadingProgress(currentProgress);
+      const step = Math.floor((currentProgress / 100) * t.loadingSteps.length);
+      setLoadingStep(step);
+
+      // Add dynamic granular messages based on the progress
+      if (currentProgress > 15 && currentProgress < 30) {
+        setLoadingStatus(uiLang === 'en' ? "Initializing Neural Processing Unit..." : "নিউরাল প্রসেসিং ইউনিট ইনিশিয়ালাইজ করা হচ্ছে...");
+      } else if (currentProgress > 30 && currentProgress < 45) {
+        setLoadingStatus(uiLang === 'en' ? "Syncing with Global Viral Databases..." : "গ্লোবাল ভাইরাল ডাটাবেসের সাথে সিংকিং করা হচ্ছে...");
+      } else if (currentProgress > 45 && currentProgress < 60) {
+        setLoadingStatus(uiLang === 'en' ? "Applying Content Optimization Algorithms..." : "কন্টেন্ট অপ্টিমাইজেশন অ্যালগরিদম প্রয়োগ করা হচ্ছে...");
+      } else if (currentProgress > 60 && currentProgress < 75) {
+        setLoadingStatus(uiLang === 'en' ? "Synthesizing Viral Hooks & Retention Metrics..." : "ভাইরাল হুক এবং রিটেনশন মেট্রিক্স সিন্থেসাইজ করা হচ্ছে...");
+      } else if (currentProgress > 75 && currentProgress < 90) {
+        setLoadingStatus(uiLang === 'en' ? "Calibrating SEO Meta-Signal Matrix..." : "এসইও মেটা-সিগন্যাল মেট্রিক্স ক্যালিব্রেট করা হচ্ছে...");
+      }
     }, 500);
+    
     return interval;
   };
   const [results, setResults] = useState<Record<ViewType, any>>({
@@ -2314,6 +1968,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
   return (
     <div className={cn("min-h-screen studio-shell bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-hw-accent/30 selection:text-white", theme)}>
       <Toaster position="top-right" richColors theme={theme === 'light' ? 'light' : 'dark'} />
+      <OnboardingTutorial uiLang={uiLang} onComplete={() => toast.success(uiLang === 'en' ? "Welcome to your AI Studio!" : "আপনার এআই স্টুডিওতে স্বাগতম!")} />
       
       <AnimatePresence mode="wait">
         {currentView === 'landing' ? (
@@ -5120,7 +4775,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
       messages={messages}
       onSendMessage={sendMessage}
       roomId={roomId}
-      onJoinRoom={setRoomId}
+      setRoomId={setRoomId}
+      onJoin={joinRoom}
       isJoined={isJoined}
       isOpen={chatOpen}
       onToggle={() => setChatOpen(!chatOpen)}
