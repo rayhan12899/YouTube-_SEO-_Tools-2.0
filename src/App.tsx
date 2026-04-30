@@ -600,11 +600,14 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingStatus, setLoadingStatus] = useState("");
+  const [loadingTrendMessage, setLoadingTrendMessage] = useState("");
   const [relatedIdeas, setRelatedIdeas] = useState<{title: string, description: string}[]>([]);
 
-  const simulateProgress = () => {
+  const simulateProgress = (view?: string) => {
     setLoadingProgress(0);
     setLoadingStep(0);
+    setLoadingStatus("");
     const interval = setInterval(() => {
       setLoadingProgress(prev => {
         if (prev >= 95) {
@@ -612,7 +615,24 @@ export default function App() {
           return 95;
         }
         const next = prev + Math.random() * 5;
-        setLoadingStep(Math.floor((next / 100) * t.loadingSteps.length));
+        const step = Math.floor((next / 100) * t.loadingSteps.length);
+        setLoadingStep(step);
+        
+        // Add dynamic granular messages based on the progress
+        if (next > 15 && next < 30) {
+          setLoadingStatus(uiLang === 'en' ? "Initializing Neural Processing Unit..." : "নিউরাল প্রসেসিং ইউনিট ইনিশিয়ালাইজ করা হচ্ছে...");
+        } else if (next > 30 && next < 45) {
+          setLoadingStatus(uiLang === 'en' ? "Syncing with Global Viral Databases..." : "গ্লোবাল ভাইরাল ডাটাবেসের সাথে সিংকিং করা হচ্ছে...");
+        } else if (next > 45 && next < 60) {
+          setLoadingStatus(uiLang === 'en' ? "Applying Content Optimization Algorithms..." : "কন্টেন্ট অপ্টিমাইজেশন অ্যালগরিদম প্রয়োগ করা হচ্ছে...");
+        } else if (next > 60 && next < 75) {
+          setLoadingStatus(uiLang === 'en' ? "Synthesizing Viral Hooks & Retention Metrics..." : "ভাইরাল হুক এবং রিটেনশন মেট্রিক্স সিন্থেসাইজ করা হচ্ছে...");
+        } else if (next > 75 && next < 90) {
+          setLoadingStatus(uiLang === 'en' ? "Calibrating SEO Meta-Signal Matrix..." : "এসইও মেটা-সিগন্যাল মেট্রিক্স ক্যালিব্রেট করা হচ্ছে...");
+        } else if (next > 90) {
+          setLoadingStatus(uiLang === 'en' ? "Finalizing Content Stream..." : "কন্টেন্ট স্ট্রিম চূড়ান্ত করা হচ্ছে...");
+        }
+
         return next;
       });
     }, 500);
@@ -1179,6 +1199,7 @@ export default function App() {
     setLoading(true);
     setLoadingProgress(10);
     setLoadingStep(0); // Analyzing...
+    setLoadingStatus("");
     let progressInterval: NodeJS.Timeout | null = null;
     
     // Revoke previous audio URL if it exists to prevent memory leaks
@@ -1191,6 +1212,7 @@ export default function App() {
       if (activeView === 'idea') {
         setLoadingStep(1); // Researching...
         setLoadingProgress(30);
+        setLoadingStatus(uiLang === 'en' ? "Scanning viral databases for trending concepts..." : "ট্রেন্ডিং কনসেপ্টের জন্য ভাইরাল ডাটাবেস স্ক্যান করা হচ্ছে...");
         const res = await generateVideoIdeas(activeTopic, options.language);
         setResults(prev => ({ ...prev, [activeView]: res }));
         saveToHistory(activeTopic, res, 'idea');
@@ -1199,6 +1221,7 @@ export default function App() {
       } else if (activeView === 'shorts') {
         setLoadingStep(2); // Generating script...
         setLoadingProgress(50);
+        setLoadingStatus(uiLang === 'en' ? "Crafting short-form viral hook and high-retention script..." : "শর্ট-ফর্ম ভাইরাল হুক এবং হাই-রিটেনশন স্ক্রিপ্ট তৈরি করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
           ...options,
@@ -1216,6 +1239,7 @@ export default function App() {
         // Auto-generate Voice Over if enabled
         if (options.generateVoiceOver && res.script) {
           try {
+            setLoadingStatus(uiLang === 'en' ? "Synthesizing AI voice-over for your shorts..." : "আপনার শর্টসের জন্য এআই ভয়েস-ওভার সিন্থেসাইজ করা হচ্ছে...");
             const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
               tone: options.voiceTone,
@@ -1241,12 +1265,14 @@ export default function App() {
           setLoadingStep(2); // Generating...
           setLoadingProgress(40);
           if (mediaMimeType.startsWith('video/')) {
+            setLoadingStatus(uiLang === 'en' ? "Extracting visual metadata from your video signal..." : "আপনার ভিডিও সিগন্যাল থেকে ভিজ্যুয়াল মেটাডেটা এক্সট্র্যাক্ট করা হচ্ছে...");
             const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             playNotificationSound();
           } else {
+            setLoadingStatus(uiLang === 'en' ? "Deconstructing image pixels for creative reconstruction..." : "সৃজনশীল পুনর্গঠনের জন্য ইমেজ পিক্সেল ডিকনস্ট্রাক্ট করা হচ্ছে...");
             const res = await analyzeImage(currentSelectedMedia, mediaMimeType, options.language);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
@@ -1256,6 +1282,7 @@ export default function App() {
         } else {
             setLoadingStep(2); // Generating...
             setLoadingProgress(40);
+            setLoadingStatus(uiLang === 'en' ? "Generating high-fidelity cinematic visualization..." : "হাই-ফিডেলিটি সিনেমাটিক ভিজ্যুয়ালাইজেশন তৈরি করা হচ্ছে...");
             const res = await generateImage(activeTopic, options.aspectRatio as any);
             setResults(prev => ({ ...prev, [activeView]: { imageUrl: res } }));
             saveToHistory(activeTopic, { imageUrl: res }, 'image');
@@ -1265,6 +1292,7 @@ export default function App() {
       } else if (activeView === 'promptGen') {
         setLoadingStep(2);
         setLoadingProgress(40);
+        setLoadingStatus(uiLang === 'en' ? "Engineering unique creative prompts using advanced NLP..." : "অ্যাডভান্সড এনএলপি ব্যবহার করে ইউনিক ক্রিয়েটিভ প্রম্পট ইঞ্জিনিয়ার করা হচ্ছে...");
         const prompt = `তুমি একজন প্রম্পট ইঞ্জিনিয়ারিং এক্সপার্ট। আমাকে ${activeTopic} বিষয়ের উপর ${options.promptCategory} তৈরির জন্য ৩টি সম্পূর্ণ নতুন, ইউনিক এবং সৃজনশীল প্রম্পট তৈরি করে দাও। 
         
 প্রম্পটগুলো অবশ্যই বাংলায় হতে হবে।
@@ -1301,6 +1329,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       } else if (activeView === 'voice') {
         setLoadingStep(2); // Generating...
         setLoadingProgress(40);
+        setLoadingStatus(uiLang === 'en' ? "Synthesizing deep-learning audio frequencies..." : "ডিপ-লার্নিং অডিও ফ্রিকোয়েন্সি সিন্থেসাইজ করা হচ্ছে...");
         const res = await generateVoiceOver(activeTopic, options.voice, {
           tone: options.voiceTone,
           accent: options.voiceAccent,
@@ -1315,6 +1344,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         if (currentSelectedMedia && (mediaMimeType.startsWith('audio/') || mediaMimeType.startsWith('video/'))) {
           setLoadingStep(3); // Optimizing...
           setLoadingProgress(60);
+          setLoadingStatus(uiLang === 'en' ? "Isolating vocal stems from complex media stream..." : "জটিল মিডিয়া স্ট্রিম থেকে ভোকাল স্টেম আলাদা করা হচ্ছে...");
           const targetLang = options.language === 'both' ? 'bn' : options.language as 'en' | 'bn' | 'hi';
           const res = await generateVoiceExtractor(currentSelectedMedia, mediaMimeType, targetLang);
           setResults(prev => ({ ...prev, [activeView]: res }));
@@ -1330,6 +1360,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       } else if (activeView === 'universal') {
         setLoadingStep(2); // Generating...
         setLoadingProgress(30);
+        setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
           ...options,
@@ -1347,6 +1378,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         // Auto-generate Voice Over
         setLoadingStep(4); // Narrating...
         setLoadingProgress(80);
+        setLoadingStatus(uiLang === 'en' ? "Applying neural narration to generated script..." : "জেনারেটেড স্ক্রিপ্টে নিউরাল ন্যারেশন প্রয়োগ করা হচ্ছে...");
         try {
           const cleanScript = res.script?.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim() || "";
           if (cleanScript) {
@@ -1371,6 +1403,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         playNotificationSound();
         
         // Fetch related ideas
+        setLoadingStatus(uiLang === 'en' ? "Scanning for related viral opportunities..." : "সম্পর্কিত ভাইরাল সুযোগ স্ক্যান করা হচ্ছে...");
         const ideasRes = await generateVideoIdeas(activeTopic, options.language);
         setRelatedIdeas(ideasRes.ideas || []);
       } else if (activeView === 'video' || activeView === 'longVideo' || activeView === 'megaScript') {
@@ -1379,12 +1412,14 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoadingProgress(40);
           // If it's a video file
           if (mediaMimeType.startsWith('video/')) {
+            setLoadingStatus(uiLang === 'en' ? "Deconstructing video packets for semantic analysis..." : "সিম্যান্টিক বিশ্লেষণের জন্য ভিডিও প্যাকেট ডিকনস্ট্রাক্ট করা হচ্ছে...");
             const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Video Analysis", res, 'image-to-prompt');
             toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             playNotificationSound();
           } else {
+            setLoadingStatus(uiLang === 'en' ? "Parsing image semantics for textual conversion..." : "টেক্সচুয়াল কনভার্সনের জন্য ইমেজ সিম্যান্টিক পার্সিং করা হচ্ছে...");
             const res = await analyzeImage(currentSelectedMedia, mediaMimeType, options.language);
             setResults(prev => ({ ...prev, [activeView]: res }));
             saveToHistory(activeTopic || "Image Analysis", res, 'image-to-prompt');
@@ -1394,6 +1429,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         } else {
           setLoadingStep(2); // Generating...
           setLoadingProgress(40);
+          setLoadingStatus(uiLang === 'en' ? "Processing high-logic long-form content architecture..." : "হাই-লজিক লং-ফর্ম কন্টেন্ট আর্কিটেকচার প্রসেস করা হচ্ছে...");
           const res = await generateContent({
             topic: activeTopic,
             ...options,
@@ -1410,6 +1446,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           // Auto-generate Voice Over if enabled
           if (options.generateVoiceOver && res.script) {
             try {
+              setLoadingStatus(uiLang === 'en' ? "Generating strategic narration for full script..." : "পুরো স্ক্রিপ্টের জন্য স্ট্র্যাটেজিক ন্যারেশন তৈরি করা হচ্ছে...");
               const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
               const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
                 tone: options.voiceTone,
@@ -1432,6 +1469,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           playNotificationSound();
         }
       } else {
+        setLoadingStatus(uiLang === 'en' ? "Assembling standard SEO-optimized document set..." : "স্ট্যান্ডার্ড এসইও-অপ্টিমাইজড ডকুমেন্ট সেট অ্যাসেম্বল করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
           ...options,
@@ -1476,6 +1514,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setLoading(false);
         setLoadingProgress(0);
         setLoadingStep(0);
+        setLoadingStatus("");
       }, 500);
     }
   };
@@ -1500,17 +1539,20 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           const progressInterval = simulateProgress();
           try {
             let res;
-        if (currentView === 'voiceExtractor' || currentView === 'home') {
-          res = await generateVoiceExtractor(base64, file.type, options.language as 'en' | 'bn' | 'hi');
-          const msg = file.type.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
-          toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-        } else if (file.type.startsWith('video/')) {
-          res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
-          toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-        } else {
-          res = await analyzeImage(base64, file.type, options.language);
-          toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
-        }
+            if (currentView === 'voiceExtractor' || currentView === 'home') {
+              setLoadingStatus(uiLang === 'en' ? "Transcribing & isolating audio signals from media..." : "মিডিয়া থেকে অডিও সিগন্যাল ট্রান্সক্রাইব এবং আলাদা করা হচ্ছে...");
+              res = await generateVoiceExtractor(base64, file.type, options.language as 'en' | 'bn' | 'hi');
+              const msg = file.type.startsWith('video/') ? (uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") : (uiLang === 'en' ? "Audio Analysis" : "অডিও বিশ্লেষণ");
+              toast.success(msg + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            } else if (file.type.startsWith('video/')) {
+              setLoadingStatus(uiLang === 'en' ? "Analyzing video frames for semantic structure..." : "সিম্যান্টিক স্ট্রাকচারের জন্য ভিডিও ফ্রেম বিশ্লেষণ করা হচ্ছে...");
+              res = await generatePromptsFromVideo(base64, file.type, options.language, currentTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
+              toast.success((uiLang === 'en' ? "Video Analysis" : "ভিডিও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            } else {
+              setLoadingStatus(uiLang === 'en' ? "Extracting visual prompts from image data..." : "ইমেজ ডেটা থেকে ভিজ্যুয়াল প্রম্পট এক্সট্র্যাক্ট করা হচ্ছে...");
+              res = await analyzeImage(base64, file.type, options.language);
+              toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
+            }
         setResults(prev => ({ ...prev, [currentView === 'home' ? 'universal' : currentView]: res }));
           } catch (error) {
             console.error(error);
@@ -1522,6 +1564,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               setLoading(false);
               setLoadingProgress(0);
               setLoadingStep(0);
+              setLoadingStatus("");
             }, 500);
           }
         }
@@ -1574,10 +1617,12 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
     }
     
     setLoading(true);
+    setLoadingStatus(uiLang === 'en' ? "Rendering content for PDF generation..." : "পিডিএফ তৈরির জন্য কন্টেন্ট রেন্ডার করা হচ্ছে...");
     const progressInterval = simulateProgress();
     try {
       // Import html2pdf.js dynamically
       const html2pdf = (await import('html2pdf.js')).default;
+      setLoadingStatus(uiLang === 'en' ? "Constructing high-quality PDF document..." : "উচ্চমানের পিডিএফ ডকুমেন্ট তৈরি করা হচ্ছে...");
       
       // Create a temporary element to render the content
       const element = document.createElement('div');
@@ -1812,6 +1857,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setLoading(false);
         setLoadingProgress(0);
         setLoadingStep(0);
+        setLoadingStatus("");
       }, 500);
     }
   };
@@ -4086,30 +4132,51 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             whileTap={{ scale: 0.98 }}
             onClick={handleGenerate}
             disabled={loading || (!(currentView === 'home' ? (topics.home || topics.promptGen) : currentTopic) && !currentSelectedMedia)}
-            className="w-full btn-primary mt-8"
+            className="w-full btn-primary mt-8 relative overflow-hidden h-[72px]"
           >
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin text-black" size={24} /> 
-                <span className="text-lg font-bold tracking-wider uppercase">{t.processing}</span>
-              </>
-            ) : (
-              <>
-                <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
-                <span className="text-lg font-bold tracking-wider uppercase">
-                  {
-                    currentView === 'universal' ? (uiLang === 'en' ? "Universal Generate" : "ইউনিভার্সাল জেনারেট") :
-                    (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.genPrompt : 
-                    currentView === 'idea' ? t.genIdea : 
-                    currentView === 'image' ? t.genImage :
-                    currentView === 'voice' ? t.genVoice :
-                    currentView === 'voiceExtractor' ? t.genVoiceExtractor :
-                    (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
-                    (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
-                  }
-                </span>
-              </>
+            {loading && (
+              <motion.div 
+                className="absolute inset-x-0 bottom-0 h-1.5 bg-black/30 z-20"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+              >
+                <motion.div 
+                  className="h-full bg-white shadow-[0_0_15px_white]"
+                  animate={{ width: `${loadingProgress}%` }}
+                  transition={{ type: "spring", stiffness: 40, damping: 10 }}
+                />
+              </motion.div>
             )}
+
+            <div className="relative z-10 flex items-center justify-center gap-3">
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin text-black" size={24} /> 
+                  <div className="flex flex-col items-start leading-none">
+                    <span className="text-sm font-black tracking-widest uppercase opacity-60 italic">{t.processing}</span>
+                    <span className="text-[10px] font-black tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
+                      {loadingStatus || t.loadingSteps[loadingStep] || ""}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
+                  <span className="text-lg font-bold tracking-wider uppercase">
+                    {
+                      currentView === 'universal' ? (uiLang === 'en' ? "Universal Generate" : "ইউনিভার্সাল জেনারেট") :
+                      (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.genPrompt : 
+                      currentView === 'idea' ? t.genIdea : 
+                      currentView === 'image' ? t.genImage :
+                      currentView === 'voice' ? t.genVoice :
+                      currentView === 'voiceExtractor' ? t.genVoiceExtractor :
+                      (currentView === 'promptGen' || (currentView === 'home' && topics.promptGen.trim())) ? (uiLang === 'en' ? "Generate Prompt" : "প্রম্পট তৈরি করুন") :
+                      (uiLang === 'en' ? "Generate Content" : "কন্টেন্ট তৈরি করুন")
+                    }
+                  </span>
+                </>
+              )}
+            </div>
           </motion.button>
         </div>
 
@@ -4231,10 +4298,14 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <div className="w-full max-w-sm space-y-8 z-10">
                       <div className="space-y-3">
                         <div className="flex justify-between items-end px-1">
-                          <div className="hw-label text-hw-accent text-[10px] h-4">
-                            <TypewriterText text={t.loadingSteps[loadingStep] || t.processing} className="font-black italic uppercase italic tracking-widest" />
+                          <div className="hw-label text-hw-accent text-[10px] h-12 flex items-center">
+                            <TypewriterText 
+                              text={loadingStatus || t.loadingSteps[loadingStep] || t.processing} 
+                              key={loadingStatus || loadingStep}
+                              className="font-black italic uppercase tracking-widest leading-relaxed line-clamp-2" 
+                            />
                           </div>
-                          <span className="hw-display p-1 px-2 text-[10px] leading-none">{Math.round(loadingProgress)}%</span>
+                          <span className="hw-display p-1 px-2 text-[10px] leading-none shrink-0">{Math.round(loadingProgress)}%</span>
                         </div>
                         <div className="h-3 w-full bg-black/80 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
                           <motion.div 
