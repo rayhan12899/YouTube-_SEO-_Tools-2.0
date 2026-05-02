@@ -533,18 +533,21 @@ export const generateContent = async (options: GenerationOptions) => {
                   CRITICAL STRUCTURE FOR 100% RETENTION:
                   1. THE VIRAL HOOK (0-10% of duration): Start with a MIND-BLOWING hook. Use a curiosity gap, a bold challenge, or a shocking fact.
                   2. THE WARM HUMAN WELCOME (Next 10-15s): Give a very warm, professional, yet friendly welcome. 
-                     CRITICAL FOR BENGALI: ALWAYS start with "আসসালামু আলাইকুম" (Assalamu Alaikum). This is the only acceptable greeting for the start of the video.
+                     CRITICAL FOR BENGALI: ALWAYS start with "আসসালামু আলাইকুম" (Assalamu Alaikum). This is the ABSOLUTE MANDATORY greeting for the start of the video. DO NOT use "নমস্কার" (Namaskar) or "হ্যালো" (Hello) as the first word.
                      CULTURAL IDENTITY (BANGLADESH): The language MUST be 100% authentic Standard Bangladeshi Bengali (DHAKA/BD SHUDDHO). 
-                     - STRICTLY FORBIDDEN: Do NOT use any West Bengal (Indian) accents, words, or idioms.
-                     - NATURAL SPEECH: Incorporate natural human fillers and conversational markers (e.g., "আপনারা কি জানেন?", "আসলে ঘটনাটা হচ্ছে...", "চলুন বিস্তারিত জানা যাক") to ensure it sounds like a real Bangladeshi person, not a robot.
-                  3. THE STORY ARC (60-70% of duration): Tell a COMPLETE story or deliver a FULL lesson. It MUST have a clear beginning, middle, and end. No cliffhangers that leave the user confused—resolve the topic fully. Avoid robotic listicles; use conversational "real person" transitions.
-                  4. THE MAGNETIC OUTRO (Final 5-10s): End with a powerful closing statement. Create a curiosity loop for the NEXT video to keep them in your ecosystem.
+                     - STRICTLY FORBIDDEN: Do NOT use any West Bengal (Indian) accents, words, or idioms. 
+                     - WORD CHOICE: NEVER use "জল" (Jol), ALWAYS use "পানি" (Paani). NEVER use "লবণ" (Lobon) if "নুন" (Nun) is more natural in the context, but generally follow BD standard vocab.
+                     - NATURAL SPEECH: Incorporate natural human fillers, rhetorical questions, and conversational markers specifically used by Bangladeshi creators (e.g., "কেমন আছেন সবাই?", "আজকের ভিডিওটি অনেক স্পেশাল", "পুরোটা মনোযোগ দিয়ে দেখুন", "আসলে ঘটনাটা হচ্ছে...", "চলুন শুরু করা যাক").
+                  3. THE STORY ARC (60-70% of duration): Tell a COMPLETE human story. It MUST have a clear beginning, middle, and end. Avoid robotic listicles; use conversational "real person" transitions. It should feel like a real person sharing a secret or a deep insight.
+                  4. THE MAGNETIC OUTRO (Final 5-10s): End with a powerful, warm closing. Avoid generic "Subscribe" calls; make it personal.
                   
-                  To ensure quality:
-                  - Use natural human linguistic patterns specific to Bangladeshi native speakers.
-                  - NEVER repeat patterns or use generic AI templates.
-                  - Ensure the script is emotionally resonant and high-energy.
-                  - Accurate Bangladeshi Cultural Nuance: Use words and syntax that sound 100% natural when spoken by a native Bangladeshi creator.
+                  To ensure 100% human quality & PERFECT TTS PLAYBACK:
+                  - Use natural human linguistic patterns specific to Bangladeshi native speakers (Standard Dhaka/BD Shuddho).
+                  - NEVER repeat patterns or use generic AI templates. Let the script breathe and flow like a dynamic human conversation.
+                  - Ensure the script is emotionally resonant, high-energy, and catchy.
+                  - VOICE PACING (CRITICAL): Write in short, punchy sentences. Use commas (,) and ellipses (...) generously to force the TTS AI to pause and breathe naturally, removing any robotic feel.
+                  - Accurate Bangladeshi Cultural Nuance: Use words and syntax that sound 100% natural when spoken by a native Bangladeshi creator. Avoid bookish "Sadhu Bhasha"; use "Cholitobhasha" with modern Dhaka/Bangladeshi social media expressions.
+                  - Avoid any robotic or formal-bookish language; keep it conversational, friendly, and relatable to a Bangladeshi audience.
                   - The content MUST fit 100% within the ${options.videoDuration}s limit while feeling complete.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords. Return as an array of objects with keyword, searchVolume, competition.)
@@ -643,6 +646,7 @@ export const generateVoiceOver = async (
   const actualVoiceName = voiceMap[voiceName] || voiceName;
 
   let promptText = text;
+  let systemInstructionText = "";
   // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
   const MAX_TTS_CHARS = 4000;
   if (text.length > MAX_TTS_CHARS) {
@@ -661,10 +665,10 @@ export const generateVoiceOver = async (
     
     // Explicit instructions for natural human-like delivery
     const languageInstruction = options.voiceLanguage === 'bn' 
-      ? "Speak with a natural, expressive, and high-quality human-like Bangladeshi Bengali dialect. Avoid robotic tones or flat delivery. Incorporate natural breathing, pauses between sentences, and appropriate emotional intonation (human-like). Focus on clear pronunciation and a warm, engaging Bangladeshi accent."
-      : "Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
+      ? "You are a professional Bangladeshi voice over artist. Speak with a 100% natural, highly expressive, and professional Bangladeshi Bengali (Standard/Shuddho) dialect. Avoid West Bengal (Indian) accents at all costs. Incorporate natural human breathing, varied pacing, and warm emotional intonation. Do NOT sound like a robot; sound like a top-tier Bangladeshi storyteller/vlogger."
+      : "You are a professional voice over artist. Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
       
-    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style: ${promptText}`;
+    systemInstructionText = `${languageInstruction} Deliver the text in a ${instructions} style. Read the provided text exactly as it is without adding conversational filler words before it, but use your best, most emotive voice.`;
   }
 
   if (isOffline) {
@@ -672,17 +676,23 @@ export const generateVoiceOver = async (
   }
 
   try {
+    const requestConfig: any = {
+      responseModalities: [Modality.AUDIO],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: actualVoiceName as any },
+        },
+      },
+    };
+
+    if (systemInstructionText) {
+      requestConfig.systemInstruction = systemInstructionText;
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-tts-preview",
       contents: [{ parts: [{ text: promptText }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: actualVoiceName as any },
-          },
-        },
-      },
+      config: requestConfig,
     });
 
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
@@ -766,8 +776,9 @@ export const generateVoiceExtractor = async (
               2. A complete professional YouTube 'Script'.
                  STRICT RULES FOR SCRIPTS:
                  - Must sound 100% human-like, conversational, and natural.
+                 - VOICE PACING (CRITICAL): Write in short, punchy sentences. Use commas (,) and ellipses (...) generously to force the TTS AI to pause and breathe naturally, removing any robotic feel.
                  - START with a magnetic viral hook that resets the audience's attention.
-                 - Warmly welcome the audience early on. (If target language is Bengali, ALWAYS start with "আসসালামু আলাইকুম" and use native Bangladeshi shuddho style).
+                 - Warmly welcome the audience early on. (If target language is Bengali, ALWAYS start with "আসসালামু আলাইকুম", DO NOT use "নমস্কার", and use 100% native Bangladeshi shuddho style without Indian/West Bengal words).
                  - Maintain 100% attention using high-retention storytelling techniques throughout the body.
                  - END with an attractive, curiosity-driven closing that makes viewers watch your future videos.
               3. An 'Image Prompt' for a YouTube thumbnail generator.
