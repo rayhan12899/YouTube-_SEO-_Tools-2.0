@@ -130,7 +130,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
   try {
     const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash",
       config: {
         maxOutputTokens: 2048,
         safetySettings: [
@@ -177,7 +177,7 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
   try {
     const base64Data = imageData.includes(',') ? imageData.split(',')[1] : imageData;
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -391,7 +391,7 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
   const executeCall = async () => {
     if (provider === 'gemini') {
       const model = ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.0-flash",
         config: { 
           responseMimeType,
           responseSchema,
@@ -646,7 +646,6 @@ export const generateVoiceOver = async (
   const actualVoiceName = voiceMap[voiceName] || voiceName;
 
   let promptText = text;
-  let systemInstructionText = "";
   // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
   const MAX_TTS_CHARS = 4000;
   if (text.length > MAX_TTS_CHARS) {
@@ -668,7 +667,7 @@ export const generateVoiceOver = async (
       ? "You are a professional Bangladeshi voice over artist. Speak with a 100% natural, highly expressive, and professional Bangladeshi Bengali (Standard/Shuddho) dialect. Avoid West Bengal (Indian) accents at all costs. Incorporate natural human breathing, varied pacing, and warm emotional intonation. Do NOT sound like a robot; sound like a top-tier Bangladeshi storyteller/vlogger."
       : "You are a professional voice over artist. Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
       
-    systemInstructionText = `${languageInstruction} Deliver the text in a ${instructions} style. Read the provided text exactly as it is without adding conversational filler words before it, but use your best, most emotive voice.`;
+    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style. Read it exactly as it is, but with your best, most emotive voice: ${text}`;
   }
 
   if (isOffline) {
@@ -685,12 +684,8 @@ export const generateVoiceOver = async (
       },
     };
 
-    if (systemInstructionText) {
-      requestConfig.systemInstruction = systemInstructionText;
-    }
-
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
+      model: "gemini-2.0-flash",
       contents: [{ parts: [{ text: promptText }] }],
       config: requestConfig,
     });
@@ -748,7 +743,7 @@ export const generateVoiceExtractor = async (
     const languageName = targetLanguage === 'en' ? 'English' : targetLanguage === 'bn' ? 'Bengali' : 'Hindi';
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -912,7 +907,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
       let text;
       if (provider === 'gemini') {
         const response = await ai.models.generateContent({
-          model: "gemini-3-flash-preview",
+          model: "gemini-2.0-flash",
           contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             tools: [{ googleSearch: {} }],
@@ -1001,7 +996,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
   
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -1104,7 +1099,7 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.0-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
