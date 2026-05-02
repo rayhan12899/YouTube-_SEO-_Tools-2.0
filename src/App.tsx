@@ -98,6 +98,7 @@ import TypewriterText from './components/TypewriterText';
 import SystemMetrics from './components/SystemMetrics';
 import InteractiveChecklist from './components/InteractiveChecklist';
 import OnboardingTutorial from './components/OnboardingTutorial';
+import { VoiceRecorder } from './components/VoiceRecorder';
 import LiveInsights from './components/LiveInsights';
 import AnalyticsView from './components/AnalyticsView';
 import CollaborationChat from './components/CollaborationChat';
@@ -261,11 +262,11 @@ export default function App() {
     let currentProgress = 0;
     
     const interval = setInterval(() => {
-      currentProgress += Math.random() * 5;
+      currentProgress += Math.random() * 12;
       
-      if (currentProgress >= 95) {
-        currentProgress = 95;
-        setLoadingProgress(95);
+      if (currentProgress >= 98) {
+        currentProgress = 98;
+        setLoadingProgress(98);
         setLoadingStep(t.loadingSteps.length - 1);
         setLoadingStatus(uiLang === 'en' ? "Finalizing Content Stream..." : "কন্টেন্ট স্ট্রিম চূড়ান্ত করা হচ্ছে...");
         clearInterval(interval);
@@ -288,7 +289,7 @@ export default function App() {
       } else if (currentProgress > 75 && currentProgress < 90) {
         setLoadingStatus(uiLang === 'en' ? "Calibrating SEO Meta-Signal Matrix..." : "এসইও মেটা-সিগন্যাল মেট্রিক্স ক্যালিব্রেট করা হচ্ছে...");
       }
-    }, 500);
+    }, 120);
     
     return interval;
   };
@@ -591,6 +592,7 @@ export default function App() {
     'image-to-prompt': null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
+  const [voiceMode, setVoiceMode] = useState<'ai' | 'record'>('ai');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentTopic = topics[currentView];
@@ -863,10 +865,10 @@ export default function App() {
     }
 
     setResults(prev => ({ ...prev, [activeView]: null }));
+    progressInterval = simulateProgress();
     try {
       if (activeView === 'idea') {
         setLoadingStep(1); // Researching...
-        setLoadingProgress(30);
         setLoadingStatus(uiLang === 'en' ? "Scanning viral databases for trending concepts..." : "ট্রেন্ডিং কনসেপ্টের জন্য ভাইরাল ডাটাবেস স্ক্যান করা হচ্ছে...");
         const res = await generateVideoIdeas(activeTopic, options.language);
         setResults(prev => ({ ...prev, [activeView]: res }));
@@ -875,7 +877,6 @@ export default function App() {
         playNotificationSound();
       } else if (activeView === 'shorts') {
         setLoadingStep(2); // Generating script...
-        setLoadingProgress(50);
         setLoadingStatus(uiLang === 'en' ? "Crafting short-form viral hook and high-retention script..." : "শর্ট-ফর্ম ভাইরাল হুক এবং হাই-রিটেনশন স্ক্রিপ্ট তৈরি করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
@@ -918,7 +919,6 @@ export default function App() {
       } else if (activeView === 'image') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
-          setLoadingProgress(40);
           if (mediaMimeType.startsWith('video/')) {
             setLoadingStatus(uiLang === 'en' ? "Extracting visual metadata from your video signal..." : "আপনার ভিডিও সিগন্যাল থেকে ভিজ্যুয়াল মেটাডেটা এক্সট্র্যাক্ট করা হচ্ছে...");
             const res = await generatePromptsFromVideo(currentSelectedMedia, mediaMimeType, options.language, activeTopic, options.videoDuration, options.scriptWordCount, formOptions.visualStyle, formOptions.cameraAngle, formOptions.mood, formOptions.lighting);
@@ -936,7 +936,6 @@ export default function App() {
           }
         } else {
             setLoadingStep(2); // Generating...
-            setLoadingProgress(40);
             setLoadingStatus(uiLang === 'en' ? "Generating high-fidelity cinematic visualization..." : "হাই-ফিডেলিটি সিনেমাটিক ভিজ্যুয়ালাইজেশন তৈরি করা হচ্ছে...");
             const res = await generateImage(activeTopic, options.aspectRatio as any);
             setResults(prev => ({ ...prev, [activeView]: { imageUrl: res } }));
@@ -946,7 +945,6 @@ export default function App() {
         }
       } else if (activeView === 'promptGen') {
         setLoadingStep(2);
-        setLoadingProgress(40);
         setLoadingStatus(uiLang === 'en' ? "Engineering unique creative prompts using advanced NLP..." : "অ্যাডভান্সড এনএলপি ব্যবহার করে ইউনিক ক্রিয়েটিভ প্রম্পট ইঞ্জিনিয়ার করা হচ্ছে...");
         const prompt = `তুমি একজন প্রম্পট ইঞ্জিনিয়ারিং এক্সপার্ট। আমাকে ${activeTopic} বিষয়ের উপর ${options.promptCategory} তৈরির জন্য ৩টি সম্পূর্ণ নতুন, ইউনিক এবং সৃজনশীল প্রম্পট তৈরি করে দাও। 
         
@@ -983,7 +981,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         playNotificationSound();
       } else if (activeView === 'voice') {
         setLoadingStep(2); // Generating...
-        setLoadingProgress(40);
         setLoadingStatus(uiLang === 'en' ? "Synthesizing deep-learning audio frequencies..." : "ডিপ-লার্নিং অডিও ফ্রিকোয়েন্সি সিন্থেসাইজ করা হচ্ছে...");
         const res = await generateVoiceOver(activeTopic, options.voice, {
           tone: options.voiceTone,
@@ -998,7 +995,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       } else if (activeView === 'voiceExtractor') {
         if (currentSelectedMedia && (mediaMimeType.startsWith('audio/') || mediaMimeType.startsWith('video/'))) {
           setLoadingStep(3); // Optimizing...
-          setLoadingProgress(60);
           setLoadingStatus(uiLang === 'en' ? "Isolating vocal stems from complex media stream..." : "জটিল মিডিয়া স্ট্রিম থেকে ভোকাল স্টেম আলাদা করা হচ্ছে...");
           const targetLang = options.language === 'both' ? 'bn' : options.language as 'en' | 'bn' | 'hi';
           const res = await generateVoiceExtractor(currentSelectedMedia, mediaMimeType, targetLang);
@@ -1014,7 +1010,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         }
       } else if (activeView === 'universal') {
         setLoadingStep(2); // Generating...
-        setLoadingProgress(30);
         setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
@@ -1032,7 +1027,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
 
         // Auto-generate Voice Over
         setLoadingStep(4); // Narrating...
-        setLoadingProgress(80);
         setLoadingStatus(uiLang === 'en' ? "Applying neural narration to generated script..." : "জেনারেটেড স্ক্রিপ্টে নিউরাল ন্যারেশন প্রয়োগ করা হচ্ছে...");
         try {
           const cleanScript = res.script?.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim() || "";
@@ -1064,7 +1058,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       } else if (activeView === 'video' || activeView === 'longVideo' || activeView === 'megaScript') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
-          setLoadingProgress(40);
           // If it's a video file
           if (mediaMimeType.startsWith('video/')) {
             setLoadingStatus(uiLang === 'en' ? "Deconstructing video packets for semantic analysis..." : "সিম্যান্টিক বিশ্লেষণের জন্য ভিডিও প্যাকেট ডিকনস্ট্রাক্ট করা হচ্ছে...");
@@ -1083,7 +1076,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           }
         } else {
           setLoadingStep(2); // Generating...
-          setLoadingProgress(40);
           setLoadingStatus(uiLang === 'en' ? "Processing high-logic long-form content architecture..." : "হাই-লজিক লং-ফর্ম কন্টেন্ট আর্কিটেকচার প্রসেস করা হচ্ছে...");
           const res = await generateContent({
             topic: activeTopic,
@@ -1170,7 +1162,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setLoadingProgress(0);
         setLoadingStep(0);
         setLoadingStatus("");
-      }, 500);
+      }, 150);
     }
   };
 
@@ -3032,23 +3024,57 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <Mic size={20} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-white tracking-tight">Voice Synthesizer</h3>
-                        <p className="hw-label">Professional Grade Output</p>
+                        <h3 className="text-lg font-bold text-white tracking-tight">{voiceMode === 'ai' ? 'Voice Synthesizer' : 'Voice Recorder'}</h3>
+                        <p className="hw-label">{voiceMode === 'ai' ? 'Professional Grade Output' : '100% Real Human Voice'}</p>
                       </div>
                     </div>
-                    <div className="flex gap-4">
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="hw-knob" style={{ transform: 'rotate(45deg)' }}></div>
-                        <span className="hw-label">Gain</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="hw-knob" style={{ transform: 'rotate(-30deg)' }}></div>
-                        <span className="hw-label">Pitch</span>
-                      </div>
+                    
+                    <div className="flex bg-black/40 p-1 rounded-xl border border-white/10 self-start">
+                      <button 
+                        onClick={() => setVoiceMode('ai')}
+                        className={cn(
+                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                          voiceMode === 'ai' ? "bg-hw-accent text-white" : "text-hw-muted hover:text-white"
+                        )}
+                      >
+                        AI Synth
+                      </button>
+                      <button 
+                        onClick={() => setVoiceMode('record')}
+                        className={cn(
+                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                          voiceMode === 'record' ? "bg-hw-accent text-white" : "text-hw-muted hover:text-white"
+                        )}
+                      >
+                        Record
+                      </button>
                     </div>
+
+                    {voiceMode === 'ai' && (
+                      <div className="hidden sm:flex gap-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="hw-knob" style={{ transform: 'rotate(45deg)' }}></div>
+                          <span className="hw-label">Gain</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="hw-knob" style={{ transform: 'rotate(-30deg)' }}></div>
+                          <span className="hw-label">Pitch</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {voiceMode === 'record' ? (
+                    <VoiceRecorder 
+                      uiLang={uiLang} 
+                      onRecordingComplete={(blob, url) => {
+                        setResults(prev => ({ ...prev, voice: { audioUrl: url } }));
+                        saveToHistory("Physical Voice Recording", { audioUrl: url }, 'voice');
+                        toast.success(uiLang === 'en' ? "Voice Recorded Successfully!" : "ভয়েস সফলভাবে রেকর্ড হয়েছে!");
+                      }} 
+                    />
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                       {/* Duration Slider for Voice */}
                       <div className="space-y-3">
@@ -3123,10 +3149,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <p className="hw-label opacity-50">{t.femaleVoices}</p>
                             <div className="grid grid-cols-2 gap-2">
                               {options.voiceLanguage === 'bn' ? [
-                                { id: 'Mila', label: 'Mila (Pro)', desc: 'Clear & Professional' },
-                                { id: 'Sumi', label: 'Sumi (Sweet)', desc: 'Natural & Warm' },
-                                { id: 'Aoide', label: 'Aoide (Calm)', desc: 'Smooth & Steady' },
-                                { id: 'Kore', label: 'Kore', desc: 'Default Female' }
+                                { id: 'Mila', label: 'Mila (BD Pro)', desc: '100% Real Bangladeshi' },
+                                { id: 'Sumi', label: 'Sumi (Sweet)', desc: 'Bangladeshi Natural' },
+                                { id: 'Aoide', label: 'Aoide (Calm)', desc: 'BD Smooth Voice' },
+                                { id: 'Kore', label: 'Kore', desc: 'Standard BD Female' }
                               ].map((v) => (
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
@@ -3166,10 +3192,10 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                             <p className="hw-label opacity-50">{t.maleVoices}</p>
                             <div className="grid grid-cols-2 gap-2">
                               {options.voiceLanguage === 'bn' ? [
-                                { id: 'Arif', label: 'Arif (Vlog)', desc: 'Friendly & Casual' },
-                                { id: 'Rahat', label: 'Rahat (News)', desc: 'Deep & Formal' },
-                                { id: 'Rashed', label: 'Rashed (Action)', desc: 'High Energy' },
-                                { id: 'Puck', label: 'Puck', desc: 'Default Male' }
+                                { id: 'Arif', label: 'Arif (BD Vlog)', desc: 'Friendly Bangladeshi' },
+                                { id: 'Rahat', label: 'Rahat (BD News)', desc: 'Deep BD Formal' },
+                                { id: 'Rashed', label: 'Rashed (Action)', desc: 'BD High Energy' },
+                                { id: 'Puck', label: 'Puck', desc: 'Standard BD Male' }
                               ].map((v) => (
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
@@ -3316,8 +3342,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
 
               {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'image' || currentView === 'voiceExtractor') && (
                 <div className="space-y-4">
@@ -4628,6 +4655,18 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 <div className="flex gap-4">
                                   {key === 'script' && (
                                     <div className="flex gap-4 items-center">
+                                      <button 
+                                        onClick={() => {
+                                          setTopics(prev => ({ ...prev, voice: String(value) }));
+                                          setVoiceMode('record');
+                                          setCurrentView('voice');
+                                          toast.success(uiLang === 'en' ? "Script loaded into Recorder" : "স্ক্রিপ্ট রেকর্ডারে লোড হয়েছে");
+                                        }}
+                                        className="text-white/50 hover:text-hw-accent transition-all hover:scale-110"
+                                        title={uiLang === 'en' ? "Record this Script" : "এই স্ক্রিপ্টটি রেকর্ড করুন"}
+                                      >
+                                        <Mic size={18} />
+                                      </button>
                                       <button 
                                         onClick={() => shareScript('facebook', String(value))}
                                         className="text-white/50 hover:text-[#1877F2] transition-all hover:scale-110"

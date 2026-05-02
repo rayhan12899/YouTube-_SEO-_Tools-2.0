@@ -525,19 +525,27 @@ export const generateContent = async (options: GenerationOptions) => {
                   3. HUMAN-LIKE DEPTH: It must sound like a professional, high-budget documentary or a masterclass by a top-tier human expert. Use natural human-like transitions, nuanced emotional intonation, and intellectual depth.
                   4. FORBIDDEN: NEVER loop segments, never use placeholder text, and never reuse parts from earlier in the script. 
                   5. STRUCTURE: Break it down into 10-12 rich, logical chapters with smooth segues.
-                  6. QUALITY: The script must be indistinguishable from a script written by a world-class professional content creator or a best-selling author.)` : options.videoDuration ? `(Write a FULL, 100% UNIQUE human-style narrative. 
+                  6. QUALITY: The script must be indistinguishable from a script written by a world-class professional content creator or a best-selling author.)` : options.videoDuration ? `(Write a FULL, 100% UNIQUE 100% human-style narrative. 
+                  CRITICAL: The script MUST be perfectly paced for professional delivery within exactly ${options.videoDuration} seconds.
+                  
+                  TIME-SYNC VOLUME: For a ${options.videoDuration}s video, you MUST write between ${Math.floor(options.videoDuration * 2.3)} and ${Math.floor(options.videoDuration * 2.7)} words. This is calculated for a natural, high-retention speaking pace (approx 150 words per minute).
+                  
                   CRITICAL STRUCTURE FOR 100% RETENTION:
-                  1. THE VIRAL HOOK (0-5s): Start with a MIND-BLOWING hook. Use a curiosity gap, a bold challenge, or a shocking fact that makes scrolling past impossible. 
-                  2. THE WARM WELCOME (5-15s): Give a very warm, professional, yet friendly welcome. Make the viewer feel like they are part of an exclusive group.
-                  3. NARRATIVE JOURNEY (Body): Tell a STORY. Humans connect through stories, not just facts. Use conversational language, unexpected twists, and "100% real human" phrasing. Avoid robotic listicles. Use emotional triggers to keep 100% attention throughout.
-                  4. THE LOOPER ENDING (Outro): End with a powerful, attractive closing statement. Create a "loop" or a strong curiosity for your NEXT video so they SUBSCRIBE immediately and wait for your next content.
+                  1. THE VIRAL HOOK (0-10% of duration): Start with a MIND-BLOWING hook. Use a curiosity gap, a bold challenge, or a shocking fact.
+                  2. THE WARM HUMAN WELCOME (Next 10-15s): Give a very warm, professional, yet friendly welcome. 
+                     CRITICAL FOR BENGALI: ALWAYS start with "আসসালামু আলাইকুম" (Assalamu Alaikum). This is the only acceptable greeting for the start of the video.
+                     CULTURAL IDENTITY (BANGLADESH): The language MUST be 100% authentic Standard Bangladeshi Bengali (DHAKA/BD SHUDDHO). 
+                     - STRICTLY FORBIDDEN: Do NOT use any West Bengal (Indian) accents, words, or idioms.
+                     - NATURAL SPEECH: Incorporate natural human fillers and conversational markers (e.g., "আপনারা কি জানেন?", "আসলে ঘটনাটা হচ্ছে...", "চলুন বিস্তারিত জানা যাক") to ensure it sounds like a real Bangladeshi person, not a robot.
+                  3. THE STORY ARC (60-70% of duration): Tell a COMPLETE story or deliver a FULL lesson. It MUST have a clear beginning, middle, and end. No cliffhangers that leave the user confused—resolve the topic fully. Avoid robotic listicles; use conversational "real person" transitions.
+                  4. THE MAGNETIC OUTRO (Final 5-10s): End with a powerful closing statement. Create a curiosity loop for the NEXT video to keep them in your ecosystem.
                   
                   To ensure quality:
-                  - The narrative MUST be high-energy, empathetic, and indistinguishable from a top-tier human creator.
-                  - NEVER repeat patterns or use generic template language.
-                  - Ensure the script is cohesive, professional, and emotionally resonant.
-                  - For short videos (< 5 mins): Use rapid-fire storytelling with high-impact hooks.
-                  - For long videos (5-15 mins): Use deep-dive storytelling with multiple "mini-hooks" to reset attention span.)` : ""}
+                  - Use natural human linguistic patterns specific to Bangladeshi native speakers.
+                  - NEVER repeat patterns or use generic AI templates.
+                  - Ensure the script is emotionally resonant and high-energy.
+                  - Accurate Bangladeshi Cultural Nuance: Use words and syntax that sound 100% natural when spoken by a native Bangladeshi creator.
+                  - The content MUST fit 100% within the ${options.videoDuration}s limit while feeling complete.)` : ""}
               - SEO Checklist: ${options.generateSeoChecklist} (A comprehensive YouTube SEO checklist. Return as a structured list.)
               - Keyword Research: ${options.generateKeywords} (Provide a list of 10-15 relevant keywords. Return as an array of objects with keyword, searchVolume, competition.)
               - SEO Hashtags: (Provide 10-15 trending and relevant hashtags starting with #)
@@ -547,9 +555,9 @@ export const generateContent = async (options: GenerationOptions) => {
               - videoTitle: A catchy, SEO-optimized title for the video.
               - hashtags: A string containing 10-15 SEO optimized hashtags starting with #.
               - seoTitles: An array of 5 unique, SEO-friendly video title variations.
-              - script: The FULL connected script/narrative (must have a clear beginning, middle, and END).
+              - script: The FULL connected 100% complete story/narrative. It MUST cover the entire topic from start to finish within the requested time, sounding 100% human with a clear resolution.
               - sceneBreakdown: An array of objects representing clips/scenes in chronological order.
-                CRITICAL SCALING: The number of scenes MUST match the video length requested.
+                CRITICAL SCALING: The number of scenes MUST match the video length requested. Ensure timestamps sum up to exactly the total duration.
                 - Length < 1m: 3-5 scenes.
                 - Length 2m - 5m: 8-15 scenes.
                 - Length 10m+: 20-30 scenes.
@@ -557,7 +565,7 @@ export const generateContent = async (options: GenerationOptions) => {
                 Each object MUST have:
                 - 'scene': Scene sequence number.
                 - 'time': Timestamp breakdown covering the full duration (e.g., "0:00 - 2:00").
-                - 'script': The exact dialogue, voiceover, or detailed vocal summary for ONLY this specfic scene. Must be detailed.
+                - 'script': The exact human-style dialogue, voiceover, or detailed vocal summary for ONLY this specfic scene. Must be detailed and perfectly timed for the duration of this scene.
                 - 'videoPrompt': Ensure EVERY scene has a highly detailed cinematic prompt for AI video generators (e.g. Runway, Sora).
                 - 'imagePrompt': Ensure EVERY scene has a highly detailed prompt for AI image generators (e.g. Midjourney).
               
@@ -759,7 +767,7 @@ export const generateVoiceExtractor = async (
                  STRICT RULES FOR SCRIPTS:
                  - Must sound 100% human-like, conversational, and natural.
                  - START with a magnetic viral hook that resets the audience's attention.
-                 - Warmly welcome the audience early on.
+                 - Warmly welcome the audience early on. (If target language is Bengali, ALWAYS start with "আসসালামু আলাইকুম" and use native Bangladeshi shuddho style).
                  - Maintain 100% attention using high-retention storytelling techniques throughout the body.
                  - END with an attractive, curiosity-driven closing that makes viewers watch your future videos.
               3. An 'Image Prompt' for a YouTube thumbnail generator.
