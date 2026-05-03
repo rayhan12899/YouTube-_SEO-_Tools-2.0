@@ -601,7 +601,7 @@ export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" |
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-image-preview',
+      model: 'gemini-2.0-flash',
       contents: {
         parts: [
           {
@@ -664,10 +664,10 @@ export const generateVoiceOver = async (
     
     // Explicit instructions for natural human-like delivery
     const languageInstruction = options.voiceLanguage === 'bn' 
-      ? "You are a professional Bangladeshi voice over artist. Speak with a 100% natural, highly expressive, and professional Bangladeshi Bengali (Standard/Shuddho) dialect. Avoid West Bengal (Indian) accents at all costs. Incorporate natural human breathing, varied pacing, and warm emotional intonation. Do NOT sound like a robot; sound like a top-tier Bangladeshi storyteller/vlogger."
-      : "You are a professional voice over artist. Speak with a fluent, professional, and natural-sounding Bangladeshi-accented English with human-like intonation and clarity.";
+      ? "You are a professional, world-class Bangladeshi voice-over artist and storyteller. Speak with a 100% natural, highly expressive, and vibrant Bangladeshi Bengali (Standard/Shuddho) dialect. Avoid West Bengal (Indian) accents or vocabulary COMPLETELY. Your performance should feel like a real human responding emotionally to the text. Incorporate natural human breathing patterns, subtle variations in energy, and warm, relatable intonation. Crucially, interpret punctuation as natural pauses: commas imply a brief breath, ellipses imply a thoughtful pause, and full stops imply a clear conclusion. Do NOT sound like a robotic AI reader; your goal is to be indistinguishable from a top-tier Bangladeshi creator."
+      : "You are a professional voice-over artist with global appeal. Speak with a fluent, professional, and natural-sounding English delivery that incorporates realistic human intonation, stress on key words, and clear, warm clarity. Avoid any monotone or robotic quality.";
       
-    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style. Read it exactly as it is, but with your best, most emotive voice: ${text}`;
+    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style. Read the provided text exactly as it is, maintaining a rhythmic and human flow: ${text}`;
   }
 
   if (isOffline) {
