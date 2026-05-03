@@ -747,14 +747,27 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (trendingTopics.length === 0) {
+    if (trendingTopics.length === 0 && !loadingTrends) {
       const fetchTrends = async () => {
         setLoadingTrends(true);
         try {
           const res = await getTrendingTopics(uiLang);
-          setTrendingTopics(res.trending || []);
+          if (res && res.trending && res.trending.length > 0) {
+            setTrendingTopics(res.trending);
+          } else {
+             // Fallback to avoid loop
+            setTrendingTopics([
+              { topic: "AI Trends 2026", reason: "Latest advancements in AI technology." },
+              { topic: "Social Media Growth", reason: "Strategies for organic reach." }
+            ]);
+          }
         } catch (error) {
           console.error("Failed to fetch trends:", error);
+          // Set fallback to avoid loop
+          setTrendingTopics([
+            { topic: "Content Creation Tips", reason: "Essential for new creators." },
+            { topic: "Viral Strategies", reason: "How to capture audience attention." }
+          ]);
         } finally {
           setLoadingTrends(false);
         }
@@ -762,21 +775,36 @@ export default function App() {
       fetchTrends();
     }
 
-    if (liveInsights.length === 0) {
+    if (liveInsights.length === 0 && !loadingInsights) {
       const fetchInsights = async () => {
         setLoadingInsights(true);
         try {
           const res = await getLiveInsights(uiLang === 'bn' ? 'bn' : 'en');
-          setLiveInsights(res);
+          if (res && res.length > 0) {
+            setLiveInsights(res);
+          } else {
+            // Set some default insights to avoid re-fetching infinitely on empty result
+            setLiveInsights([
+              uiLang === 'bn' ? "ভাইরাল হুক ব্যবহার করুন ভিডিওর এঙ্গেজমেন্ট বাড়াতে।" : "Use viral hooks to increase video engagement.",
+              uiLang === 'bn' ? "ভিডিওর প্রথম ৩ সেকেন্ড দর্শকদের ধরে রাখার জন্য গুরুত্বপূর্ণ।" : "The first 3 seconds of your video are crucial for retention.",
+              uiLang === 'bn' ? "এসইও ফ্রেন্ডলি টাইটেল এবং থাম্বনেইল ভিউ বাড়াতে সাহায্য করে।" : "SEO-friendly titles and thumbnails help increase views."
+            ]);
+          }
         } catch (err) {
           console.error("Failed to fetch insights:", err);
+          // Set fallback to avoid infinite retry loop
+          setLiveInsights([
+            uiLang === 'bn' ? "এআই ভিত্তিক কন্টেন্ট তৈরি এখন সময়ের দাবি।" : "AI-powered content creation is the need of the hour.",
+            uiLang === 'bn' ? "শর্টস ভিডিও দ্রুত গ্রোথ পেতে সাহায্য করে।" : "Shorts videos help in gaining rapid growth.",
+            uiLang === 'bn' ? "সঠিক কি-ওয়ার্ড রিসার্চ ভিডিওর র‍্যাঙ্ক উন্নত করে।" : "Proper keyword research improves video ranking."
+          ]);
         } finally {
           setLoadingInsights(false);
         }
       };
       fetchInsights();
     }
-  }, [uiLang, trendingTopics.length, liveInsights.length]);
+  }, [uiLang, trendingTopics.length, liveInsights.length, loadingInsights, loadingTrends]);
 
   const saveToHistory = (topic: string, result: any, type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts') => {
     const newItem: HistoryItem = {

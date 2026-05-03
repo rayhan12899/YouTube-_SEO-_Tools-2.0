@@ -685,7 +685,7 @@ export const generateVoiceOver = async (
     };
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
       contents: [{ parts: [{ text: promptText }] }],
       config: requestConfig,
     });
@@ -1145,6 +1145,23 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 };
 
 export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Promise<string[]> => {
+  // Check cache first
+  if (typeof window !== 'undefined') {
+    const cachedData = localStorage.getItem(`live_insights_${language}`);
+    if (cachedData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedData);
+        const fourHours = 4 * 60 * 60 * 1000; // Insights can last longer
+        if (Date.now() - timestamp < fourHours) {
+          console.log("Returning cached live insights");
+          return data;
+        }
+      } catch (e) {
+        console.warn("Failed to parse cached live insights", e);
+      }
+    }
+  }
+
   if (isOffline) {
     return [
       "AI is changing the way we create content in 2026.",
@@ -1158,15 +1175,25 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
     Format: Return as a simple JSON array of 3 strings.`;
     const text = await callAI(prompt, "application/json");
     const result = extractJson(text);
-    return Array.isArray(result) ? result : [
+    const finalResult = Array.isArray(result) ? result : [
       language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
       language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
       language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
     ];
+
+    // Cache the result
+    if (typeof window !== 'undefined' && finalResult && finalResult.length > 0) {
+      localStorage.setItem(`live_insights_${language}`, JSON.stringify({
+        data: finalResult,
+        timestamp: Date.now()
+      }));
+    }
+
+    return finalResult;
   } catch (err) {
     console.error("Live Insights Error:", err);
     return [
-      language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
+      language === 'bn' ? "২০ ২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
       language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
       language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
     ];
