@@ -125,8 +125,38 @@ export const updateAIConfig = (provider: AIProvider, keys: Partial<Record<AIProv
   isOffline = checkOfflineStatus(provider);
 };
 
+// Helper check for quota errors
+const isQuotaError = (err: any): boolean => {
+  return err?.status === 429 || 
+         err?.message?.includes('429') || 
+         err?.message?.includes('RESOURCE_EXHAUSTED') ||
+         err?.error?.code === 429 || 
+         err?.error?.status === 'RESOURCE_EXHAUSTED';
+};
+
+const COOLDOWN_KEY = 'ai_api_cooldown_until';
+
+const checkCooldown = (): boolean => {
+  if (typeof window !== 'undefined') {
+    const cooldownUntil = localStorage.getItem(COOLDOWN_KEY);
+    return cooldownUntil ? Date.now() < parseInt(cooldownUntil) : false;
+  }
+  return false;
+};
+
+const setCooldown = (hours: number = 1) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(COOLDOWN_KEY, (Date.now() + hours * 60 * 60 * 1000).toString());
+  }
+};
+
 // Function to transcribe audio
 export const transcribeAudio = async (audioData: string, mimeType: string): Promise<string> => {
+  if (checkCooldown()) {
+    console.warn("API in cooldown due to quota exhaustion");
+    return "";
+  }
+
   try {
     const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
     const response = await ai.models.generateContent({
@@ -155,6 +185,9 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
     return response.text || "";
   } catch (error) {
     console.error("Error transcribing audio:", error);
+    if (isQuotaError(error)) {
+      setCooldown(1);
+    }
     throw error;
   }
 };
@@ -172,6 +205,11 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
         "A third creative mock prompt."
       ]
     };
+  }
+
+  if (checkCooldown()) {
+    console.warn("API in cooldown due to quota exhaustion");
+    return { error: "API in cooldown" };
   }
 
   try {
@@ -212,6 +250,9 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
     return extractJson(response.text || "");
   } catch (error) {
     console.error("Error analyzing image:", error);
+    if (isQuotaError(error)) {
+      setCooldown(1);
+    }
     throw error;
   }
 };
@@ -670,7 +711,8 @@ export const generateVoiceOver = async (
     promptText = `${languageInstruction} Deliver the following text in a ${instructions} style. Read the provided text exactly as it is, maintaining a rhythmic and human flow: ${text}`;
   }
 
-  if (isOffline) {
+  if (isOffline || checkCooldown()) {
+    console.warn("API in cooldown or offline, returning empty");
     return ""; 
   }
 
@@ -720,6 +762,9 @@ export const generateVoiceOver = async (
     throw new Error("No audio data returned from Gemini");
   } catch (error) {
     console.error("Voice Over Error:", error);
+    if (isQuotaError(error)) {
+      setCooldown(1);
+    }
     return "";
   }
 };
@@ -1146,12 +1191,9 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 
 export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Promise<string[]> => {
   // Check cooldown status first
-  if (typeof window !== 'undefined') {
-    const cooldownUntil = localStorage.getItem(`live_insights_cooldown_${language}`);
-    if (cooldownUntil && Date.now() < parseInt(cooldownUntil)) {
-      console.warn("API in cooldown due to quota exhaustion, returning defaults");
-      return getFallbackInsights(language);
-    }
+  if (checkCooldown()) {
+    console.warn("API in cooldown due to quota exhaustion, returning defaults");
+    return getFallbackInsights(language);
   }
 
   // Check cache first
@@ -1195,17 +1237,9 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
     console.error("Live Insights Error:", err);
     
     // Check if it's a quota error
-    const isQuotaError = err?.status === 429 || 
-                         err?.message?.includes('429') || 
-                         err?.message?.includes('RESOURCE_EXHAUSTED') ||
-                         err?.error?.code === 429 || 
-                         err?.error?.status === 'RESOURCE_EXHAUSTED';
-
-    if (isQuotaError) {
+    if (isQuotaError(err)) {
       console.error("Quota exceeded, setting cooldown for 1 hour");
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(`live_insights_cooldown_${language}`, (Date.now() + 60 * 60 * 1000).toString());
-      }
+      setCooldown(1);
     }
     return getFallbackInsights(language);
   }
