@@ -1145,6 +1145,15 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 };
 
 export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Promise<string[]> => {
+  // Check cooldown status first
+  if (typeof window !== 'undefined') {
+    const cooldownUntil = localStorage.getItem(`live_insights_cooldown_${language}`);
+    if (cooldownUntil && Date.now() < parseInt(cooldownUntil)) {
+      console.warn("API in cooldown due to quota exhaustion, returning defaults");
+      return getFallbackInsights(language);
+    }
+  }
+
   // Check cache first
   if (typeof window !== 'undefined') {
     const cachedData = localStorage.getItem(`live_insights_${language}`);
@@ -1163,11 +1172,7 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
   }
 
   if (isOffline) {
-    return [
-      "AI is changing the way we create content in 2026.",
-      "Shorts engagement is at an all-time high this week.",
-      "Vertical video is dominating social media platforms."
-    ];
+    return getFallbackInsights(language);
   }
   try {
     const prompt = `You are a viral content analyst. Provide 3 extremely short, high-value, and trending "Live Creator Insights" for a YouTube dashboard. Each insight should be a single punchy sentence about what's working NOW on social media. 
@@ -1175,11 +1180,7 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
     Format: Return as a simple JSON array of 3 strings.`;
     const text = await callAI(prompt, "application/json");
     const result = extractJson(text);
-    const finalResult = Array.isArray(result) ? result : [
-      language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
-      language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
-      language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
-    ];
+    const finalResult = Array.isArray(result) ? result : getFallbackInsights(language);
 
     // Cache the result
     if (typeof window !== 'undefined' && finalResult && finalResult.length > 0) {
@@ -1190,12 +1191,30 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
     }
 
     return finalResult;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Live Insights Error:", err);
-    return [
-      language === 'bn' ? "২০ ২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
-      language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
-      language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
-    ];
+    
+    // Check if it's a quota error
+    const isQuotaError = err?.status === 429 || 
+                         err?.message?.includes('429') || 
+                         err?.message?.includes('RESOURCE_EXHAUSTED') ||
+                         err?.error?.code === 429 || 
+                         err?.error?.status === 'RESOURCE_EXHAUSTED';
+
+    if (isQuotaError) {
+      console.error("Quota exceeded, setting cooldown for 1 hour");
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`live_insights_cooldown_${language}`, (Date.now() + 60 * 60 * 1000).toString());
+      }
+    }
+    return getFallbackInsights(language);
   }
+};
+
+const getFallbackInsights = (language: 'en' | 'bn' | 'hi' = 'en'): string[] => {
+  return [
+    language === 'bn' ? "২০২৬ সালে এআই ভিডিও তৈরি নতুন উচ্চতায় পৌঁছেছে।" : "AI video creation has reached new heights in 2026.",
+    language === 'bn' ? "শর্টস ভিডিওর রিচ এখন সাধারণ ভিডিওর চেয়ে অনেক বেশি।" : "Shorts video reach is significantly higher than regular videos right now.",
+    language === 'bn' ? "সঠিক হুক ব্যবহার করলে ভিডিওর এসইও ৫০% বৃদ্ধি পায়।" : "Using the right hook can boost video SEO by 50%."
+  ];
 };
