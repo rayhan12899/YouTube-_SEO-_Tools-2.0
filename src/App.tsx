@@ -99,7 +99,6 @@ import SystemMetrics from './components/SystemMetrics';
 import InteractiveChecklist from './components/InteractiveChecklist';
 import OnboardingTutorial from './components/OnboardingTutorial';
 import { VoiceRecorder } from './components/VoiceRecorder';
-import LiveInsights from './components/LiveInsights';
 import AnalyticsView from './components/AnalyticsView';
 import CollaborationChat from './components/CollaborationChat';
 import { useDebounce } from './hooks/useDebounce';
@@ -139,7 +138,6 @@ import {
   generateVoiceOver, 
   generateVoiceExtractor,
   getTrendingTopics,
-  getLiveInsights,
   GenerationOptions,
   AIProvider,
   updateAIConfig,
@@ -443,9 +441,7 @@ export default function App() {
       setTestingConnection(prev => ({ ...prev, [provider]: false }));
     }
   };
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['subject', 'camera']);
   const [showAllTopics, setShowAllTopics] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [sceneAudioUrls, setSceneAudioUrls] = useState<Record<string, string>>({});
   const [loadingSceneAudio, setLoadingSceneAudio] = useState<string | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -516,8 +512,6 @@ export default function App() {
   const [copied, setCopied] = useState<string | null>(null);
   const [trendingTopics, setTrendingTopics] = useState<{topic: string, reason: string}[]>([]);
   const [loadingTrends, setLoadingTrends] = useState(false);
-  const [liveInsights, setLiveInsights] = useState<string[]>([]);
-  const [loadingInsights, setLoadingInsights] = useState(false);
   
   // Generation Toggles
   const [options, setOptions] = useState(() => {
@@ -541,10 +535,6 @@ export default function App() {
       generateVoiceOver: true,
       language: 'bn' as 'bn' | 'en' | 'both' | 'hi',
       voice: 'Sumi' as any,
-      voiceTone: 'Professional',
-      voiceAccent: 'US',
-      voiceAge: 'Adult',
-      voiceGender: 'neutral',
       voiceLanguage: 'bn' as 'bn' | 'en' | 'hi',
       videoDuration: 60,
       scriptWordCount: 500,
@@ -764,37 +754,7 @@ export default function App() {
       };
       fetchTrends();
     }
-
-    if (liveInsights.length === 0 && !loadingInsights) {
-      const fetchInsights = async () => {
-        setLoadingInsights(true);
-        try {
-          const res = await getLiveInsights(uiLang === 'bn' ? 'bn' : 'en');
-          if (res && res.length > 0) {
-            setLiveInsights(res);
-          } else {
-            // Set some default insights to avoid re-fetching infinitely on empty result
-            setLiveInsights([
-              uiLang === 'bn' ? "ভাইরাল হুক ব্যবহার করুন ভিডিওর এঙ্গেজমেন্ট বাড়াতে।" : "Use viral hooks to increase video engagement.",
-              uiLang === 'bn' ? "ভিডিওর প্রথম ৩ সেকেন্ড দর্শকদের ধরে রাখার জন্য গুরুত্বপূর্ণ।" : "The first 3 seconds of your video are crucial for retention.",
-              uiLang === 'bn' ? "এসইও ফ্রেন্ডলি টাইটেল এবং থাম্বনেইল ভিউ বাড়াতে সাহায্য করে।" : "SEO-friendly titles and thumbnails help increase views."
-            ]);
-          }
-        } catch (err) {
-          console.error("Failed to fetch insights:", err);
-          // Set fallback to avoid infinite retry loop
-          setLiveInsights([
-            uiLang === 'bn' ? "এআই ভিত্তিক কন্টেন্ট তৈরি এখন সময়ের দাবি।" : "AI-powered content creation is the need of the hour.",
-            uiLang === 'bn' ? "শর্টস ভিডিও দ্রুত গ্রোথ পেতে সাহায্য করে।" : "Shorts videos help in gaining rapid growth.",
-            uiLang === 'bn' ? "সঠিক কি-ওয়ার্ড রিসার্চ ভিডিওর র‍্যাঙ্ক উন্নত করে।" : "Proper keyword research improves video ranking."
-          ]);
-        } finally {
-          setLoadingInsights(false);
-        }
-      };
-      fetchInsights();
-    }
-  }, [uiLang, trendingTopics.length, liveInsights.length, loadingInsights, loadingTrends]);
+  }, [uiLang, trendingTopics.length, loadingTrends]);
 
   const saveToHistory = (topic: string, result: any, type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts') => {
     const newItem: HistoryItem = {
@@ -813,10 +773,7 @@ export default function App() {
     setLoadingSceneAudio(`scene-${sceneIdx}`);
     try {
       const audioUrl = await generateVoiceOver(text, options.voice, {
-        tone: options.voiceTone,
-        accent: options.voiceAccent,
-        age: options.voiceAge,
-        gender: options.voiceGender
+        voiceLanguage: options.voiceLanguage
       });
       if (audioUrl) {
         setSceneAudioUrls(prev => ({ ...prev, [`scene-${sceneIdx}`]: audioUrl }));
@@ -916,10 +873,6 @@ export default function App() {
             setLoadingStatus(uiLang === 'en' ? "Synthesizing AI voice-over for your shorts..." : "আপনার শর্টসের জন্য এআই ভয়েস-ওভার সিন্থেসাইজ করা হচ্ছে...");
             const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
-              tone: options.voiceTone,
-              accent: options.voiceAccent,
-              age: options.voiceAge,
-              gender: options.voiceGender,
               voiceLanguage: options.voiceLanguage
             });
             if (audioUrl) {
@@ -1000,12 +953,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       } else if (activeView === 'voice') {
         setLoadingStep(2); // Generating...
         setLoadingStatus(uiLang === 'en' ? "Synthesizing deep-learning audio frequencies..." : "ডিপ-লার্নিং অডিও ফ্রিকোয়েন্সি সিন্থেসাইজ করা হচ্ছে...");
-        const res = await generateVoiceOver(activeTopic, options.voice, {
-          tone: options.voiceTone,
-          accent: options.voiceAccent,
-          age: options.voiceAge,
-          gender: options.voiceGender
-        });
+        const res = await generateVoiceOver(activeTopic, options.voice, {});
         setResults(prev => ({ ...prev, [activeView]: { audioUrl: res } }));
         saveToHistory(activeTopic, { audioUrl: res }, 'voice');
         toast.success(t.voiceGenHistory + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
@@ -1050,10 +998,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           const cleanScript = res.script?.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim() || "";
           if (cleanScript) {
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
-              tone: options.voiceTone,
-              accent: options.voiceAccent,
-              age: options.voiceAge,
-              gender: options.voiceGender,
               voiceLanguage: options.voiceLanguage
             });
             if (audioUrl) {
@@ -1113,10 +1057,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               setLoadingStatus(uiLang === 'en' ? "Generating strategic narration for full script..." : "পুরো স্ক্রিপ্টের জন্য স্ট্র্যাটেজিক ন্যারেশন তৈরি করা হচ্ছে...");
               const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
               const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
-                tone: options.voiceTone,
-                accent: options.voiceAccent,
-                age: options.voiceAge,
-                gender: options.voiceGender,
                 voiceLanguage: options.voiceLanguage
               });
               if (audioUrl) {
@@ -1145,10 +1085,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           try {
             const cleanScript = res.script.replace(/\[Scene.*?\]/g, '').replace(/Host:|Narrator:/g, '').trim();
             const audioUrl = await generateVoiceOver(cleanScript, options.voice, {
-              tone: options.voiceTone,
-              accent: options.voiceAccent,
-              age: options.voiceAge,
-              gender: options.voiceGender,
               voiceLanguage: options.voiceLanguage
             });
             if (audioUrl) {
@@ -2402,7 +2338,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       <div className="w-10 h-10 rounded-xl bg-hw-accent flex items-center justify-center">
                         <Youtube className="text-black" size={20} />
                       </div>
-                      <span className="text-xl font-black italic tracking-tighter uppercase text-white">AI Studio</span>
+                      <span className="text-xl font-black italic tracking-tighter uppercase text-white">Studio</span>
                     </div>
                     <button 
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -2468,7 +2404,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   </div>
                   <div className="flex flex-col justify-center max-w-[120px] sm:max-w-none px-1 overflow-hidden">
                     <h2 className="text-base sm:text-xl md:text-2xl font-black italic tracking-tighter uppercase text-white leading-tight truncate">
-                      <span className="text-hw-accent">AI</span> Studio
+                      Studio
                     </h2>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", isApiConnected ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500")} />
@@ -2577,7 +2513,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                            currentView === 'idea' ? 'Idea Machine' :
                            currentView === 'image' ? 'Lens Alchemy' : 
                            currentView === 'voice' ? 'Vocal Synthesis' :
-                           currentView === 'voiceExtractor' ? 'Frequency Extractor' : 'AI Studio Workspace'}
+                           currentView === 'voiceExtractor' ? 'Frequency Extractor' : 'Studio Workspace'}
                         </h1>
                         <p className="text-[var(--text-muted)] font-bold tracking-widest uppercase text-[8px] md:text-[10px] mt-2">
                           Status: <span className="text-hw-accent">Operational</span> • Buffer: <span className="text-hw-accent">Clear</span>
@@ -2887,20 +2823,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     <SystemMetrics t={t} />
                   </section>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    {/* Live Insights */}
-                    <section className="lg:col-span-12 xl:col-span-7 space-y-6">
-                      <div className="flex items-center justify-between px-1">
-                        <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
-                          <Sparkles size={14} /> {t.liveInsights}
-                        </h3>
-                        {loadingInsights && <Loader2 size={14} className="animate-spin text-hw-accent" />}
-                      </div>
-                      <LiveInsights insights={liveInsights} loading={loadingInsights} t={t} />
-                    </section>
-
+                  <div className="grid grid-cols-1 gap-10">
                     {/* Recent Activity */}
-                    <section className="lg:col-span-12 xl:col-span-5 space-y-6">
+                    <section className="space-y-6">
                       <div className="flex items-center justify-between px-1">
                         <h3 className="hw-label text-white/40 flex items-center gap-2 uppercase tracking-widest font-black">
                           <History size={14} /> {t.recentActivity}
@@ -2950,67 +2875,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </section>
                   </div>
 
-                  {/* Popular Categories */}
-                  <section className="space-y-8 pt-10 border-t border-white/5">
-                    <div className="flex items-center justify-between px-1">
-                      <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
-                        <LayoutDashboard size={14} /> {t.popularCategories}
-                      </h2>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                      {POPULAR_TOPICS.map((topic, idx) => (
-                        <div key={idx} className="space-y-3">
-                          <motion.button
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            whileHover={{ y: -4, backgroundColor: "rgba(255,255,255,0.05)" }}
-                            onClick={() => {
-                              setSelectedCategory(selectedCategory === idx ? null : idx);
-                              setTopics(prev => ({ ...prev, home: uiLang === 'bn' ? topic.bn : topic.en }));
-                              toast.info(t.clickToUse);
-                            }}
-                            className={cn(
-                              "hw-btn-industrial w-full py-4 text-left px-5 h-auto flex flex-col items-start gap-2",
-                              selectedCategory === idx && "active border-hw-accent shadow-[0_0_20px_rgba(0,229,255,0.2)]"
-                            )}
-                          >
-                            <span className={cn(
-                              "text-[10px] font-black uppercase tracking-widest transition-colors",
-                              selectedCategory === idx ? "text-hw-accent" : "text-hw-muted"
-                            )}>
-                              {uiLang === 'bn' ? topic.bn : topic.en}
-                            </span>
-                          </motion.button>
-                          
-                          <AnimatePresence>
-                            {selectedCategory === idx && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5"
-                              >
-                                {topic.subs.map((sub, sIdx) => (
-                                  <button
-                                    key={sIdx}
-                                    onClick={() => {
-                                      setTopics(prev => ({ ...prev, home: `${topic.en} - ${sub}` }));
-                                      toast.success(`${sub} Loaded`);
-                                    }}
-                                    className="py-2.5 px-4 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-hw-muted hover:text-hw-accent hover:border-hw-accent/20 transition-all text-left"
-                                  >
-                                    {sub}
-                                  </button>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
+
                 </div>
               )}
 
@@ -3022,30 +2887,9 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                         <Mic size={20} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-white tracking-tight">{voiceMode === 'ai' ? 'Voice Synthesizer' : 'Voice Recorder'}</h3>
-                        <p className="hw-label">{voiceMode === 'ai' ? 'Professional Grade Output' : '100% Real Human Voice'}</p>
+                        <h3 className="text-lg font-bold text-white tracking-tight">Voice Synthesizer</h3>
+                        <p className="hw-label text-hw-accent/60">Professional Grade Output</p>
                       </div>
-                    </div>
-                    
-                    <div className="flex bg-black/40 p-1 rounded-xl border border-white/10 self-start">
-                      <button 
-                        onClick={() => setVoiceMode('ai')}
-                        className={cn(
-                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                          voiceMode === 'ai' ? "bg-hw-accent text-white" : "text-hw-muted hover:text-white"
-                        )}
-                      >
-                        AI Synth
-                      </button>
-                      <button 
-                        onClick={() => setVoiceMode('record')}
-                        className={cn(
-                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                          voiceMode === 'record' ? "bg-hw-accent text-white" : "text-hw-muted hover:text-white"
-                        )}
-                      >
-                        Record
-                      </button>
                     </div>
 
                     {voiceMode === 'ai' && (
@@ -3233,112 +3077,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     </div>
 
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                        <label className="hw-label flex items-center gap-2">
-                          <Sparkles size={14} className="text-hw-accent" /> {t.voiceTone}
-                        </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {[
-                            { id: 'Excited', label: t.toneExcited },
-                            { id: 'Calm', label: t.toneCalm },
-                            { id: 'Serious', label: t.toneSerious },
-                            { id: 'Professional', label: t.toneProfessional },
-                            { id: 'Storyteller', label: t.toneStoryteller },
-                          ].map((tone) => (
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              key={tone.id}
-                              onClick={() => setOptions(prev => ({ ...prev, voiceTone: tone.id }))}
-                              className={cn(
-                                "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
-                                options.voiceTone === tone.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
-                              )}
-                            >
-                              {tone.label}
-                            </motion.button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <label className="hw-label flex items-center gap-2">
-                            <Globe size={14} className="text-hw-accent" /> {t.voiceAccent}
-                          </label>
-                          <div className="grid grid-cols-1 gap-2">
-                            {[
-                              { id: 'US', label: t.accentUS },
-                              { id: 'UK', label: t.accentUK },
-                              { id: 'Indian', label: t.accentIndian },
-                            ].map((acc) => (
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                key={acc.id}
-                                onClick={() => setOptions(prev => ({ ...prev, voiceAccent: acc.id }))}
-                                className={cn(
-                                  "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
-                                  options.voiceAccent === acc.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
-                                )}
-                              >
-                                {acc.label}
-                              </motion.button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <label className="hw-label flex items-center gap-2">
-                            <User size={14} className="text-hw-accent" /> {t.voiceAge}
-                          </label>
-                          <div className="grid grid-cols-1 gap-2">
-                            {[
-                              { id: 'Young', label: t.ageYoung },
-                              { id: 'Adult', label: t.ageAdult },
-                              { id: 'Senior', label: t.ageSenior },
-                            ].map((age) => (
-                              <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                key={age.id}
-                                onClick={() => setOptions(prev => ({ ...prev, voiceAge: age.id }))}
-                                className={cn(
-                                  "py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
-                                  options.voiceAge === age.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
-                                )}
-                              >
-                                {age.label}
-                              </motion.button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <label className="hw-label flex items-center gap-2">
-                          <Users size={14} className="text-hw-accent" /> {uiLang === 'en' ? 'Voice Gender' : 'ভয়েজ জেন্ডার'}
-                        </label>
-                        <div className="flex gap-2">
-                          {[
-                            { id: 'male', label: uiLang === 'en' ? 'Male' : 'পুরুষ' },
-                            { id: 'female', label: uiLang === 'en' ? 'Female' : 'মহিলা' }
-                          ].map((gender) => (
-                            <button
-                              key={gender.id}
-                              onClick={() => setOptions(prev => ({ ...prev, voiceGender: gender.id as any }))}
-                              className={cn(
-                                "flex-1 py-2 rounded-lg border border-hw-border text-[10px] font-bold transition-all",
-                                options.voiceGender === gender.id ? "bg-hw-accent/20 text-hw-accent border-hw-accent" : "bg-black/40 text-hw-muted hover:bg-black/60"
-                              )}
-                            >
-                              {gender.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    {/* Replaced voice sections with empty space or removed */}
                   </div>
                 )}
               </div>
@@ -3466,9 +3205,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <h2 className="text-[10px] font-black uppercase tracking-widest text-hw-muted flex items-center gap-2">
                   <Sparkles size={16} className="text-hw-accent animate-pulse" /> {t.whatToCreate}
                 </h2>
-                <span className="text-[9px] uppercase tracking-widest text-hw-accent font-black bg-hw-accent/10 px-3 py-1 rounded-full border border-hw-accent/20 shadow-[0_0_10px_rgba(139,92,246,0.2)]">
-                  AI Powered
-                </span>
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -3715,86 +3451,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
             </section>
           )}
 
-          {/* Advanced AI Context & Strategy */}
-          {(currentView === 'video' || currentView === 'shorts' || options.generateScript) && (
-            <section className="hw-panel p-8 md:p-12 space-y-12 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-hw-accent/5 rounded-full -mr-24 -mt-24 blur-3xl" />
-              
-              <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
-                  <Rocket size={16} /> Advanced AI Strategy
-                </h2>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                {/* Target Audience */}
-                <div className="space-y-6">
-                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
-                    <UsersIcon size={14} className="text-hw-accent" /> {t.audience}
-                  </label>
-                  <div className="grid grid-cols-1 gap-2.5">
-                    {AUDIENCE_TYPES.map((aud) => (
-                      <button
-                        key={aud.id}
-                        onClick={() => setOptions(prev => ({ ...prev, audience: aud.id }))}
-                        className={cn(
-                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
-                          options.audience === aud.id && "active bg-hw-accent/20 border-hw-accent/40"
-                        )}
-                      >
-                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{aud.icon}</span>
-                        {translations[uiLang][aud.label as keyof typeof translations['en']]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Content Pacing */}
-                <div className="space-y-6">
-                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
-                    <Zap size={14} className="text-hw-accent" /> {t.pacing}
-                  </label>
-                  <div className="grid grid-cols-1 gap-2.5">
-                    {PACING_TYPES.map((pace) => (
-                      <button
-                        key={pace.id}
-                        onClick={() => setOptions(prev => ({ ...prev, pacing: pace.id }))}
-                        className={cn(
-                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
-                          options.pacing === pace.id && "active bg-hw-accent/20 border-hw-accent/40"
-                        )}
-                      >
-                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{pace.icon}</span>
-                        {translations[uiLang][pace.label as keyof typeof translations['en']]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Narrative Strategy */}
-                <div className="space-y-6">
-                  <label className="hw-label opacity-40 text-[9px] flex items-center gap-2">
-                    <ScrollText size={14} className="text-hw-accent" /> {t.narrativeStrategy}
-                  </label>
-                  <div className="grid grid-cols-1 gap-2.5">
-                    {NARRATIVE_STRATEGIES.map((strat) => (
-                      <button
-                        key={strat.id}
-                        onClick={() => setOptions(prev => ({ ...prev, narrativeStrategy: strat.id }))}
-                        className={cn(
-                          "hw-btn-industrial w-full py-3.5 text-left px-5 text-[10px] flex items-center gap-3",
-                          options.narrativeStrategy === strat.id && "active bg-hw-accent/20 border-hw-accent/40"
-                        )}
-                      >
-                        <span className="text-xl filter grayscale group-[.active]:grayscale-0">{strat.icon}</span>
-                        {translations[uiLang][strat.label as keyof typeof translations['en']]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
