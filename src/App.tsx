@@ -95,7 +95,6 @@ import { Socket } from 'socket.io-client';
 import SettingsModal from './components/SettingsModal';
 import HistoryModalImport from './components/HistoryModal';
 import TypewriterText from './components/TypewriterText';
-import SystemMetrics from './components/SystemMetrics';
 import InteractiveChecklist from './components/InteractiveChecklist';
 import OnboardingTutorial from './components/OnboardingTutorial';
 import { VoiceRecorder } from './components/VoiceRecorder';
@@ -2809,19 +2808,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
 
               {currentView === 'home' && (
                 <div className="space-y-12 pt-4">
-                  {/* Performance Monitor */}
-                  <section className="space-y-6">
-                    <div className="flex items-center justify-between px-1">
-                      <h3 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-widest font-black">
-                        <Activity size={14} /> {t.systemMonitor}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <div className="hw-led bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                        <span className="text-[8px] font-black uppercase text-hw-muted">MODE: DYNAMIC PROCESSING</span>
-                      </div>
-                    </div>
-                    <SystemMetrics t={t} />
-                  </section>
+
 
                   <div className="grid grid-cols-1 gap-10">
                     {/* Recent Activity */}
