@@ -2810,59 +2810,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-12 pt-4">
 
 
-                  <div className="grid grid-cols-1 gap-10">
-                    {/* Recent Activity */}
-                    <section className="space-y-6">
-                      <div className="flex items-center justify-between px-1">
-                        <h3 className="hw-label text-white/40 flex items-center gap-2 uppercase tracking-widest font-black">
-                          <History size={14} /> {t.recentActivity}
-                        </h3>
-                        <button 
-                          onClick={() => setShowHistory(true)} 
-                          className="text-[9px] text-hw-accent hover:underline uppercase font-bold tracking-widest"
-                        >
-                          VIEW ALL
-                        </button>
-                      </div>
-                      <div className="space-y-3">
-                        {history.length > 0 ? (
-                          history.slice(0, 4).map((item, idx) => (
-                            <motion.div 
-                              key={idx} 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: idx * 0.05 }}
-                              className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group" 
-                              onClick={() => { 
-                                setCurrentView(item.type); 
-                                setResults(prev => ({ ...prev, [item.type]: item.result })); 
-                                setTopics(prev => ({ ...prev, [item.type]: item.topic }));
-                              }}
-                            >
-                              <div className="w-10 h-10 rounded-lg bg-hw-accent/10 flex items-center justify-center shrink-0 group-hover:bg-hw-accent/20 transition-colors">
-                                 {item.type === 'image' ? <ImageIcon size={18} className="text-hw-accent" /> : 
-                                  item.type === 'youtube' ? <Video size={18} className="text-hw-accent" /> : 
-                                  item.type === 'shorts' ? <Zap size={18} className="text-hw-accent" /> :
-                                  <FileText size={18} className="text-hw-accent" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm text-white font-bold truncate group-hover:text-hw-accent transition-colors">{item.topic}</p>
-                                <p className="text-[9px] text-hw-muted uppercase font-black tracking-tight mt-0.5">{format(item.timestamp, 'HH:mm • MMM d, yyyy')}</p>
-                              </div>
-                              <ArrowRight size={14} className="text-hw-muted opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-                            </motion.div>
-                          ))
-                        ) : (
-                          <div className="h-40 rounded-2xl border border-dashed border-white/5 flex flex-col items-center justify-center text-hw-muted gap-3 bg-white/[0.02]">
-                            <History size={24} className="opacity-20" />
-                            <span className="text-[10px] uppercase font-black tracking-[0.2em]">{t.noHistory || "No History"}</span>
-                          </div>
-                        )}
-                      </div>
-                    </section>
-                  </div>
-
-
                 </div>
               )}
 
