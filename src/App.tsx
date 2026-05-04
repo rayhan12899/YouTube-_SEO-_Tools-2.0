@@ -155,7 +155,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'longVideo' | 'megaScript' | 'universal' | 'image-to-prompt';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'image-to-prompt';
 
 // Constants moved to constants.ts
 
@@ -241,9 +241,6 @@ export default function App() {
     transcribe: '',
     shorts: '',
     analytics: '',
-    longVideo: '',
-    megaScript: '',
-    universal: '',
     'image-to-prompt': ''
   });
   const [loading, setLoading] = useState(false);
@@ -307,9 +304,6 @@ export default function App() {
     transcribe: null,
     shorts: null,
     analytics: null,
-    longVideo: null,
-    megaScript: null,
-    universal: null,
     'image-to-prompt': null
   });
 
@@ -562,8 +556,7 @@ export default function App() {
       mood: 'Cinematic',
       audience: 'General',
       pacing: 'Steady',
-      narrativeStrategy: 'Storytelling',
-      deepSearch: false
+      narrativeStrategy: 'Storytelling'
     };
   });
 
@@ -586,9 +579,6 @@ export default function App() {
     analyze: null,
     shorts: null,
     analytics: null,
-    longVideo: null,
-    megaScript: null,
-    universal: null,
     'image-to-prompt': null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
@@ -598,7 +588,7 @@ export default function App() {
   const currentTopic = topics[currentView];
   const currentResult = results[currentView];
   const currentSelectedMedia = selectedMedia[currentView];
-  const acceptType = (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
+  const acceptType = (currentView === 'video') ? "video/*" : (currentView === 'voiceExtractor' ? "audio/*,video/*" : (currentView === 'image' ? "video/*,image/*" : "image/*"));
 
   const filteredSuggestions = useMemo(() => {
     const query = currentTopic.trim().toLowerCase();
@@ -861,9 +851,9 @@ export default function App() {
         activeTopic = topics.promptGen;
         setCurrentView('promptGen');
       } else {
-        activeView = 'universal';
+        activeView = 'video';
         activeTopic = topics.home;
-        setCurrentView('universal');
+        setCurrentView('video');
       }
     }
 
@@ -1036,9 +1026,9 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoading(false);
           return;
         }
-      } else if (activeView === 'universal') {
+      /* } else if (activeView === 'universal') {
         setLoadingStep(2); // Generating...
-        setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে...");
+        setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে..."); */
         const res = await generateContent({
           topic: activeTopic,
           ...options,
@@ -1083,7 +1073,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setLoadingStatus(uiLang === 'en' ? "Scanning for related viral opportunities..." : "সম্পর্কিত ভাইরাল সুযোগ স্ক্যান করা হচ্ছে...");
         const ideasRes = await generateVideoIdeas(activeTopic, options.language);
         setRelatedIdeas(ideasRes.ideas || []);
-      } else if (activeView === 'video' || activeView === 'longVideo' || activeView === 'megaScript') {
+      } else if (activeView === 'video') {
         if (currentSelectedMedia) {
           setLoadingStep(2); // Generating...
           // If it's a video file
@@ -1115,7 +1105,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
             generateDescription: false,
             generateTags: false,
             generateScript: true,
-            isMegaScript: activeView === 'megaScript'
           });
 
           // Auto-generate Voice Over if enabled
@@ -1209,7 +1198,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         setSelectedMedia(prev => ({ ...prev, [currentView]: base64 }));
         setTopics(prev => ({ ...prev, [currentView]: '' }));
         
-        if (currentView === 'home' || currentView === 'image' || currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'voiceExtractor') {
+        if (currentView === 'home' || currentView === 'image' || currentView === 'video' || currentView === 'voiceExtractor') {
           setLoading(true);
           const progressInterval = simulateProgress();
           try {
@@ -1228,7 +1217,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
               res = await analyzeImage(base64, file.type, options.language);
               toast.success((uiLang === 'en' ? "Image Extraction & Analysis" : "ইমেজ এক্সট্র্যাকশন ও বিশ্লেষণ") + " " + (uiLang === 'en' ? "Completed!" : "সম্পন্ন হয়েছে!"));
             }
-        setResults(prev => ({ ...prev, [currentView === 'home' ? 'universal' : currentView]: res }));
+        setResults(prev => ({ ...prev, [currentView]: res }));
           } catch (error) {
             console.error(error);
             toast.error(t.failed);
@@ -1596,9 +1585,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: '',
       shorts: '',
       analytics: '',
-      longVideo: '',
-      megaScript: '',
-      universal: '',
       'image-to-prompt': ''
     });
     setResults({
@@ -1615,9 +1601,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: null,
       shorts: null,
       analytics: null,
-      longVideo: null,
-      megaScript: null,
-      universal: null,
       'image-to-prompt': null
     });
     setSelectedMedia({
@@ -1634,9 +1617,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       transcribe: null,
       shorts: null,
       analytics: null,
-      longVideo: null,
-      megaScript: null,
-      universal: null,
       'image-to-prompt': null
     });
     setMediaMimeType('');
@@ -2365,8 +2345,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   { id: 'home', icon: Home, label: t.home },
                   { id: 'video', icon: Video, label: t.videoGen },
                   { id: 'image', icon: Palette, label: t.imageGen },
-                  { id: 'longVideo', icon: Film, label: 'Long Video' },
-                  { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                   { id: 'voice', icon: Mic, label: t.voiceOver },
                   { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
                 ].map((item) => (
@@ -2437,11 +2415,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="p-6 flex flex-col gap-2 flex-1">
                     {[
                       { id: 'home', icon: Home, label: t.home },
-                      { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? "Complete Studio" : "সম্পূর্ণ স্টুডিও" },
                       { id: 'video', icon: Video, label: t.videoGen },
                       { id: 'image', icon: Palette, label: t.imageGen },
-                      { id: 'longVideo', icon: Film, label: 'Long Video' },
-                      { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                       { id: 'voice', icon: Mic, label: t.voiceOver },
                       { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
                     ].map((item) => (
@@ -2506,11 +2481,8 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="hidden md:flex flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar px-4 max-w-full">
                   {[
                     { id: 'home', icon: Home, label: t.home },
-                    { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? "Complete Studio" : "সম্পূর্ণ স্টুডিও" },
                     { id: 'video', icon: Video, label: t.videoGen },
                     { id: 'image', icon: Palette, label: t.imageGen },
-                    { id: 'longVideo', icon: Film, label: 'Long Video' },
-                    { id: 'megaScript', icon: ScrollText, label: 'Mega Script (60m)' },
                     { id: 'voice', icon: Mic, label: t.voiceOver },
                     { id: 'voiceExtractor', icon: AudioLines, label: 'Transcribe' },
                   ].map((item) => (
@@ -2601,8 +2573,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           {currentView === 'home' ? t.dashboard : 
                            currentView === 'youtube' ? 'YouTube Lab' : 
                            currentView === 'video' ? 'Script Forge' : 
-                           currentView === 'longVideo' ? 'Pro Video Cinema' : 
-                           currentView === 'megaScript' ? 'Mega Script (60m)' : 
                            currentView === 'shorts' ? 'Vertical Viral' : 
                            currentView === 'idea' ? 'Idea Machine' :
                            currentView === 'image' ? 'Lens Alchemy' : 
@@ -2690,7 +2660,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="space-y-3">
                   <label className="text-[10px] uppercase tracking-widest text-hw-muted font-bold flex items-center gap-2">
                     <FileText size={14} className="text-hw-accent" /> {
-                      (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.videoDesc : 
+                      (currentView === 'video') ? t.videoDesc : 
                       currentView === 'shorts' ? t.topicInput : 
                       currentView === 'idea' ? t.nicheInput : 
                       currentView === 'image' ? t.imageInput :
@@ -2701,7 +2671,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="relative w-full">
                     <textarea 
                       placeholder={
-                        (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.videoDescPlaceholder : 
+                        (currentView === 'video') ? t.videoDescPlaceholder : 
                         currentView === 'shorts' ? (uiLang === 'en' ? "Enter your shorts topic (e.g., 'Life hacks for busy people')" : "আপনার শর্টস এর বিষয় লিখুন (যেমন, 'ব্যস্ত মানুষের জন্য লাইফ হ্যাকস')") :
                         currentView === 'idea' ? t.nichePlaceholder :
                         currentView === 'image' ? t.imagePlaceholder :
@@ -2761,7 +2731,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     )}
                   </div>
 
-                  {(currentView === 'image' || currentView === 'video' || currentView === 'longVideo') && (
+                  {(currentView === 'image' || currentView === 'video') && (
                     <div className="space-y-5 mt-6 animate-in fade-in slide-in-from-top-2 duration-500 bg-white/5 rounded-2xl p-6 border border-white/5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-hw-accent font-bold">
@@ -3374,7 +3344,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
             )}
 
-              {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'image' || currentView === 'voiceExtractor') && (
+              {(currentView === 'video' || currentView === 'image' || currentView === 'voiceExtractor') && (
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -3382,7 +3352,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     </div>
                     <div className="relative flex justify-center text-xs uppercase tracking-wider font-semibold">
                       <span className="bg-[var(--bg-card)] px-3 text-[var(--text-muted)]">
-                        {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
+                        {(currentView === 'video') ? (uiLang === 'en' ? "Upload Video" : "ভিডিও আপলোড করুন") : 
                          currentView === 'voiceExtractor' ? t.uploadAudio : t.uploadImage}
                       </span>
                     </div>
@@ -3424,11 +3394,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                     ) : (
                       <>
                         <div className="w-14 h-14 rounded-full bg-[var(--accent-main)]/10 flex items-center justify-center text-[var(--accent-main)] shadow-inner">
-                          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? <Video size={24} /> : 
+                          {(currentView === 'video') ? <Video size={24} /> : 
                            currentView === 'voiceExtractor' ? <AudioLines size={24} /> : <Upload size={24} />}
                         </div>
                         <p className="text-sm font-medium text-[var(--text-muted)] text-center max-w-xs">
-                          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
+                          {(currentView === 'video') ? (uiLang === 'en' ? "Click to upload video for analysis" : "বিশ্লেষণের জন্য ভিডিও আপলোড করতে ক্লিক করুন") : 
                            currentView === 'image' ? (uiLang === 'en' ? "Click to upload image for extraction & analysis" : "এক্সট্র্যাকশন ও বিশ্লেষণের জন্য ইমেজ আপলোড করতে ক্লিক করুন") :
                            currentView === 'voiceExtractor' ? t.uploadAudioPrompt :
                            t.uploadPrompt}
@@ -3746,7 +3716,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
           )}
 
           {/* Advanced AI Context & Strategy */}
-          {(currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript' || currentView === 'shorts' || options.generateScript) && (
+          {(currentView === 'video' || currentView === 'shorts' || options.generateScript) && (
             <section className="hw-panel p-8 md:p-12 space-y-12 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-hw-accent/5 rounded-full -mr-24 -mt-24 blur-3xl" />
               
@@ -3754,21 +3724,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <h2 className="hw-label text-hw-accent flex items-center gap-2 uppercase tracking-[0.3em]">
                   <Rocket size={16} /> Advanced AI Strategy
                 </h2>
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-hw-muted">{t.deepSearch}</span>
-                  <button 
-                    onClick={() => setOptions(prev => ({ ...prev, deepSearch: !prev.deepSearch }))}
-                    className={cn(
-                      "w-12 h-6 rounded-full transition-all relative border border-white/10",
-                      options.deepSearch ? "bg-hw-accent shadow-[0_0_15px_rgba(34,197,94,0.4)]" : "bg-black/40"
-                    )}
-                  >
-                    <motion.div 
-                      animate={{ x: options.deepSearch ? 26 : 4 }}
-                      className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-md shadow-black/50"
-                    />
-                  </button>
-                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -3877,8 +3832,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <Zap size={24} className="text-white group-hover:rotate-12 transition-transform" /> 
                   <span className="text-lg font-bold tracking-wider uppercase">
                     {
-                      currentView === 'universal' ? (uiLang === 'en' ? "Universal Generate" : "ইউনিভার্সাল জেনারেট") :
-                      (currentView === 'video' || currentView === 'longVideo' || currentView === 'megaScript') ? t.genPrompt : 
+                      (currentView === 'video') ? t.genPrompt : 
                       currentView === 'idea' ? t.genIdea : 
                       currentView === 'image' ? t.genImage :
                       currentView === 'voice' ? t.genVoice :

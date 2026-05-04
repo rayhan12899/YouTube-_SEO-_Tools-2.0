@@ -186,7 +186,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
   } catch (error) {
     console.error("Error transcribing audio:", error);
     if (isQuotaError(error)) {
-      setCooldown(1);
+      setCooldown(5 / 60);
     }
     throw error;
   }
@@ -251,7 +251,7 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
   } catch (error) {
     console.error("Error analyzing image:", error);
     if (isQuotaError(error)) {
-      setCooldown(1);
+      setCooldown(5 / 60);
     }
     throw error;
   }
@@ -763,7 +763,7 @@ export const generateVoiceOver = async (
   } catch (error) {
     console.error("Voice Over Error:", error);
     if (isQuotaError(error)) {
-      setCooldown(1);
+      setCooldown(5 / 60);
     }
     return "";
   }
@@ -1238,8 +1238,8 @@ export const getLiveInsights = async (language: 'en' | 'bn' | 'hi' = 'en'): Prom
     
     // Check if it's a quota error
     if (isQuotaError(err)) {
-      console.error("Quota exceeded, setting cooldown for 1 hour");
-      setCooldown(1);
+      console.error("Quota exceeded, setting cooldown for 5 minutes");
+      setCooldown(5 / 60); // 5 minutes
     }
     return getFallbackInsights(language);
   }
