@@ -5,7 +5,7 @@
  * AI Creator Studio - Viral YouTube Content Generator
  */
 
-import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, memo, Suspense, lazy } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Youtube, 
@@ -93,7 +93,7 @@ import { translations } from './translations';
 import { socket } from './lib/socket';
 import { Socket } from 'socket.io-client';
 import SettingsModal from './components/SettingsModal';
-import HistoryModalImport from './components/HistoryModal';
+import HistoryModal from './components/HistoryModal';
 import TypewriterText from './components/TypewriterText';
 import InteractiveChecklist from './components/InteractiveChecklist';
 import OnboardingTutorial from './components/OnboardingTutorial';
@@ -170,8 +170,6 @@ const ITEM_VARIANTS = {
   hidden: { opacity: 0, x: -20 },
   show: { opacity: 1, x: 0 }
 };
-
-const HistoryModal = HistoryModalImport;
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -383,7 +381,7 @@ export default function App() {
         const { GoogleGenAI, HarmCategory, HarmBlockThreshold } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey: key });
         const response = await ai.models.generateContent({
-          model: "gemini-2.0-flash",
+          model: "gemini-flash-latest",
           config: {
             safetySettings: [
               { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
