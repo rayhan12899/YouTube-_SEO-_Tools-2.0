@@ -110,7 +110,11 @@ initClients();
 const checkOfflineStatus = (provider: AIProvider) => {
   const currentKey = getApiKey(provider);
   if (provider === 'gemini') {
-    return !currentKey && !process.env.GEMINI_API_KEY;
+    let hasEnvKey = false;
+    try {
+      hasEnvKey = !!process.env.GEMINI_API_KEY;
+    } catch(e) {}
+    return !currentKey && !hasEnvKey;
   }
   return !currentKey;
 };
@@ -726,12 +730,10 @@ export const generateVoiceOver = async (
 
   try {
     const requestConfig: any = {
-      generationConfig: {
-        responseModalities: ["audio"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: actualVoiceName },
-          },
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: actualVoiceName },
         },
       },
     };
