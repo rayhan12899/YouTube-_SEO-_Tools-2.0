@@ -1,19 +1,39 @@
 import OpenAI from "openai";
 
 const callServerAI = async (model: string, contents: any, config?: any) => {
-  const response = await fetch("/api/ai/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt: contents, config }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `AI Server error: ${response.statusText}`);
+  try {
+    const response = await fetch("/api/ai/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model, prompt: contents, config }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMsg = errorData.error || `AI Server error: ${response.statusText}`;
+      
+      if (errorMsg.includes("DAILY_QUOTA_EXHAUSTED")) {
+        throw new Error("QUOTA_EXHAUSTED_LIMIT_0");
+      }
+      
+      throw new Error(errorMsg);
+    }
+
+    const { text } = await response.json();
+    return { text };
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error("The request timed out. Please try a shorter topic or different settings.");
+    }
+    throw error;
   }
-
-  const { text } = await response.json();
-  return { text };
 };
 
 export type AIProvider = 'gemini' | 'openai' | 'groq' | 'deepseek' | 'perplexity' | 'gemma' | 'openrouter';

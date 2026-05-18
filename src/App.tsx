@@ -151,7 +151,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'image-to-prompt';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'image-to-prompt' | 'universal';
 
 // Constants moved to constants.ts
 
@@ -389,22 +389,53 @@ function App() {
       if (provider === 'gemini') {
         const { GoogleGenAI, HarmCategory, HarmBlockThreshold } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey: key });
-        const response = await ai.models.generateContent({
-          model: "gemini-2.0-flash",
-          config: {
-            safetySettings: [
-              { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-              { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-              { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-              { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-            ]
-          },
-          contents: "hi",
-        });
-        if (response.text) {
-          setConnectionStatus(prev => ({ ...prev, [provider]: 'connected' }));
-          toast.success(uiLang === 'en' ? `Gemini Connected Successfully!` : `জেমিনি সফলভাবে কানেক্ট হয়েছে!`);
-        }
+        
+        const testConnectionWithRetry = async (retry: number = 0, modelIndex: number = 0) => {
+          const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"];
+          const currentModel = models[modelIndex] || models[0];
+          
+          try {
+            const response = await ai.models.generateContent({
+              model: currentModel,
+              config: {
+                safetySettings: [
+                  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                ]
+              },
+              contents: "hi",
+            });
+            if (response.text) {
+              setConnectionStatus(prev => ({ ...prev, [provider]: 'connected' }));
+              toast.success(uiLang === 'en' ? `Gemini Connected Successfully!` : `জেমিনি সফলভাবে কানেক্ট হয়েছে!`);
+            }
+          } catch (error: any) {
+             const errorMsg = error?.message || JSON.stringify(error) || "";
+             const isQuotaOrHighDemand = errorMsg.includes('429') || 
+                                       errorMsg.includes('RESOURCE_EXHAUSTED') || 
+                                       errorMsg.includes('high demand') ||
+                                       error?.status === 429;
+             
+             if (isQuotaOrHighDemand) {
+               if (modelIndex < models.length - 1) {
+                 console.warn(`Connection test fallback: ${currentModel} failed, trying ${models[modelIndex + 1]}...`);
+                 return testConnectionWithRetry(0, modelIndex + 1);
+               }
+               
+               if (retry < 2) {
+                 const delay = 5000 * (retry + 1);
+                 console.warn(`Connection test quota hit for all models. Retrying in ${delay}ms...`);
+                 await new Promise(r => setTimeout(r, delay));
+                 return testConnectionWithRetry(retry + 1, 0);
+               }
+             }
+             throw error;
+          }
+        };
+        
+        await testConnectionWithRetry();
       } else {
         const baseURLs: Record<string, string | undefined> = {
           groq: "https://api.groq.com/openai/v1",
@@ -813,9 +844,9 @@ function App() {
         activeTopic = topics.promptGen;
         setCurrentView('promptGen');
       } else {
-        activeView = 'video';
+        activeView = 'universal';
         activeTopic = topics.home;
-        setCurrentView('video');
+        setCurrentView('universal');
       }
     }
 
@@ -979,9 +1010,9 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
           setLoading(false);
           return;
         }
-      /* } else if (activeView === 'universal') {
+      } else if (activeView === 'universal') {
         setLoadingStep(2); // Generating...
-        setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে..."); */
+        setLoadingStatus(uiLang === 'en' ? "Synthesizing universal content matrix (Script, SEO, Prompts)..." : "ইউনিভার্সাল কন্টেন্ট ম্যাট্রিক্স (স্ক্রিপ্ট, এসইও, প্রম্পট) সিন্থেসাইজ করা হচ্ছে...");
         const res = await generateContent({
           topic: activeTopic,
           ...options,
@@ -1109,9 +1140,13 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         const ideasRes = await generateVideoIdeas(activeTopic, options.language);
         setRelatedIdeas(ideasRes.ideas || []);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error(t.failed);
+      if (error?.message === "QUOTA_EXHAUSTED_LIMIT_0") {
+        toast.error(t.quotaExhausted, { duration: 6000 });
+      } else {
+        toast.error(t.failed);
+      }
     } finally {
       if (progressInterval) clearInterval(progressInterval);
       setLoadingProgress(100);
@@ -1760,20 +1795,23 @@ document.getElementById('btn-open').addEventListener('click', async () => {
   chrome.tabs.create({ url: targetUrl });
 });
 
-async function callGemini(prompt, retryCount = 0) {
+async function callGemini(prompt, retryCount = 0, modelIndex = 0) {
+  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"];
+  const currentModel = models[modelIndex] || models[0];
+
   if (!API_KEY) {
     document.getElementById('result').textContent = "Error: Gemini API Key not found. Please open the Full Studio to configure.";
     document.getElementById('result').style.display = 'block';
     return;
   }
   
-  if (retryCount === 0) {
+  if (retryCount === 0 && modelIndex === 0) {
     document.getElementById('loader').style.display = 'block';
     document.getElementById('result').style.display = 'none';
   }
   
   try {
-    const response = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=\${API_KEY}\`, {
+    const response = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${currentModel}:generateContent?key=\${API_KEY}\`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1787,11 +1825,18 @@ async function callGemini(prompt, retryCount = 0) {
       })
     });
     
-    if (response.status === 429 && retryCount < 4) {
-      const delay = Math.pow(2, retryCount) * 5000 + Math.random() * 2000;
-      console.warn(\`Quota exceeded in App.tsx. Retrying in \${Math.round(delay)}ms...\`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return callGemini(prompt, retryCount + 1);
+    if (response.status === 429) {
+      if (modelIndex < models.length - 1) {
+        console.warn(\`Quota exceeded for \${currentModel} in App.tsx. Trying fallback \${models[modelIndex + 1]}...\`);
+        return callGemini(prompt, 0, modelIndex + 1);
+      }
+      
+      if (retryCount < 4) {
+        const delay = Math.pow(2, retryCount) * 8000 + Math.random() * 2000;
+        console.warn(\`All models exhausted in App.tsx. Retrying in \${Math.round(delay)}ms...\`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return callGemini(prompt, retryCount + 1, 0);
+      }
     }
 
     const data = await response.json();
@@ -1802,6 +1847,10 @@ async function callGemini(prompt, retryCount = 0) {
       document.getElementById('result').textContent = text;
       document.getElementById('result').style.display = 'block';
     } else if (data.error) {
+      // If error is 404 (model not found), try next model
+      if (data.error.code === 404 && modelIndex < models.length - 1) {
+          return callGemini(prompt, 0, modelIndex + 1);
+      }
       document.getElementById('result').textContent = "API Error: " + data.error.message;
       document.getElementById('result').style.display = 'block';
     } else {
@@ -2362,6 +2411,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <div className="p-6 flex flex-col gap-2 flex-1">
                     {[
                       { id: 'home', icon: Home, label: t.home },
+                      { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? 'Universal Studio' : 'ইউনিভার্সাল স্টুডিও' },
                       { id: 'video', icon: Video, label: t.videoGen },
                       { id: 'image', icon: Palette, label: t.imageGen },
                       { id: 'voice', icon: Mic, label: t.voiceOver },
@@ -2428,6 +2478,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                 <div className="hidden md:flex flex-1 items-center justify-center gap-1 overflow-x-auto no-scrollbar px-4 max-w-full">
                   {[
                     { id: 'home', icon: Home, label: t.home },
+                    { id: 'universal', icon: Sparkles, label: uiLang === 'en' ? 'Universal Studio' : 'ইউনিভার্সাল স্টুডিও' },
                     { id: 'video', icon: Video, label: t.videoGen },
                     { id: 'image', icon: Palette, label: t.imageGen },
                     { id: 'voice', icon: Mic, label: t.voiceOver },
@@ -3389,6 +3440,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                   <span className="text-lg font-bold tracking-wider uppercase">
                     {
                       (currentView === 'video') ? t.genPrompt : 
+                      currentView === 'universal' ? (uiLang === 'en' ? "Generate Studio Matrix" : "স্টুডিও ম্যাট্রিক্স তৈরি করুন") :
                       currentView === 'idea' ? t.genIdea : 
                       currentView === 'image' ? t.genImage :
                       currentView === 'voice' ? t.genVoice :
