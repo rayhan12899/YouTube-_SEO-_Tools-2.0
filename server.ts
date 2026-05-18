@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import "dotenv/config";
 
 async function startServer() {
   const app = express();
@@ -41,7 +42,30 @@ async function startServer() {
     });
   });
 
-  // API routes
+  // AI routes
+  app.post("/api/ai/voiceover", async (req, res) => {
+    try {
+      const { text, voiceName } = req.body;
+      const { handleVoiceOver } = await import("./server/ai");
+      const base64Audio = await handleVoiceOver(text, voiceName);
+      res.json({ data: base64Audio });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  app.post("/api/ai/generate", async (req, res) => {
+    try {
+      const { model, prompt, config } = req.body;
+      const { handleGenerateContent } = await import("./server/ai");
+      const text = await handleGenerateContent(model, prompt, config);
+      res.json({ text });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  // API health
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });

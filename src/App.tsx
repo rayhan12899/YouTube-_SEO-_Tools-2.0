@@ -5,7 +5,8 @@
  * AI Creator Studio - Viral YouTube Content Generator
  */
 
-import React, { useState, useEffect, useRef, useMemo, useCallback, memo, Suspense, lazy } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, memo, Suspense, lazy, ChangeEvent } from 'react';
 import { Toaster, toast } from 'sonner';
 import { 
   Youtube, 
@@ -98,9 +99,7 @@ import TypewriterText from './components/TypewriterText';
 import InteractiveChecklist from './components/InteractiveChecklist';
 import OnboardingTutorial from './components/OnboardingTutorial';
 import { VoiceRecorder } from './components/VoiceRecorder';
-import AnalyticsView from './components/AnalyticsView';
 import CollaborationChat from './components/CollaborationChat';
-import { useDebounce } from './hooks/useDebounce';
 import { 
   LineChart, 
   Line, 
@@ -152,7 +151,7 @@ interface HistoryItem {
   type: 'image-to-prompt' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'youtube' | 'shorts';
 }
 
-type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'analytics' | 'image-to-prompt';
+type ViewType = 'landing' | 'home' | 'youtube' | 'video' | 'idea' | 'image' | 'voice' | 'voiceExtractor' | 'promptGen' | 'analyze' | 'transcribe' | 'shorts' | 'image-to-prompt';
 
 // Constants moved to constants.ts
 
@@ -171,7 +170,19 @@ const ITEM_VARIANTS = {
   show: { opacity: 1, x: 0 }
 };
 
-export default function App() {
+// Inline useDebounce
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
+function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [uiLang, setUiLang] = useState<'en' | 'bn'>(() => {
@@ -235,7 +246,6 @@ export default function App() {
     analyze: '',
     transcribe: '',
     shorts: '',
-    analytics: '',
     'image-to-prompt': ''
   });
   const [loading, setLoading] = useState(false);
@@ -298,7 +308,6 @@ export default function App() {
     analyze: null,
     transcribe: null,
     shorts: null,
-    analytics: null,
     'image-to-prompt': null
   });
 
@@ -565,7 +574,6 @@ export default function App() {
     transcribe: null,
     analyze: null,
     shorts: null,
-    analytics: null,
     'image-to-prompt': null
   });
   const [mediaMimeType, setMediaMimeType] = useState<string>('');
@@ -1116,7 +1124,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Check file size (limit to 10MB for stability with inlineData)
@@ -1517,7 +1525,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: '',
       transcribe: '',
       shorts: '',
-      analytics: '',
       'image-to-prompt': ''
     });
     setResults({
@@ -1533,7 +1540,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: null,
       transcribe: null,
       shorts: null,
-      analytics: null,
       'image-to-prompt': null
     });
     setSelectedMedia({
@@ -1549,7 +1555,6 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
       analyze: null,
       transcribe: null,
       shorts: null,
-      analytics: null,
       'image-to-prompt': null
     });
     setMediaMimeType('');
@@ -2503,7 +2508,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                           <Activity size={12} /> Live Processing Studio
                         </div>
                         <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white uppercase leading-tight break-words">
-                          {currentView === 'home' ? t.dashboard : 
+                          {currentView === 'home' ? t.home : 
                            currentView === 'youtube' ? 'YouTube Lab' : 
                            currentView === 'video' ? 'Script Forge' : 
                            currentView === 'shorts' ? 'Vertical Viral' : 
@@ -2527,60 +2532,13 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                       </div>
                     </div>
 
-        {/* Dashboard Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-          {[
-            { label: t.activeModel, value: aiProvider, icon: Zap, color: "text-hw-accent", bg: "bg-hw-accent/10" },
-            { label: t.totalHistory, value: history.length, icon: History, color: "text-hw-accent", bg: "bg-hw-accent/10" },
-            { label: t.language, value: uiLang.toUpperCase(), icon: Globe, color: "text-hw-accent", bg: "bg-hw-accent/10" },
-            { label: t.currentView, value: currentView, icon: Sparkles, color: "text-hw-accent", bg: "bg-hw-accent/10" }
-          ].map((stat, i) => (
-            <motion.div 
-              key={i}
-              whileHover={{ y: -4, scale: 1.02 }}
-              className="hw-panel p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 group cursor-pointer text-center sm:text-left"
-            >
-              <div className={cn(
-                "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner",
-                stat.bg, stat.color
-              )}>
-                <stat.icon size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6 shrink-0" />
-              </div>
-              <div className="space-y-0.5 sm:space-y-1 overflow-hidden w-full max-w-full">
-                <p className="hw-label text-[8px] sm:text-[10px] truncate">{stat.label}</p>
-                <p className="text-sm sm:text-lg md:text-xl font-bold text-white capitalize tracking-tight leading-none group-hover:text-hw-accent transition-colors truncate">{stat.value}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
         {/* Main Content Grid */}
-        {currentView !== 'analytics' && (
+        {currentView !== 'image-to-prompt' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start pb-20">
           {/* Left Column: Inputs */}
           <div className="lg:col-span-12 xl:col-span-12 space-y-8 md:space-y-12">
             <section className="hw-panel p-5 sm:p-8 md:p-14 space-y-8 md:space-y-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 border-b border-white/5 pb-8 md:pb-10">
-              <div className="space-y-3 md:space-y-4">
-                <div className="hw-label text-hw-accent flex items-center gap-2">
-                  <div className="hw-led bg-hw-accent" /> Signal Reception Path
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight uppercase text-white flex items-center gap-6 break-words">
-                  Forge Parameters
-                </h2>
-                <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-hw-muted">
-                  Input Stream: <span className="text-white">Active</span> • Analysis: <span className="text-white">Standby</span>
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="hw-btn-industrial py-2.5 sm:py-3 px-6 sm:px-8 text-[10px] w-full sm:w-auto mt-2 sm:mt-0"
-                >
-                  <History size={14} className="sm:w-4 sm:h-4 hw-icon text-hw-accent" /> {t.history}
-                </button>
-              </div>
-            </div>
+
 
             <motion.div 
               key={currentView}
@@ -4380,8 +4338,6 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
               </div>
             </div>
         )}
-        
-        {currentView === 'analytics' && <AnalyticsView uiLang={uiLang} />}
       </motion.div>
     </AnimatePresence>
 
@@ -4525,3 +4481,5 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
     </div>
   );
 }
+
+export default App;

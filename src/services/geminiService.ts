@@ -1,5 +1,20 @@
-import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import OpenAI from "openai";
+
+const callServerAI = async (model: string, contents: any, config?: any) => {
+  const response = await fetch("/api/ai/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, prompt: contents, config }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `AI Server error: ${response.statusText}`);
+  }
+
+  const { text } = await response.json();
+  return { text };
+};
 
 export type AIProvider = 'gemini' | 'openai' | 'groq' | 'deepseek' | 'perplexity' | 'gemma' | 'openrouter';
 
@@ -39,8 +54,29 @@ const getApiKey = (provider: AIProvider) => {
   return "";
 };
 
-// Initialize AI clients
-let ai = new GoogleGenAI({ apiKey: getApiKey('gemini') || "OFFLINE_MODE" });
+// Initialize AI client proxy to stay on server-side
+const aiProxy = {
+  models: {
+    generateContent: async (params: any) => {
+      return await callServerAI(params.model, params.contents, params.config);
+    },
+    generateContentStream: async (params: any) => {
+      // Fallback to non-streaming or proxy if needed
+      return await callServerAI(params.model, params.contents, params.config);
+    }
+  }
+};
+
+let ai = aiProxy as any;
+const HarmCategory = {
+  HARM_CATEGORY_HARASSMENT: 'HARM_CATEGORY_HARASSMENT',
+  HARM_CATEGORY_HATE_SPEECH: 'HARM_CATEGORY_HATE_SPEECH',
+  HARM_CATEGORY_SEXUALLY_EXPLICIT: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+  HARM_CATEGORY_DANGEROUS_CONTENT: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+} as any;
+const HarmBlockThreshold = {
+  BLOCK_NONE: 'BLOCK_NONE',
+} as any;
 let openaiClient: OpenAI | null = null;
 let groqClient: OpenAI | null = null;
 let deepseekClient: OpenAI | null = null;
@@ -58,7 +94,7 @@ const initClients = () => {
   const gemmaKey = getApiKey('gemma');
   const openrouterKey = getApiKey('openrouter');
 
-  ai = new GoogleGenAI({ apiKey: geminiKey || "OFFLINE_MODE" });
+  ai = aiProxy as any;
   
   if (openaiKey) {
     openaiClient = new OpenAI({ apiKey: openaiKey, dangerouslyAllowBrowser: true });
@@ -171,28 +207,18 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
 
   try {
     const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      config: {
-        maxOutputTokens: 2048,
-        safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        ]
-      },
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              data: base64Data,
-              mimeType: mimeType,
-            },
+    const response = await callServerAI("gemini-3-flash-preview", {
+      parts: [
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: mimeType,
           },
-          { text: "Transcribe this audio." },
-        ],
-      },
+        },
+        { text: "Transcribe this audio." },
+      ],
+    }, {
+      maxOutputTokens: 2048,
     });
     return response.text || "";
   } catch (error) {
@@ -686,70 +712,25 @@ export const generateVoiceOver = async (
   voiceName: string = 'Kore',
   options?: { tone?: string; accent?: string; age?: string; gender?: string; voiceLanguage?: string }
 ) => {
-  // Map custom voice names to prebuilt ones if needed
-  const voiceMap: Record<string, string> = {
-    'Mila': 'Zephyr',
-    'Arif': 'Puck',
-    'Sumi': 'Kore',
-    'Rahat': 'Charon',
-    'Rashed': 'Fenrir',
-    'Aoide': 'Aoide' // Adding Aoide as it's a common gemini voice
-  };
-
-  const actualVoiceName = voiceMap[voiceName] || voiceName;
-
-  let promptText = text;
-  // Safety limit for TTS text (GEMINI TTS cap is roughly 4000-5000 characters)
-  const MAX_TTS_CHARS = 4000;
-  if (text.length > MAX_TTS_CHARS) {
-    console.warn(`Voiceover text too long (${text.length} chars). Truncating to ${MAX_TTS_CHARS} for API safety.`);
-    text = text.substring(0, MAX_TTS_CHARS) + "... [Content continues in script]";
-    promptText = text;
-  }
-
-  if (options && (options.tone || options.accent || options.age || options.gender)) {
-    const instructions = [
-      options.tone && `highly expressive, natural, and conversational ${options.tone} tone`,
-      options.age && `${options.age} age`,
-      options.gender && `${options.gender} gender`,
-      options.accent && `with a ${options.accent} accent`
-    ].filter(Boolean).join(', ');
-    
-    // Explicit instructions for natural human-like delivery
-    const languageInstruction = options.voiceLanguage === 'bn' 
-      ? "You are a professional, world-class Bangladeshi voice-over artist and storyteller. Speak with a 100% natural, highly expressive, and vibrant Bangladeshi Bengali (Standard/Shuddho) dialect. Avoid West Bengal (Indian) accents or vocabulary COMPLETELY. Your performance should feel like a real human responding emotionally to the text. Incorporate natural human breathing patterns, subtle variations in energy, and warm, relatable intonation. Crucially, interpret punctuation as natural pauses: commas imply a brief breath, ellipses imply a thoughtful pause, and full stops imply a clear conclusion. Do NOT sound like a robotic AI reader; your goal is to be indistinguishable from a top-tier Bangladeshi creator."
-      : "You are a professional voice-over artist with global appeal. Speak with a fluent, professional, and natural-sounding English delivery that incorporates realistic human intonation, stress on key words, and clear, warm clarity. Avoid any monotone or robotic quality.";
-      
-    promptText = `${languageInstruction} Deliver the following text in a ${instructions} style. Read the provided text exactly as it is, maintaining a rhythmic and human flow: ${text}`;
-  }
-
-  if (isOffline || checkCooldown()) {
-    console.warn("API in cooldown or offline, returning empty");
-    return ""; 
-  }
-
   try {
-    const requestConfig: any = {
-      responseModalities: ["AUDIO"],
-      speechConfig: {
-        voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: actualVoiceName },
-        },
-      },
-    };
-
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
-      contents: [{ parts: [{ text: promptText }] }],
-      config: requestConfig,
+    const response = await fetch("/api/ai/voiceover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, voiceName }),
     });
 
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.statusText}`);
+    }
+
+    const { data: base64Audio } = await response.json();
+
     if (base64Audio) {
       const rawData = atob(base64Audio);
       const buffer = new ArrayBuffer(44 + rawData.length);
       const view = new DataView(buffer);
 
+      // WAV Header
       view.setUint32(0, 0x52494646, false); 
       view.setUint32(4, 36 + rawData.length, true);
       view.setUint32(8, 0x57415645, false); 
@@ -774,9 +755,6 @@ export const generateVoiceOver = async (
     throw new Error("No audio data returned from Gemini");
   } catch (error) {
     console.error("Voice Over Error:", error);
-    if (isQuotaError(error)) {
-      setCooldown(5 / 60);
-    }
     return "";
   }
 };

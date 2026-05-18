@@ -1,5 +1,10 @@
 import {StrictMode} from 'react';
+import * as React from 'react';
 import {createRoot} from 'react-dom/client';
+
+if (React === null) {
+  console.error("CRITICAL: React is null in main.tsx!");
+}
 import App from './App';
 import './index.css';
 
@@ -19,5 +24,7 @@ console.error = (...args) => {
 };
 
 createRoot(document.getElementById('root')!).render(
-  <App />
+  <StrictMode>
+    <App />
+  </StrictMode>
 );

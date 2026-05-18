@@ -8,7 +8,7 @@ interface VoiceRecorderProps {
   uiLang: 'en' | 'bn';
 }
 
-export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onRecordingComplete, uiLang }) => {
+export function VoiceRecorder({ onRecordingComplete, uiLang }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { History, X, Trash2, Copy, Download, Clock, Search } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -18,7 +18,7 @@ interface HistoryModalProps {
   onFilterChange: (val: string) => void;
 }
 
-const HistoryModal: React.FC<HistoryModalProps> = ({
+function HistoryModal({
   isOpen,
   onClose,
   history,
@@ -30,7 +30,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
   onSearchChange,
   filterType,
   onFilterChange
-}) => {
+}: HistoryModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -163,6 +163,6 @@ const HistoryModal: React.FC<HistoryModalProps> = ({
       )}
     </AnimatePresence>
   );
-};
+}
 
-export default React.memo(HistoryModal);
+export default memo(HistoryModal);

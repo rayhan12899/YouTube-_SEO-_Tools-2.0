@@ -1,8 +1,11 @@
 {
-  "name": "YouTube AI Creator Studio 2.0",
+  "name": "YouTube AI Creator Studio 3.0",
   "description": "A futuristic AI-powered tool to generate YouTube scripts, prompts, and metadata from topics or images.",
   "requestFramePermissions": [
     "camera",
     "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]
 }

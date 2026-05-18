@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Globe, X, Moon, Sun, Rocket, Palette, Zap, RefreshCw, Key, Save, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -39,7 +39,7 @@ interface SettingsModalProps {
   t: any;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({
+function SettingsModal({
   isOpen,
   onClose,
   uiLang,
@@ -72,7 +72,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   installApp,
   clearHistory,
   t
-}) => {
+}: SettingsModalProps) {
   const providers = useMemo(() => ['gemini', 'openai', 'groq', 'deepseek', 'perplexity', 'gemma', 'openrouter'] as AIProvider[], []);
 
   return (
@@ -303,6 +303,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       )}
     </AnimatePresence>
   );
-};
+}
 
-export default React.memo(SettingsModal);
+export default memo(SettingsModal);
