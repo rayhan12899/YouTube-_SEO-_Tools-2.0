@@ -6,7 +6,7 @@ interface TypewriterTextProps {
   speed?: number;
 }
 
-const TypewriterText = memo(({ text, className, speed = 15 }: TypewriterTextProps) => {
+const TypewriterText = memo(({ text, className, speed = 2 }: TypewriterTextProps) => {
   const [displayedText, setDisplayedText] = useState('');
 
   useEffect(() => {

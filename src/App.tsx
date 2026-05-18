@@ -264,7 +264,7 @@ function App() {
     let currentProgress = 0;
     
     const interval = setInterval(() => {
-      currentProgress += Math.random() * 12;
+      currentProgress += Math.random() * 15;
       
       if (currentProgress >= 98) {
         currentProgress = 98;
@@ -291,7 +291,7 @@ function App() {
       } else if (currentProgress > 75 && currentProgress < 90) {
         setLoadingStatus(uiLang === 'en' ? "Calibrating SEO Meta-Signal Matrix..." : "এসইও মেটা-সিগন্যাল মেট্রিক্স ক্যালিব্রেট করা হচ্ছে...");
       }
-    }, 120);
+    }, 20);
     
     return interval;
   };
@@ -390,7 +390,7 @@ function App() {
         const { GoogleGenAI, HarmCategory, HarmBlockThreshold } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey: key });
         const response = await ai.models.generateContent({
-          model: "gemini-flash-latest",
+          model: "gemini-2.0-flash",
           config: {
             safetySettings: [
               { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -1760,15 +1760,17 @@ document.getElementById('btn-open').addEventListener('click', async () => {
   chrome.tabs.create({ url: targetUrl });
 });
 
-async function callGemini(prompt) {
+async function callGemini(prompt, retryCount = 0) {
   if (!API_KEY) {
     document.getElementById('result').textContent = "Error: Gemini API Key not found. Please open the Full Studio to configure.";
     document.getElementById('result').style.display = 'block';
     return;
   }
   
-  document.getElementById('loader').style.display = 'block';
-  document.getElementById('result').style.display = 'none';
+  if (retryCount === 0) {
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+  }
   
   try {
     const response = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=\${API_KEY}\`, {
@@ -1785,6 +1787,13 @@ async function callGemini(prompt) {
       })
     });
     
+    if (response.status === 429 && retryCount < 4) {
+      const delay = Math.pow(2, retryCount) * 5000 + Math.random() * 2000;
+      console.warn(\`Quota exceeded in App.tsx. Retrying in \${Math.round(delay)}ms...\`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return callGemini(prompt, retryCount + 1);
+    }
+
     const data = await response.json();
     document.getElementById('loader').style.display = 'none';
     
