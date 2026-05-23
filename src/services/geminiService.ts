@@ -227,7 +227,7 @@ export const transcribeAudio = async (audioData: string, mimeType: string): Prom
 
   try {
     const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
-    const response = await callServerAI("gemini-2.0-flash", {
+    const response = await callServerAI("gemini-3.5-flash", {
       parts: [
         {
           inlineData: {
@@ -273,7 +273,7 @@ export const analyzeImage = async (imageData: string, mimeType: string, language
   try {
     const base64Data = imageData.includes(',') ? imageData.split(',')[1] : imageData;
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -490,7 +490,7 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
   const executeCall = async () => {
     if (provider === 'gemini') {
       const model = ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-3.5-flash",
         config: { 
           responseMimeType,
           responseSchema,
@@ -798,7 +798,7 @@ export const generateVoiceExtractor = async (
     const languageName = targetLanguage === 'en' ? 'English' : targetLanguage === 'bn' ? 'Bengali' : 'Hindi';
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -962,7 +962,7 @@ export const getTrendingTopics = async (language: "bn" | "en" | "both" | "hi" = 
       let text;
       if (provider === 'gemini') {
         const response = await ai.models.generateContent({
-          model: "gemini-2.0-flash",
+          model: "gemini-3.5-flash",
           contents: [{ role: "user", parts: [{ text: prompt }] }],
           config: {
             tools: [{ googleSearch: {} }],
@@ -1051,7 +1051,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
   
   try {
     const model = ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -1154,7 +1154,7 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 
   try {
     const model = ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,

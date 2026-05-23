@@ -494,9 +494,9 @@ function App() {
           modelIndex: number = 0,
         ) => {
           const models = [
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-8b",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-3.1-pro-preview",
           ];
           const currentModel = models[modelIndex] || models[0];
 
@@ -2344,7 +2344,7 @@ document.getElementById('btn-open').addEventListener('click', async () => {
 });
 
 async function callGemini(prompt, retryCount = 0, modelIndex = 0) {
-  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"];
+  const models = ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.1-pro-preview"];
   const currentModel = models[modelIndex] || models[0];
 
   if (!API_KEY) {

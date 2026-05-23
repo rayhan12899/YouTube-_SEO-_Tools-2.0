@@ -49,11 +49,10 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
 
   // Backup models for fallback
   const modelsToTry = [
-    "gemini-2.0-flash", 
-    "gemini-2.0-flash-lite-preview-02-05",
-    "gemini-1.5-flash-8b", 
-    "gemini-1.5-flash", 
-    "gemini-1.5-flash-latest"
+    "gemini-3.1-flash-tts-preview",
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-live-preview",
+    "gemini-2.0-flash-exp"
   ];
 
   for (let i = 0; i <= maxRetries; i++) {
@@ -96,9 +95,9 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
           continue; // Try next model in modelsToTry
         }
         
-        // If it's a 404 (model not found), also try next model
-        if (errorMsg.includes('404') || error?.status === 404) {
-          console.warn(`VoiceOver model ${modelName} not found. Trying next...`);
+        // If it's a 404 (model not found) or 400 (modality not supported), also try next model
+        if (errorMsg.includes('404') || error?.status === 404 || errorMsg.includes('400') || error?.status === 400) {
+          console.warn(`VoiceOver model ${modelName} not found or doesn't support audio. Trying next...`);
           continue;
         }
 
@@ -122,18 +121,16 @@ export const handleGenerateContent = async (model: string, prompt: any, config?:
   let lastError: any;
 
   // Cleanup model name to avoid 404s on deprecated models
-  let activeModel = model || "gemini-2.0-flash";
-  if (activeModel.includes("3-flash")) {
-    activeModel = "gemini-2.0-flash";
+  let activeModel = model || "gemini-3.5-flash";
+  if (activeModel.includes("1.5") || activeModel.includes("2.0") || activeModel === "gemini-pro") {
+    activeModel = "gemini-3.5-flash";
   }
 
   // Backup models to try if 429 or 404 occurs
   const fallbackModels = [
-    "gemini-2.0-flash-lite-preview-02-05", // Fast and usually higher limits
-    "gemini-1.5-flash-8b", 
-    "gemini-1.5-flash", 
-    "gemini-1.5-flash-latest",
-    "gemini-2.0-flash"
+    "gemini-3.1-flash-lite", 
+    "gemini-3.1-pro-preview",
+    "gemini-3.5-flash"
   ];
   let modelIndex = -1;
 
@@ -155,7 +152,7 @@ export const handleGenerateContent = async (model: string, prompt: any, config?:
                           error?.status === 429;
       
       // If we hit quota on the current model, try a fallback model if available
-      if (isQuotaError || errorMsg.includes('404') || error?.status === 404) {
+      if (isQuotaError || errorMsg.includes('404') || error?.status === 404 || errorMsg.includes('400') || error?.status === 400) {
         const suggestedDelay = parseRetryDelay(error);
         const isLimitZero = errorMsg.includes('limit: 0');
         
