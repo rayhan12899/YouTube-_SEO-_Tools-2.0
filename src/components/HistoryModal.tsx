@@ -128,12 +128,35 @@ function HistoryModal({
                               {item.type}
                             </span>
                             <span className="text-[10px] text-white/30 font-bold">
-                              {format(item.timestamp, 'MMM dd, HH:mm:ss')}
+                              {format(new Date(item.timestamp), 'MMM dd, HH:mm:ss')}
                             </span>
                           </div>
                           <h3 className="text-sm font-bold text-white line-clamp-2 leading-relaxed uppercase tracking-tight">
                             {item.topic}
                           </h3>
+                          
+                          {/* Progress Bar */}
+                          <div className="space-y-2 pt-2">
+                             <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest text-hw-muted">
+                               <span className="flex items-center gap-1.5">
+                                 <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", (item.progress || 100) === 100 ? "bg-hw-accent shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-yellow-500")} />
+                                 {(item.progress || 100) === 100 ? "Neural Synthesis Complete" : "Processing Stream"}
+                               </span>
+                               <span className="text-hw-accent">{item.progress || 100}%</span>
+                             </div>
+                             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                               <motion.div 
+                                 initial={{ width: 0 }}
+                                 animate={{ width: `${item.progress || 100}%` }}
+                                 className={cn(
+                                   "h-full transition-all duration-1000",
+                                   (item.progress || 100) === 100 
+                                     ? "bg-gradient-to-r from-hw-accent via-[#4ADE80] to-hw-accent bg-[length:200%_100%] animate-gradient-x" 
+                                     : "bg-gradient-to-r from-yellow-500 to-orange-500"
+                                 )}
+                               />
+                             </div>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button 

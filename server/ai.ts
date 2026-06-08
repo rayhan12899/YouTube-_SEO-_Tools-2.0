@@ -49,10 +49,10 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
 
   // Backup models for fallback
   const modelsToTry = [
-    "gemini-3.1-flash-tts-preview",
-    "gemini-3.5-flash",
-    "gemini-3.1-flash-live-preview",
-    "gemini-2.0-flash-exp"
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b"
   ];
 
   for (let i = 0; i <= maxRetries; i++) {
@@ -62,7 +62,7 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
           model: modelName, 
           contents: [{ parts: [{ text }] }],
           config: {
-            responseModalities: [Modality.AUDIO],
+            responseModalities: ["audio"],
             speechConfig: {
               voiceConfig: {
                 prebuiltVoiceConfig: { voiceName: actualVoiceName },
@@ -121,16 +121,15 @@ export const handleGenerateContent = async (model: string, prompt: any, config?:
   let lastError: any;
 
   // Cleanup model name to avoid 404s on deprecated models
-  let activeModel = model || "gemini-3.5-flash";
-  if (activeModel.includes("1.5") || activeModel.includes("2.0") || activeModel === "gemini-pro") {
-    activeModel = "gemini-3.5-flash";
+  let activeModel = model || "gemini-1.5-flash";
+  if (activeModel.includes("3.")) {
+    activeModel = "gemini-2.0-flash";
   }
 
   // Backup models to try if 429 or 404 occurs
   const fallbackModels = [
-    "gemini-3.1-flash-lite", 
-    "gemini-3.1-pro-preview",
-    "gemini-3.5-flash"
+    "gemini-2.0-flash-lite", 
+    "gemini-1.5-flash"
   ];
   let modelIndex = -1;
 

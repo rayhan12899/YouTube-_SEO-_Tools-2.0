@@ -157,6 +157,7 @@ interface HistoryItem {
   timestamp: number;
   topic: string;
   result: any;
+  progress?: number;
   type:
     | "image-to-prompt"
     | "idea"
@@ -201,6 +202,8 @@ const ITEM_VARIANTS = {
   show: { opacity: 1, x: 0 },
 };
 
+const DAILY_GENERATION_LIMIT = 10;
+
 // Inline useDebounce
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -220,6 +223,37 @@ function App() {
     const saved = localStorage.getItem("uiLang");
     return saved === "en" || saved === "bn" ? saved : "en";
   });
+
+  const [generationCount, setGenerationCount] = useState(() => {
+    const saved = localStorage.getItem("gen_count");
+    const lastDate = localStorage.getItem("gen_last_date");
+    const today = new Date().toDateString();
+
+    if (lastDate !== today) {
+      localStorage.setItem("gen_count", "0");
+      localStorage.setItem("gen_last_date", today);
+      return 0;
+    }
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  useEffect(() => {
+    const checkReset = () => {
+      const lastDate = localStorage.getItem("gen_last_date");
+      const today = new Date().toDateString();
+      if (lastDate !== today) {
+        setGenerationCount(0);
+        localStorage.setItem("gen_count", "0");
+        localStorage.setItem("gen_last_date", today);
+      }
+    };
+    const timer = setInterval(checkReset, 60000); // Check every minute
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("gen_count", generationCount.toString());
+  }, [generationCount]);
 
   // Collaboration State
   const [roomId, setRoomId] = useState<string>("");
@@ -494,9 +528,9 @@ function App() {
           modelIndex: number = 0,
         ) => {
           const models = [
-            "gemini-3.5-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-3.1-pro-preview",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
           ];
           const currentModel = models[modelIndex] || models[0];
 
@@ -580,7 +614,7 @@ function App() {
           deepseek: "deepseek-chat",
           perplexity: "llama-3.1-sonar-large-128k-online",
           gemma: "google/gemma-4-31B-it",
-          openrouter: "google/gemini-2.5-flash",
+          openrouter: "google/gemini-2.0-flash",
         };
 
         const client = new OpenAI({
@@ -932,6 +966,7 @@ function App() {
       topic,
       result,
       type,
+      progress: 100,
     };
     const updatedHistory = [newItem, ...history].slice(0, 20);
     setHistory(updatedHistory);
@@ -983,6 +1018,14 @@ function App() {
   };
 
   const handleGenerate = async () => {
+    if (generationCount >= DAILY_GENERATION_LIMIT) {
+      toast.error(t.dailyLimitReached, {
+        duration: 5000,
+        position: "top-center",
+      });
+      return;
+    }
+
     setRelatedIdeas([]);
 
     let activeView = currentView;
@@ -1550,6 +1593,7 @@ Return the result as a JSON object with a key 'prompts' which is an array of str
         );
         setRelatedIdeas(ideasRes.ideas || []);
       }
+      setGenerationCount((prev) => prev + 1);
     } catch (error: any) {
       console.error(error);
       if (error?.message === "QUOTA_EXHAUSTED_LIMIT_0") {
@@ -2344,7 +2388,7 @@ document.getElementById('btn-open').addEventListener('click', async () => {
 });
 
 async function callGemini(prompt, retryCount = 0, modelIndex = 0) {
-  const models = ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.1-pro-preview"];
+  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
   const currentModel = models[modelIndex] || models[0];
 
   if (!API_KEY) {
@@ -4840,6 +4884,22 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                               )}
                             </div>
                           </motion.button>
+                          
+                          <div className="mt-4 flex items-center justify-center gap-3">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/10 rounded-full backdrop-blur-sm">
+                              <Activity size={14} className="text-hw-accent animate-pulse" />
+                              <span className="text-[11px] font-black uppercase tracking-widest text-hw-muted">
+                                {t.generationsLeft}
+                                <span className={cn(
+                                  "ml-1",
+                                  DAILY_GENERATION_LIMIT - generationCount <= 2 ? "text-red-500 font-bold" : "text-white"
+                                )}>
+                                  {DAILY_GENERATION_LIMIT - generationCount}
+                                </span>
+                                / {DAILY_GENERATION_LIMIT}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="lg:col-span-12 xl:col-span-12 w-full max-w-7xl mx-auto pt-20 border-t border-white/5 space-y-12 pb-32">

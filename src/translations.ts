@@ -195,6 +195,8 @@ export const translations = {
       "Crafting AI prompts...",
       "Finalizing your content..."
     ],
+    dailyLimitReached: "Daily generation limit reached. You can generate up to 10 contents per day. Please try again tomorrow.",
+    generationsLeft: "Generations left today: ",
   },
   bn: {
     title: "YouTube Creator Studio",
@@ -387,5 +389,7 @@ export const translations = {
       "এআই প্রম্পট তৈরি করা হচ্ছে...",
       "আপনার কন্টেন্ট চূড়ান্ত করা হচ্ছে..."
     ],
+    dailyLimitReached: "দৈনিক জেনারেশন সীমা অতিক্রম করেছেন। আপনি দিনে ১০টি কন্টেন্ট জেনারেট করতে পারবেন। অনুগ্রহ করে আগামীকাল চেষ্টা করুন।",
+    generationsLeft: "আজকে বাকি জেনারেশন: ",
   }
 };
