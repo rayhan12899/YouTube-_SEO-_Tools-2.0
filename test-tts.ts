@@ -3,7 +3,7 @@ async function run() {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
+      model: "gemini-1.5-flash",
       contents: [{ parts: [{ text: "Hello" }] }],
       config: {
         responseModalities: ["AUDIO"],

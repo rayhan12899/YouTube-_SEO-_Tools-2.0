@@ -128,7 +128,14 @@ function HistoryModal({
                               {item.type}
                             </span>
                             <span className="text-[10px] text-white/30 font-bold">
-                              {format(new Date(item.timestamp), 'MMM dd, HH:mm:ss')}
+                              {(() => {
+                                try {
+                                  const date = new Date(item.timestamp);
+                                  return isNaN(date.getTime()) ? "Unknown Date" : format(date, 'MMM dd, HH:mm:ss');
+                                } catch (e) {
+                                  return "Unknown Date";
+                                }
+                              })()}
                             </span>
                           </div>
                           <h3 className="text-sm font-bold text-white line-clamp-2 leading-relaxed uppercase tracking-tight">

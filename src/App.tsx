@@ -1018,7 +1018,7 @@ function App() {
   };
 
   const handleGenerate = async () => {
-    if (generationCount >= DAILY_GENERATION_LIMIT) {
+    if (generationCount >= DAILY_GENERATION_LIMIT && !customGeminiKey) {
       toast.error(t.dailyLimitReached, {
         duration: 5000,
         position: "top-center",
@@ -2574,7 +2574,7 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
     <div
       className={cn(
         "min-h-screen studio-shell bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-hw-accent/30 selection:text-white",
-        theme,
+        theme === "scifi" ? "theme-scifi" : theme === "light" ? "theme-light" : "theme-dark",
       )}
     >
       <Toaster
@@ -4820,12 +4820,12 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 animate={{ width: "100%" }}
                               >
                                 <motion.div
-                                  className="h-full bg-white shadow-[0_0_15px_white]"
+                                  className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
                                   animate={{ width: `${loadingProgress}%` }}
                                   transition={{
                                     type: "spring",
-                                    stiffness: 40,
-                                    damping: 10,
+                                    stiffness: 30,
+                                    damping: 14,
                                   }}
                                 />
                               </motion.div>
@@ -4838,15 +4838,26 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                     className="animate-spin text-black"
                                     size={24}
                                   />
-                                  <div className="flex flex-col items-start leading-none">
+                                  <div className="flex flex-col items-start leading-none h-10 justify-center">
                                     <span className="text-sm font-black tracking-widest uppercase opacity-60 italic">
                                       {t.processing}
                                     </span>
-                                    <span className="text-[10px] font-black tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                                      {loadingStatus ||
-                                        t.loadingSteps[loadingStep] ||
-                                        ""}
-                                    </span>
+                                    <div className="relative h-4 w-48 overflow-hidden">
+                                      <AnimatePresence mode="wait">
+                                        <motion.span
+                                          key={loadingStatus || loadingStep}
+                                          initial={{ opacity: 0, y: 4 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          exit={{ opacity: 0, y: -4 }}
+                                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                                          className="absolute left-0 text-[10px] font-black tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis w-full text-left"
+                                        >
+                                          {loadingStatus ||
+                                            t.loadingSteps[loadingStep] ||
+                                            ""}
+                                        </motion.span>
+                                      </AnimatePresence>
+                                    </div>
                                   </div>
                                 </>
                               ) : (
@@ -4892,11 +4903,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                 {t.generationsLeft}
                                 <span className={cn(
                                   "ml-1",
-                                  DAILY_GENERATION_LIMIT - generationCount <= 2 ? "text-red-500 font-bold" : "text-white"
+                                  DAILY_GENERATION_LIMIT - generationCount <= 2 && !customGeminiKey ? "text-red-500 font-bold" : "text-white"
                                 )}>
-                                  {DAILY_GENERATION_LIMIT - generationCount}
+                                  {customGeminiKey ? "∞" : DAILY_GENERATION_LIMIT - generationCount}
                                 </span>
-                                / {DAILY_GENERATION_LIMIT}
+                                {!customGeminiKey && ` / ${DAILY_GENERATION_LIMIT}`}
                               </span>
                             </div>
                           </div>
@@ -5099,20 +5110,35 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                   <div className="w-full max-w-sm space-y-8 z-10">
                                     <div className="space-y-3">
                                       <div className="flex justify-between items-end px-1">
-                                        <div className="hw-label text-hw-accent text-[10px] h-12 flex items-center">
-                                          <TypewriterText
-                                            text={
-                                              loadingStatus ||
-                                              t.loadingSteps[loadingStep] ||
-                                              t.processing
-                                            }
-                                            key={loadingStatus || loadingStep}
-                                            className="font-black italic uppercase tracking-widest leading-relaxed line-clamp-2"
-                                          />
+                                        <div className="hw-label text-hw-accent text-[10px] h-12 flex items-center overflow-hidden relative">
+                                          <AnimatePresence mode="wait">
+                                            <motion.div
+                                              key={loadingStatus || loadingStep}
+                                              initial={{ opacity: 0, y: 8, filter: "blur(2px)" }}
+                                              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                              exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
+                                              transition={{ duration: 0.25, ease: "easeInOut" }}
+                                              className="w-full"
+                                            >
+                                              <TypewriterText
+                                                text={
+                                                  loadingStatus ||
+                                                  t.loadingSteps[loadingStep] ||
+                                                  t.processing
+                                                }
+                                                className="font-black italic uppercase tracking-widest leading-relaxed line-clamp-2"
+                                              />
+                                            </motion.div>
+                                          </AnimatePresence>
                                         </div>
-                                        <span className="hw-display p-1 px-2 text-[10px] leading-none shrink-0">
+                                        <motion.span 
+                                          className="hw-display p-1 px-2 text-[10px] leading-none shrink-0"
+                                          animate={{ scale: [1, 1.05, 1] }}
+                                          transition={{ duration: 0.3 }}
+                                          key={Math.round(loadingProgress)}
+                                        >
                                           {Math.round(loadingProgress)}%
-                                        </span>
+                                        </motion.span>
                                       </div>
                                       <div className="h-3 w-full bg-black/80 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
                                         <motion.div
@@ -5123,8 +5149,11 @@ document.getElementById('btn-ideas').addEventListener('click', async () => {
                                           }}
                                           transition={{
                                             type: "spring",
-                                            stiffness: 45,
-                                            damping: 12,
+                                            stiffness: 30,
+                                            damping: 14,
+                                          }}
+                                          style={{
+                                            boxShadow: "0 0 10px var(--hw-accent)",
                                           }}
                                         >
                                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shine_1.5s_linear_infinite]" />

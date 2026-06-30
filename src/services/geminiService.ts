@@ -1052,7 +1052,7 @@ export const generatePromptsFromVideo = async (base64Video: string, mimeType: st
   
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-1.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
@@ -1155,7 +1155,7 @@ export const generateYoutubeTitles = async (topic: string, language: "bn" | "en"
 
   try {
     const model = ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-1.5-flash",
       config: {
         responseMimeType: "application/json",
         maxOutputTokens: 8192,
