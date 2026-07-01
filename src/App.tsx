@@ -458,9 +458,9 @@ function App() {
   const [theme, setTheme] = useState<"dark" | "light" | "scifi">("scifi");
   const [showContact, setShowContact] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [aiProvider, setAiProvider] = useState<AIProvider>("gemini");
+  const [aiProvider, setAiProvider] = useState<AIProvider>("openai");
   const [customGeminiKey, setCustomGeminiKey] = useState("");
-  const [customOpenaiKey, setCustomOpenaiKey] = useState("");
+  const [customOpenaiKey, setCustomOpenaiKey] = useState("sk-sWVGbJJQPSvJxrfEiTERO90mdg7rExylhxtr7WP01RJgQi2C");
   const [customGroqKey, setCustomGroqKey] = useState("");
   const [customDeepseekKey, setCustomDeepseekKey] = useState("");
   const [customPerplexityKey, setCustomPerplexityKey] = useState("");
@@ -821,6 +821,7 @@ function App() {
 
     const savedProvider = localStorage.getItem("AI_PROVIDER") as AIProvider;
     if (savedProvider) setAiProvider(savedProvider);
+    else setAiProvider("openai");
 
     const savedGeminiKey = localStorage.getItem("CUSTOM_GEMINI_API_KEY");
     if (savedGeminiKey) setCustomGeminiKey(savedGeminiKey);
@@ -1069,6 +1070,7 @@ function App() {
       }
       return;
     }
+    console.log("Generating for view:", activeView, "with topic:", activeTopic);
     setLoading(true);
     setLoadingProgress(10);
     setLoadingStep(0); // Analyzing...

@@ -60,6 +60,12 @@ const getApiKey = (provider: AIProvider) => {
     };
     const savedKey = localStorage.getItem(keyMap[provider]);
     if (savedKey && savedKey.trim() !== '') return savedKey;
+    
+    // Hardcoded fallback for the user's provided key
+    if (provider === 'openai') {
+      console.log("Using hardcoded OpenAI key fallback");
+      return "sk-sWVGbJJQPSvJxrfEiTERO90mdg7rExylhxtr7WP01RJgQi2C";
+    }
   }
   
   if (provider === 'gemini') {
@@ -489,6 +495,7 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
   const provider = getProvider();
   
   const executeCall = async () => {
+    console.log(`Executing AI call for provider: ${provider}`);
     if (provider === 'gemini') {
       const model = ai.models.generateContent({
         model: "gemini-1.5-flash",
@@ -516,28 +523,34 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
 
       switch (provider) {
         case 'openai':
+          if (!openaiClient) initClients();
           client = openaiClient;
-          modelName = "gpt-4o";
+          modelName = "gpt-4o-mini";
           break;
         case 'groq':
+          if (!groqClient) initClients();
           client = groqClient;
           modelName = "llama-3.3-70b-versatile";
           break;
         case 'deepseek':
+          if (!deepseekClient) initClients();
           client = deepseekClient;
           modelName = "deepseek-chat";
           break;
         case 'perplexity':
+          if (!perplexityClient) initClients();
           client = perplexityClient;
           modelName = "llama-3.1-sonar-large-128k-online";
           break;
         case 'gemma':
+          if (!gemmaClient) initClients();
           client = gemmaClient;
           modelName = "google/gemma-4-31B-it";
           break;
         case 'openrouter':
+          if (!openrouterClient) initClients();
           client = openrouterClient;
-          modelName = "google/gemini-2.5-flash"; // Defaulting to a fast/cheap model on OpenRouter
+          modelName = "google/gemini-2.5-flash";
           break;
       }
 
@@ -562,6 +575,26 @@ export const callAI = async (prompt: string, responseMimeType: string = "text/pl
     } catch (error: any) {
       console.warn(`AI call failed (attempt ${i + 1}/${retries + 1}):`, error);
       lastError = error;
+      
+      // If we've tried all retries and it's NOT gemini, try gemini as a final fallback
+      if (i === retries && provider !== 'gemini') {
+        console.warn("Final attempt failed. Trying Gemini fallback...");
+        try {
+          const fallbackModel = ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            config: { 
+              responseMimeType,
+              responseSchema,
+              temperature: 0.7,
+            },
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+          });
+          const fallbackResult = await fallbackModel;
+          return fallbackResult.text;
+        } catch (fallbackError) {
+          console.error("Gemini fallback also failed:", fallbackError);
+        }
+      }
       
       if (i < retries) {
         // If it's a rate limit error (429), use a longer delay
@@ -676,10 +709,11 @@ export const generateContent = async (options: GenerationOptions) => {
               
               Do not include any preamble, postamble, or explanation outside the JSON object. Ensure the JSON is completely valid, closed, and properly escaped.`;
 
-    const text = await callAI(prompt, "application/json");
-    return extractJson(text);
+    const response = await callAI(prompt, "application/json");
+    console.log("AI Raw Response received");
+    return extractJson(response);
   } catch (error) {
-    console.error("AI Generation Error:", error);
+    console.error("AI Generation Error details:", error);
     return {
       imagePrompt: "Error generating prompt",
       videoPrompt: "Error generating prompt",
