@@ -32,7 +32,7 @@ const parseRetryDelay = (error: any): number => {
   return 0;
 };
 
-export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') => {
+export const handleVoiceOver = async (text: string, voiceName: string = 'Kore', customKey?: string) => {
   // Map custom voice names to prebuilt ones
   const voiceMap: Record<string, string> = {
     'Mila': 'Zephyr',
@@ -47,10 +47,18 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
   const maxRetries = 5;
   let lastError: any;
 
+  // Use custom key if provided
+  const apiKey = (customKey && customKey.trim()) || process.env.GEMINI_API_KEY || "";
+  const genAI = new GoogleGenAI({ 
+    apiKey,
+    httpOptions: {
+      headers: { 'User-Agent': 'aistudio-build' }
+    }
+  });
+
   // Backup models for fallback
   const modelsToTry = [
     "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
     "gemini-1.5-flash",
     "gemini-1.5-flash-8b"
   ];
@@ -58,7 +66,8 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
   for (let i = 0; i <= maxRetries; i++) {
     for (const modelName of modelsToTry) {
       try {
-        const response = await ai.models.generateContent({
+        console.log(`Executing VoiceOver with ${modelName} (custom key: ${!!customKey})`);
+        const response = await genAI.models.generateContent({
           model: modelName, 
           contents: [{ parts: [{ text }] }],
           config: {
@@ -116,9 +125,18 @@ export const handleVoiceOver = async (text: string, voiceName: string = 'Kore') 
   throw lastError;
 };
 
-export const handleGenerateContent = async (model: string, prompt: any, config?: any) => {
+export const handleGenerateContent = async (model: string, prompt: any, config?: any, customKey?: string) => {
   const maxRetries = 5;
   let lastError: any;
+
+  // Use custom key if provided, else use environment key
+  const apiKey = (customKey && customKey.trim()) || process.env.GEMINI_API_KEY || "";
+  const genAI = new GoogleGenAI({ 
+    apiKey,
+    httpOptions: {
+      headers: { 'User-Agent': 'aistudio-build' }
+    }
+  });
 
   // Cleanup model name to avoid 404s on deprecated models
   let activeModel = model || "gemini-1.5-flash";
@@ -128,8 +146,9 @@ export const handleGenerateContent = async (model: string, prompt: any, config?:
 
   // Backup models to try if 429 or 404 occurs
   const fallbackModels = [
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
     "gemini-2.0-flash-lite", 
-    "gemini-1.5-flash"
   ];
   let modelIndex = -1;
 
@@ -137,7 +156,8 @@ export const handleGenerateContent = async (model: string, prompt: any, config?:
     const currentModel = modelIndex === -1 ? activeModel : fallbackModels[modelIndex];
     
     try {
-      const response = await ai.models.generateContent({
+      console.log(`Generating content with model: ${currentModel} (using custom key: ${!!customKey})`);
+      const response = await genAI.models.generateContent({
         model: currentModel,
         contents: prompt,
         config: config,

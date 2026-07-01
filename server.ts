@@ -47,8 +47,9 @@ async function startServer() {
   app.post("/api/ai/voiceover", async (req, res) => {
     try {
       const { text, voiceName } = req.body;
+      const customKey = req.headers["x-gemini-key"] as string;
       const { handleVoiceOver } = await import("./server/ai");
-      const base64Audio = await handleVoiceOver(text, voiceName);
+      const base64Audio = await handleVoiceOver(text, voiceName, customKey);
       res.json({ data: base64Audio });
     } catch (error) {
       res.status(500).json({ error: String(error) });
@@ -58,8 +59,9 @@ async function startServer() {
   app.post("/api/ai/generate", async (req, res) => {
     try {
       const { model, prompt, config } = req.body;
+      const customKey = req.headers["x-gemini-key"] as string;
       const { handleGenerateContent } = await import("./server/ai");
-      const text = await handleGenerateContent(model, prompt, config);
+      const text = await handleGenerateContent(model, prompt, config, customKey);
       res.json({ text });
     } catch (error) {
       res.status(500).json({ error: String(error) });

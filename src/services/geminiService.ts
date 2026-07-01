@@ -4,10 +4,15 @@ const callServerAI = async (model: string, contents: any, config?: any) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
 
+  const geminiKey = getApiKey('gemini');
+
   try {
     const response = await fetch("/api/ai/generate", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Gemini-Key": geminiKey || "" 
+      },
       body: JSON.stringify({ model, prompt: contents, config }),
       signal: controller.signal
     });

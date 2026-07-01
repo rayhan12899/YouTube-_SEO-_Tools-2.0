@@ -528,78 +528,65 @@ function App() {
           modelIndex: number = 0,
         ) => {
           const models = [
-            "gemini-2.0-flash",
             "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
             "gemini-1.5-pro",
+            "gemini-2.0-flash",
           ];
           const currentModel = models[modelIndex] || models[0];
 
           try {
+            console.log(`Testing Gemini with model: ${currentModel}`);
             const response = await ai.models.generateContent({
               model: currentModel,
+              contents: [{ role: "user", parts: [{ text: "Hello, are you online? Respond with just 'yes'." }] }],
               config: {
-                safetySettings: [
-                  {
-                    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                  },
-                  {
-                    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                  },
-                  {
-                    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                  },
-                  {
-                    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                  },
-                ],
-              },
-              contents: "hi",
+                maxOutputTokens: 10,
+                temperature: 0.1,
+              }
             });
-            if (response.text) {
-              setConnectionStatus((prev) => ({
-                ...prev,
-                [provider]: "connected",
-              }));
-              toast.success(
-                uiLang === "en"
-                  ? `Gemini Connected Successfully!`
-                  : `জেমিনি সফলভাবে কানেক্ট হয়েছে!`,
-              );
+
+            if (response && response.text) {
+              return true;
             }
+            throw new Error("No response text");
           } catch (error: any) {
-            const errorMsg = error?.message || JSON.stringify(error) || "";
-            const isQuotaOrHighDemand =
-              errorMsg.includes("429") ||
-              errorMsg.includes("RESOURCE_EXHAUSTED") ||
-              errorMsg.includes("high demand") ||
-              error?.status === 429;
-
-            if (isQuotaOrHighDemand) {
-              if (modelIndex < models.length - 1) {
-                console.warn(
-                  `Connection test fallback: ${currentModel} failed, trying ${models[modelIndex + 1]}...`,
-                );
-                return testConnectionWithRetry(0, modelIndex + 1);
-              }
-
-              if (retry < 2) {
-                const delay = 5000 * (retry + 1);
-                console.warn(
-                  `Connection test quota hit for all models. Retrying in ${delay}ms...`,
-                );
-                await new Promise((r) => setTimeout(r, delay));
-                return testConnectionWithRetry(retry + 1, 0);
-              }
+            console.error(`Gemini test failed with model ${currentModel}:`, error);
+            if (modelIndex < models.length - 1) {
+              return testConnectionWithRetry(retry, modelIndex + 1);
             }
             throw error;
           }
         };
 
         await testConnectionWithRetry();
+        setConnectionStatus((prev) => ({
+          ...prev,
+          [provider]: "connected",
+        }));
+        toast.success(
+          uiLang === "en"
+            ? `Gemini Connected Successfully!`
+            : `জেমিনি সফলভাবে কানেক্ট হয়েছে!`,
+        );
+      } else if (provider === "openai") {
+        const ai = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
+        const response = await ai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: "hi" }],
+          max_tokens: 5,
+        });
+        if (response.choices[0].message.content) {
+          setConnectionStatus((prev) => ({
+            ...prev,
+            [provider]: "connected",
+          }));
+          toast.success(
+            uiLang === "en"
+              ? `OpenAI Connected Successfully!`
+              : `ওপেনএআই সফলভাবে কানেক্ট হয়েছে!`,
+          );
+        }
       } else {
         const baseURLs: Record<string, string | undefined> = {
           groq: "https://api.groq.com/openai/v1",
